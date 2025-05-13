@@ -1,0 +1,6 @@
+@ProgChess.Server_HostAddress = http://localhost:5041
+
+GET {{ProgChess.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

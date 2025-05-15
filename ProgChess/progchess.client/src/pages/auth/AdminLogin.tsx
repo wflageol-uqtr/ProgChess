@@ -16,6 +16,8 @@ import { Button } from "../../components/ui/button";
 import Flash from "../../components/flash/Flash";
 import { useState, useTransition } from "react";
 import { call } from "../../actions/auth";
+import { useNavigate } from "react-router";
+import axios from "axios";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
@@ -25,6 +27,7 @@ const formSchema = z.object({
 function AdminLogin() {
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,23 +40,18 @@ function AdminLogin() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // TODO: Securite ?
     startTransition(async () => {
-      const result = await call(() =>
-        fetch("http://localhost:5290/api/auth/login", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        })
+      const response = await call(() =>
+        axios.post("http://localhost:5290/api/auth/login", values)
       );
 
       form.reset();
 
-      if (!result.success) {
-        setError(result.error);
+      if (!response.success) {
+        setError(response.error);
       } else {
-        console.log("Login !");
+        localStorage.setItem("accessToken", response.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+        navigate("/dashboard");
       }
     });
   }

@@ -1,23 +1,23 @@
 export async function call(fn: () => Promise<Response>) {
   try {
     const response = await fn();
-    const json = await response.json();    
+        
 
-    if (!response.ok) {
+    if (response.statusText === "OK") {
       return {
-        success: false,
-        error: json.message || 'Une erreur est survenue',
+        success: true,
+        data: response.data,
       };
-    }
-
-    return {
-      success: true,
-      data: json.data ?? json,
     };
-  } catch (e) {
+
     return {
       success: false,
-      error: 'Une erreur est survenue',
+      error: "Une erreur est survenue",
+    };
+  } catch (e: any) {  
+    return {
+      success: false,
+      error: e.response.data,
     };
   }
 }

@@ -1,4 +1,4 @@
-namespace ProChess.Server.Models;
+namespace ProgChess.Server.Dto;
 
 public class UserDto
 {

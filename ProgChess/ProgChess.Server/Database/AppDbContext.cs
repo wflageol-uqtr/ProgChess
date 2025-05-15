@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProChess.Server.Entities;
 
-namespace ProChess.Server.Database;
+namespace ProgChess.Server.Database;
 
 public class AppDbContext : DbContext
 {

@@ -27,8 +27,28 @@ public class AuthController: ControllerBase
             return BadRequest("Courriel ou mot de passe est invalide");
         }
         setTokenInsideCookie(result);
-        Console.WriteLine("iciiiiii");
         return Ok(result);
+    }
+
+    [HttpPost("login-code")]
+    public IActionResult LoginCode(StudentDto request)
+    {
+        var validCodes = System.IO.File.ReadAllLines("Codes.txt");
+        
+        if (validCodes.Contains(request.Code))
+        {
+            Response.Cookies.Append("studentCookie", request.Code, new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = false,
+                Path = "/", 
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddDays(2)
+            });
+            return Ok();
+        }
+        
+        return BadRequest("Code est invalide");
     }
 
     [HttpPost("refresh-token")]
@@ -39,7 +59,6 @@ public class AuthController: ControllerBase
         {
             return Unauthorized("Refresh token invalid");
         }
-
         setTokenInsideCookie(result);
         return Ok(result);
     }
@@ -48,12 +67,6 @@ public class AuthController: ControllerBase
     [Authorize]
     public IActionResult VerifyToken()
     {
-        Console.WriteLine(HttpContext.Request.Cookies.Count);
-        foreach (var cookie in  HttpContext.Request.Cookies)
-        {
-            Console.WriteLine(cookie);
-        }
-        
         return Ok();
     }
 

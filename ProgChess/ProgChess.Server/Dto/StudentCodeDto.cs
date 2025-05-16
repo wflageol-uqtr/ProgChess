@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProgChess.Server.Dto;
 
-public class StudentDto
+public class StudentCodeDto
 {
     [Required]
     [MinLength(12)]

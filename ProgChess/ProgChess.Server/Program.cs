@@ -27,6 +27,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IExerciceService, ExerciceService>();
+builder.Services.AddScoped<ICookieService, CookieService>();
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -53,6 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = ctx =>
             {
                 ctx.Request.Cookies.TryGetValue("accessToken", out var accessToken);
+                Console.WriteLine(accessToken);
                 if (!string.IsNullOrEmpty(accessToken))
                 {
                     ctx.Token = accessToken;

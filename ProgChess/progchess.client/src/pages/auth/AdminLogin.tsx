@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AuthLayout from "../../components/AuthLayout";
+import Layout from "../../components/AuthLayout";
 import AuthCard from "../../components/card/AuthCard";
 import { useForm } from "react-hook-form";
 import {
@@ -51,13 +51,13 @@ function AdminLogin() {
       } else {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
-        navigate("/dashboard");
+        navigate("/admin/dashboard");
       }
     });
   }
 
   return (
-    <AuthLayout>
+    <Layout>
       <AuthCard>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -102,7 +102,7 @@ function AdminLogin() {
           </form>
         </Form>
       </AuthCard>
-    </AuthLayout>
+    </Layout>
   );
 }
 

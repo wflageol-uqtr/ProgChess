@@ -1,18 +1,22 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import ProtectedRoute from "../components/ProtectedRoute";
 import StudentLogin from "../pages/auth/StudentLogin";
-import { useAuth } from "../providers/AuthProvider";
 import AdminLogin from "../pages/auth/AdminLogin";
-import Dashboard from "../pages/Dashboard";
+import CreateExercice from "../pages/exercice/CreateExercice";
+import ListExercice from "../pages/exercice/ListExercice";
+import StudentCode from "../pages/student/StudentCode";
+import Exercice from "../pages/Exercice";
 
 export default function Routes() {
-  const { token } = useAuth();
-
   // route public accessble par non-authentifié
-  const routesForNotAuthenticatedOnly = [
+  const publicRoutes = [
     {
       path: "/login",
       element: <StudentLogin />,
+    },
+    {
+      path: "/exercice",
+      element: <Exercice />,
     },
     {
       path: "/admin/login",
@@ -21,27 +25,28 @@ export default function Routes() {
   ];
 
   // route accessible par admin
-  const routesForAuthenticatedOnly = [
+  const privateRoutes = [
     {
-      path: "/",
+      path: "/admin",
       element: <ProtectedRoute />,
       children: [
         {
-          path: "/dashboard",
-          element: <Dashboard />,
+          path: "exercice",
+          element: <ListExercice />,
         },
         {
-          path: "/logout",
-          element: <div>Logout</div>,
+          path: "exercice/create",
+          element: <CreateExercice />,
+        },
+        {
+          path: "student",
+          element: <StudentCode />,
         },
       ],
     },
   ];
 
-  const router = createBrowserRouter([
-    ...(!token ? routesForNotAuthenticatedOnly : []),
-    ...routesForAuthenticatedOnly,
-  ]);
+  const router = createBrowserRouter([...publicRoutes, ...privateRoutes]);
 
   return <RouterProvider router={router} />;
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useState, useTransition } from "react";
-import AuthLayout from "../../components/AuthLayout";
+import Layout from "../../components/AuthLayout";
 import AuthCard from "../../components/card/AuthCard";
 import { Button } from "../../components/ui/button";
 import {
@@ -15,6 +15,10 @@ import Flash from "../../components/flash/Flash";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/ui/input";
+import { call } from "../../actions/auth";
+import axios from "axios";
+
+import { useLocation, useNavigate } from "react-router";
 
 const formSchema = z.object({
   code: z
@@ -24,6 +28,9 @@ const formSchema = z.object({
 });
 
 function StudentLogin() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -35,12 +42,24 @@ function StudentLogin() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: Regarder fichier.txt pour voir si code est la
-    console.log(values);
+    startTransition(async () => {
+      const response = await call(() =>
+        axios.post("http://localhost:5290/api/auth/login-code", values, {
+          withCredentials: true,
+        })
+      );
+      form.reset();
+
+      if (!response.success) {
+        setError(response.error);
+      } else {
+        navigate("/exercice");
+      }
+    });
   }
 
   return (
-    <AuthLayout>
+    <Layout>
       <AuthCard>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -72,7 +91,7 @@ function StudentLogin() {
           </form>
         </Form>
       </AuthCard>
-    </AuthLayout>
+    </Layout>
   );
 }
 

@@ -1,4 +1,4 @@
-export async function call(fn: () => Promise<Response>) {
+export async function call(fn: () => Promise<any>) {
   try {
     const response = await fn();
         

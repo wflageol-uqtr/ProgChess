@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useState, useTransition } from "react";
-import Layout from "../../components/AuthLayout";
+import Layout from "../../components/layout/AuthLayout";
 import AuthCard from "../../components/card/AuthCard";
 import { Button } from "../../components/ui/button";
 import {

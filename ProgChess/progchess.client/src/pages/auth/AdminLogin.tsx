@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Layout from "../../components/AuthLayout";
+import Layout from "../../components/layout/AuthLayout";
 import AuthCard from "../../components/card/AuthCard";
 import { useForm } from "react-hook-form";
 import {

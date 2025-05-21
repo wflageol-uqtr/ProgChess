@@ -21,10 +21,10 @@ public class TokenService(IConfiguration configuration, AppDbContext context) : 
             audience: configuration.GetValue<string>("JwtSettings:Audience"),
             claims:
             [
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
             ],
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.Now.AddMinutes(15),
             signingCredentials: creds
         );
         
@@ -44,15 +44,15 @@ public class TokenService(IConfiguration configuration, AppDbContext context) : 
     {
         var refreshToken = GenerateRefreshToken();
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await context.SaveChangesAsync();
         return refreshToken;
     }
 
-    public async Task<User?> ValidateRefreshToken(int userId, string refreshToken)
+    public async Task<User?> ValidateRefreshToken(string userId, string refreshToken)
     {
         var user = await context.Users.FindAsync(userId);
-        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
         {
             return null;
         }

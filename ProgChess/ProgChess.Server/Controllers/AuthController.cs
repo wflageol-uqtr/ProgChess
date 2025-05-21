@@ -1,7 +1,11 @@
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
 
@@ -14,19 +18,20 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     [HttpPost("login")]
     public async Task<ActionResult<TokenDto>> Login(UserDto request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _authService.LoginAsync(request);
-        if (result is null)
+        if (result == null)
         {
             return BadRequest("Courriel ou mot de passe est invalide");
         }
-        _cookieService.generateHttpOnlyCookie(Response, result);
+        
         return Ok(result);
     }
 
     [HttpPost("login-code")]
-    public IActionResult LoginCode(StudentCodeDto request)
+    public async Task<IActionResult> LoginCode(StudentCodeDto request)
     {
-        var validCodes = System.IO.File.ReadAllLines("Codes.txt");
+        var validCodes = await System.IO.File.ReadAllLinesAsync("Codes.txt");
         
         if (validCodes.Contains(request.Code))
         {
@@ -45,7 +50,6 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
         {
             return Unauthorized("Refresh token invalid");
         }
-        _cookieService.generateHttpOnlyCookie(Response, result);
         return Ok(result);
     }
     

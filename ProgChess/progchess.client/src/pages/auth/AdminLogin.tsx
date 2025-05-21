@@ -49,9 +49,12 @@ function AdminLogin() {
       if (!response.success) {
         setError(response.error);
       } else {
+        console.log(response);
+
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
-        navigate("/admin/dashboard");
+        localStorage.setItem("user", response.data.userId);
+        navigate("/admin/exercice");
       }
     });
   }

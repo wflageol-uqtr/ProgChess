@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
+using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace ProgChess.Server.Services;
 

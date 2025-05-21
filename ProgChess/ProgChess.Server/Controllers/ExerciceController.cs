@@ -29,7 +29,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
         return Ok(exercice);
     }
     
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> Create(ExerciceDto request)
     {
         var result = await service.Create(request);

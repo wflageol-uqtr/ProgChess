@@ -47,9 +47,9 @@ const AuthProvider = ({ children }: any) => {
     const requestInterceptor = api.interceptors.request.use(
       (config) => {
         if (token) {
-          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          api.defaults.headers["Authorization"] = `Bearer ${token}`;
         } else {
-          delete api.defaults.headers.common["Authorization"];
+          delete api.defaults.headers["Authorization"];
         }
         return config;
       },
@@ -66,8 +66,6 @@ const AuthProvider = ({ children }: any) => {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        console.log("accessToken");
-
         if (error.response.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
@@ -88,8 +86,10 @@ const AuthProvider = ({ children }: any) => {
             ] = `Bearer ${accessToken}`;
 
             setToken(accessToken);
+
             return axios(originalRequest);
           } catch (refreshError) {
+            console.error("Token refresh failed:", refreshError);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             window.location.href = "/login";

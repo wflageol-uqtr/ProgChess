@@ -8,5 +8,5 @@ public class Exercice
     
     public string? Code { get; set; } = string.Empty;
     
-    public ICollection<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
+    public IEnumerable<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
 }

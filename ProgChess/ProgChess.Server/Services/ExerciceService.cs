@@ -13,8 +13,12 @@ public class ExerciceService(AppDbContext dbContext) : IExerciceService
         {
             Situation = request.Situation,
             Code = request.Code,
+            UnitTests = request.UnitTest.Select(ut => new UnitTest
+            {
+                Code = ut.Code,
+                IsActive = ut.IsActive,
+            }).ToList()
         });
-        
         await dbContext.SaveChangesAsync();
         return exercice.Entity;
     }

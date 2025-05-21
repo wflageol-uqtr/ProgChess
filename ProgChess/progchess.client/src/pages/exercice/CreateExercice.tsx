@@ -6,14 +6,13 @@ import { Button } from "../../components/ui/button";
 import { Trash } from "lucide-react";
 import { Checkbox } from "../../components/ui/checkbox";
 import CodeEditor from "../../components/form/input/CodeEditor";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
 } from "../../components/ui/form";
 import { api } from "../../utils/api";
 
@@ -22,29 +21,44 @@ const validationSchema = z.object({
     message: "Une mise en situation est requise !",
   }),
   code: z.string().optional(),
-  // tests: z
-  //   .array(
-  //     z.object({
-  //       isHidden: z.boolean().optional(),
-  //       code: z.string().optional(),
-  //     })
-  //   )
-  //   .nonempty({ message: "Au moins un test est requis" }),
+  unitTest: z
+    .array(
+      z.object({
+        isHidden: z.boolean().optional(),
+        code: z.string().min(1, {
+          message: "Le test est trop court",
+        }),
+      })
+    )
+    .nonempty({ message: "Au moins un test est requis" }),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
 
 export default function CreateExercice() {
+  const [situation, setSituation] = useState<string>("");
+
+  const updateSituation = (e: any) => {
+    setSituation(e.target.value);
+  };
+
   const form = useForm<formSchema>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
       situation: "",
       code: "",
-      // tests: [],
+      unitTest: [],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "unitTest",
+  });
+
   const onSubmit = (values: formSchema) => {
+    console.log(values);
+
     startTransition(async () => {
       try {
         const response = await api.post("/api/exercice/create", values);
@@ -53,13 +67,6 @@ export default function CreateExercice() {
         console.log(error);
       }
     });
-  };
-
-  const [allTests, setAllTests] = useState([{ code: "", isHidden: false }]);
-  const [situation, setSituation] = useState<string>("");
-
-  const updateSituation = (e: any) => {
-    setSituation(e.target.value);
   };
 
   return (
@@ -113,7 +120,10 @@ export default function CreateExercice() {
 
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold mb-2">Code de base</h3>
-              <Button className="border bg-gray-100 text-gray-900 cursor-pointer hover:bg-gray-200">
+              <Button
+                type="button"
+                className="border bg-gray-100 text-gray-900 cursor-pointer hover:bg-gray-200"
+              >
                 python
               </Button>
             </div>
@@ -139,22 +149,27 @@ export default function CreateExercice() {
 
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold">Tests unitaires</h3>
-              <Button className="bg-green-600 cursor-pointer hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg">
+              <Button
+                onClick={() => append({ code: "", isHidden: false })}
+                type="button"
+                className="bg-green-600 cursor-pointer hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg"
+              >
                 Ajouter un test
               </Button>
             </div>
-            {/* {allTests.length > 0 && (
+            {fields.length > 0 && (
               <div className="space-y-6">
-                {allTests.map((value, index) => (
+                {fields.map((field, index) => (
                   <div
-                    key={index}
+                    key={field.id}
                     className="bg-zinc-800 p-4 rounded-lg shadow-lg text-white"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-bold">Test {index + 1}</h3>
                       <div className="flex items-center space-x-4">
                         <Button
-                          onClick={() => handleRemoveTest(index)}
+                          type="button"
+                          onClick={() => remove(index)}
                           className="text-red-400 cursor-pointer hover:text-red-600 transition"
                           title="Delete Test"
                         >
@@ -163,7 +178,20 @@ export default function CreateExercice() {
                       </div>
                     </div>
                     <div className="items-top flex space-x-2 mb-4">
-                      <Checkbox checked={value.isHidden} />
+                      <FormField
+                        control={form.control}
+                        name={`unitTest.${index}.isHidden`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                       <div className="grid gap-1.5 leading-none">
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Cacher ce test aux étudiants
@@ -175,12 +203,36 @@ export default function CreateExercice() {
                       </div>
                     </div>
                     <div className="h-96">
-                      <CodeEditor placeholder="Implémenter le test unitaire..." />
+                      {form.formState.errors.situation && (
+                        <span className="text-red-500">
+                          {
+                            form.formState.errors.unitTest?.[index]?.code
+                              ?.message
+                          }
+                        </span>
+                      )}
+                      <FormField
+                        name={`unitTest.${index}.code`}
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem className="h-full">
+                            <FormControl>
+                              <CodeEditor
+                                value={field.value ?? ""}
+                                onChange={field.onChange}
+                                placeholder={`Code de base pour le test ${
+                                  index + 1
+                                } ...`}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
-            )} */}
+            )}
             <div className="border-b border-gray-700" />
 
             <div className="flex justify-end h-12">

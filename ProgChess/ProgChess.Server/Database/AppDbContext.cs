@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Identity;
          SeedUsers(modelBuilder);
          
          // Defining the one-to-many relationship
-         modelBuilder.Entity<Exercice>().HasMany(e => e.UnitTests).WithOne(ut => ut.Exercice).HasForeignKey(ut => ut.ExerciceId).IsRequired(false);
+         modelBuilder.Entity<Exercice>().HasMany(e => e.UnitTests).WithOne(ut => ut.Exercice).HasForeignKey(ut => ut.ExerciceId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
      }
 
      private void SeedUsers(ModelBuilder builder)

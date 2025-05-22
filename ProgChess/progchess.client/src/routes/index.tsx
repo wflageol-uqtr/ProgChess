@@ -6,6 +6,7 @@ import CreateExercice from "../pages/exercice/CreateExercice";
 import ListExercice from "../pages/exercice/ListExercice";
 import StudentCode from "../pages/student/StudentCode";
 import Exercice from "../pages/Exercice";
+import EditExercice from "../pages/exercice/EditExercice";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -37,6 +38,10 @@ export default function Routes() {
         {
           path: "exercice/create",
           element: <CreateExercice />,
+        },
+        {
+          path: "exercice/edit/:id",
+          element: <EditExercice />,
         },
         {
           path: "student",

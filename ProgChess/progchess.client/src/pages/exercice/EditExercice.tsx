@@ -1,22 +1,23 @@
 import { z } from "zod";
-import { useState, useTransition } from "react";
-import MarkdownComponent from "../../components/form/input/MarkdownComponent";
-import AdminLayout from "../../components/layout/AdminLayout";
-import { Button } from "../../components/ui/button";
-import { Trash } from "lucide-react";
-import { Checkbox } from "../../components/ui/checkbox";
-import CodeEditor from "../../components/form/input/CodeEditor";
+import { useEffect, useState, useTransition } from "react";
+import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
+import { api } from "../../utils/api";
+import type { Exercice } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AdminLayout from "../../components/layout/AdminLayout";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
 } from "../../components/ui/form";
-import { api } from "../../utils/api";
-import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import MarkdownComponent from "../../components/form/input/MarkdownComponent";
+import { Button } from "../../components/ui/button";
+import CodeEditor from "../../components/form/input/CodeEditor";
+import { Trash } from "lucide-react";
+import { Checkbox } from "../../components/ui/checkbox";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -37,13 +38,21 @@ const validationSchema = z.object({
 
 type formSchema = z.infer<typeof validationSchema>;
 
-export default function CreateExercice() {
+export default function EditExercice() {
+  const [exercice, setExercice] = useState<Exercice>();
+  const [situation, setSituation] = useState<string>("");
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
-  const [situation, setSituation] = useState<string>("");
+  const { id } = useParams();
 
-  const updateSituation = (e: any) => {
-    setSituation(e.target.value);
+  const getExercice = async () => {
+    try {
+      const response = await api.get(`/api/exercice/${id}`);
+      setExercice(response.data);
+      setSituation(exercice?.situation!);
+    } catch (error) {
+      toast("Une erreur est survenue");
+    }
   };
 
   const form = useForm<formSchema>({
@@ -55,6 +64,20 @@ export default function CreateExercice() {
     },
   });
 
+  useEffect(() => {
+    getExercice();
+  }, []);
+
+  useEffect(() => {
+    if (exercice) {
+      form.reset({
+        situation: exercice.situation,
+        code: exercice.code,
+        unitTest: exercice.unitTests,
+      });
+    }
+  }, [exercice]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "unitTest",
@@ -63,13 +86,17 @@ export default function CreateExercice() {
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
       try {
-        await api.post("/api/exercice/create", values);
-        toast("Exercice créé avec succès !");
+        await api.put(`/api/exercice/edit/${exercice?.id}`, values);
+        toast("Exercice modifié avec succès !");
         navigate("/admin/exercice");
       } catch (error) {
         toast("Une erreur est survenue");
       }
     });
+  };
+
+  const updateSituation = (e: any) => {
+    setSituation(e.target.value);
   };
 
   return (

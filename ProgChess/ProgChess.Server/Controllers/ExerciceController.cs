@@ -33,6 +33,31 @@ public class ExerciceController(IExerciceService service) : ControllerBase
     public async Task<IActionResult> Create(ExerciceDto request)
     {
         var result = await service.Create(request);
+        if (result is null)
+        {
+            return StatusCode(500);
+        }
         return Ok(result);
+    }
+
+    [HttpPut("edit/{id}")]
+    public async Task<IActionResult> Edit([FromRoute] int id, ExerciceDto request)
+    {
+        var result = await service.Edit(id, request);
+        if (result is null)
+            return BadRequest("There is no such an exercise for id: " + id);
+        return Ok();
+    }
+
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await service.Delete(id);
+        if (!success)
+        {
+            return BadRequest("L'élément n'existe pas ");
+        }
+
+        return Ok("Exercice supprimé avec succès");
     }
 }

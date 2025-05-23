@@ -8,10 +8,10 @@ namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class ExerciceController(IExerciceService service) : ControllerBase
 {
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<Exercice>>> GetExercicesAsync()
     {
         var exercices = await service.GetAllExercice();
@@ -30,6 +30,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
     }
     
     [HttpPost("create")]
+    [Authorize]
     public async Task<IActionResult> Create(ExerciceDto request)
     {
         var result = await service.Create(request);
@@ -41,6 +42,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
     }
 
     [HttpPut("edit/{id}")]
+    [Authorize]
     public async Task<IActionResult> Edit([FromRoute] int id, ExerciceDto request)
     {
         var result = await service.Edit(id, request);
@@ -50,6 +52,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await service.Delete(id);

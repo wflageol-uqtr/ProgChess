@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProChess.Server.Entities;
+using ProChess.Server.Utils;
 using ProgChess.Server.Database;
 using ProgChess.Server.Dto;
 
@@ -14,7 +15,8 @@ public class ExerciceService(AppDbContext dbContext) : IExerciceService
             var exercice = new Exercice
             {
                 Situation = request.Situation,
-                Code = request.Code,
+                BaseCode = request.BaseCode,
+                StudentCodes = Formatter.FormatCodeString(request.StudentCodes),
                 UnitTests = request.UnitTest.Select(ut => new UnitTest
                 {
                     Code = ut.Code,
@@ -63,18 +65,27 @@ public class ExerciceService(AppDbContext dbContext) : IExerciceService
     {
         try
         {
-            var exercice = await dbContext.Exercices.Where(e => e.Id == id).Include(e => e.UnitTests).FirstOrDefaultAsync();
-            
-            if (exercice == null)
-                return null;
-            
+            // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
+            var exercice = await dbContext.Exercices.Where(e => e.Id == id).Include(e => e.UnitTests).FirstAsync();
+
             dbContext.Entry(exercice).State = EntityState.Detached;
             exercice.Situation = request.Situation;
-            exercice.Code = request.Code;
-            
-            // TODO: Fixer duplication des tests on save
-            
+            exercice.BaseCode = request.BaseCode;
+            exercice.StudentCodes = Formatter.FormatCodeString(request.StudentCodes);
+            dbContext.RemoveRange(exercice.UnitTests);
             dbContext.Exercices.Update(exercice);
+            
+            var newTest = new List<UnitTest>();
+            foreach (var unitTest in request.UnitTest)
+            {
+                newTest.Add(new UnitTest
+                {
+                    Code = unitTest.Code,
+                    IsActive = unitTest.IsActive,
+                });
+            }
+                
+            exercice.UnitTests = newTest;
             await dbContext.SaveChangesAsync();
             return exercice.Id;
         }

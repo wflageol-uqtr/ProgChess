@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ProChess.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -66,7 +67,8 @@ namespace ProChess.Server.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Situation = table.Column<string>(type: "text", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false)
+                    BaseCode = table.Column<string>(type: "text", nullable: true),
+                    StudentCodes = table.Column<List<string>>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -209,14 +211,15 @@ namespace ProChess.Server.Migrations
                         column: x => x.ExerciceId,
                         principalSchema: "progchess",
                         principalTable: "Exercices",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
                 schema: "progchess",
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RefreshToken", "RefreshTokenExpiry", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "test", 0, "91b1cdd9-bc9c-4f76-afc5-ca813af58c62", "mathy@gmail.com", true, false, null, "mathy@gmail.com", "math", "AQAAAAIAAYagAAAAECBn8HfYtTqsLIYFuRGYz/nPLtKrsBciHxUFvHW7USZhWAulOQ4Hw4IqhB9p+0zJmQ==", null, false, null, null, "7920cb4a-d4c6-414e-9587-e04390a9f653", false, "math" });
+                values: new object[] { "test", 0, "fe857287-6057-4028-9d38-f2de99b83dd1", "mathy@gmail.com", true, false, null, "mathy@gmail.com", "math", "AQAAAAIAAYagAAAAEFVPIHPn6NvVyieRm2OHJ+CRxWTw7ikazgLAXFhpAfuIaUZrjy2AUDd8K8TKsb/e+A==", null, false, null, null, "8ec0744f-d827-4f9d-a0d0-e29d81d9d331", false, "math" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

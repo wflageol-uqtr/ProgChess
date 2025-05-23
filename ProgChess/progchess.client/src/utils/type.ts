@@ -10,4 +10,5 @@ export type Exercice = {
   situation: string;
   code: string;
   unitTests: UnitTest[];
+  studentCodes: string[]
 };

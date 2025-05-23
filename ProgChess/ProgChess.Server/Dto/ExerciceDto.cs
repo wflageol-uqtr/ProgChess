@@ -7,7 +7,9 @@ public class ExerciceDto
 {
     [Required]
     public required string Situation { get; set; }
-    public string? Code { get; set; }
+    public string? BaseCode { get; set; }
+    
+    public required string StudentCodes { get; set; }
     
     [Required]
     [MinLength(1)]

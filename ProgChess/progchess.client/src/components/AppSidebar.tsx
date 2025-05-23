@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 
-import { Users, SquareTerminal, LogOut } from "lucide-react"; // Make sure this import matches your icon library
+import { SquareTerminal } from "lucide-react";
 
 export default function AppSidebar() {
   const items = [
@@ -19,11 +19,6 @@ export default function AppSidebar() {
       title: "Exercice",
       url: "/admin/exercice",
       icon: SquareTerminal,
-    },
-    {
-      title: "Étudiant",
-      url: "/admin/student",
-      icon: Users,
     },
   ];
 

@@ -6,7 +6,8 @@ public class Exercice
     
     public string Situation { get; set; } = string.Empty;
     
-    public string? Code { get; set; } = string.Empty;
-    
-    public IEnumerable<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
+    public string? BaseCode { get; set; } = string.Empty;
+
+    public List<string> StudentCodes { get; set; } = new();
+    public ICollection<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
 }

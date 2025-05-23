@@ -22,7 +22,7 @@ const validationSchema = z.object({
   situation: z.string().min(1, {
     message: "Une mise en situation est requise !",
   }),
-  code: z.string().optional(),
+  baseCode: z.string().optional(),
   unitTest: z
     .array(
       z.object({
@@ -33,6 +33,9 @@ const validationSchema = z.object({
       })
     )
     .nonempty({ message: "Au moins un test est requis" }),
+  studentCodes: z.string().min(1, {
+    message: "Il doit y avoir au moins un étudiant.",
+  }),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
@@ -50,8 +53,9 @@ export default function CreateExercice() {
     resolver: zodResolver(validationSchema),
     defaultValues: {
       situation: "",
-      code: "",
+      baseCode: "",
       unitTest: [],
+      studentCodes: "",
     },
   });
 
@@ -132,7 +136,7 @@ export default function CreateExercice() {
             </div>
             <div className="h-96">
               <FormField
-                name="code"
+                name="baseCode"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem className="h-full">
@@ -236,6 +240,43 @@ export default function CreateExercice() {
                 ))}
               </div>
             )}
+            <div className="border-b border-gray-700" />
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold">Liste des étudiants</h3>
+                <p className="text-gray-400">
+                  <strong>*</strong> Veuillez mettre un code par ligne{" "}
+                  <strong>*</strong>
+                </p>
+                {form.formState.errors.studentCodes && (
+                  <span className="text-red-500">
+                    {form.formState.errors.studentCodes.message}
+                  </span>
+                )}
+              </div>
+              <div className="h-64">
+                <FormField
+                  name="studentCodes"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="h-full">
+                      <FormControl>
+                        <textarea
+                          className={`w-full h-full p-3 border  text-white rounded focus:outline-none resize-none ${
+                            form.formState.errors.studentCodes
+                              ? "border border-red-500"
+                              : "border-zinc-700 bg-zinc-800"
+                          }`}
+                          value={field.value}
+                          onChange={field.onChange}
+                        ></textarea>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
             <div className="border-b border-gray-700" />
 
             <div className="flex justify-end h-12">

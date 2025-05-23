@@ -1,15 +1,10 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { hasCookie } from "../utils/cookie";
+import CookieProvider from "../providers/CookieProvider";
+import ExerciceContent from "./ExerciceContent";
 
 export default function Exercice() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!hasCookie("studentCookie")) {
-      navigate("/login");
-    }
-  });
-
-  return <div>exercice 1</div>;
+  return (
+    <CookieProvider>
+      <ExerciceContent />
+    </CookieProvider>
+  );
 }

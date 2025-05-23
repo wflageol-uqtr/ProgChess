@@ -4,7 +4,6 @@ import StudentLogin from "../pages/auth/StudentLogin";
 import AdminLogin from "../pages/auth/AdminLogin";
 import CreateExercice from "../pages/exercice/CreateExercice";
 import ListExercice from "../pages/exercice/ListExercice";
-import StudentCode from "../pages/student/StudentCode";
 import Exercice from "../pages/Exercice";
 import EditExercice from "../pages/exercice/EditExercice";
 
@@ -16,7 +15,7 @@ export default function Routes() {
       element: <StudentLogin />,
     },
     {
-      path: "/exercice",
+      path: "/exercice/:id",
       element: <Exercice />,
     },
     {
@@ -42,10 +41,6 @@ export default function Routes() {
         {
           path: "exercice/edit/:id",
           element: <EditExercice />,
-        },
-        {
-          path: "student",
-          element: <StudentCode />,
         },
       ],
     },

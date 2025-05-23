@@ -60,4 +60,14 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
         return Ok();
     }
     
+    [HttpGet("verify-cookie")]
+    public async Task<IActionResult> VerifyCookie()
+    {
+        HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie);
+        
+        if (string.IsNullOrEmpty(studentCookie))
+            return Unauthorized();
+        
+        return Ok();
+    }
 }

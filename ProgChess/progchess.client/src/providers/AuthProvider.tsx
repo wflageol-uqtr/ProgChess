@@ -7,8 +7,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import { api } from "../utils/api";
-
+import api from "../utils/api";
 interface AuthContextType {
   token: string | null;
 }
@@ -44,24 +43,6 @@ const AuthProvider = ({ children }: any) => {
   }, []);
 
   useLayoutEffect(() => {
-    const requestInterceptor = api.interceptors.request.use(
-      (config) => {
-        if (token) {
-          api.defaults.headers["Authorization"] = `Bearer ${token}`;
-        } else {
-          delete api.defaults.headers["Authorization"];
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    return () => {
-      api.interceptors.request.eject(requestInterceptor);
-    };
-  }, []);
-
-  useLayoutEffect(() => {
     const refreshInterceptor = api.interceptors.response.use(
       (response) => response,
       async (error) => {
@@ -81,18 +62,17 @@ const AuthProvider = ({ children }: any) => {
               response.data;
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", newRefreshToken);
-            axios.defaults.headers.common[
-              "Authorization"
-            ] = `Bearer ${accessToken}`;
 
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             setToken(accessToken);
+            console.log("ici");
 
             return axios(originalRequest);
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
-            window.location.href = "/login";
+            // window.location.href = "/login";
             return Promise.reject(refreshError);
           }
         }

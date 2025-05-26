@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { api } from "../../utils/api";
+import api from "../../utils/api";
 import type { Exercice } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -78,7 +78,7 @@ export default function EditExercice() {
     if (exercice) {
       form.reset({
         situation: exercice.situation,
-        baseCode: exercice.code,
+        baseCode: exercice.baseCode,
         unitTest: exercice.unitTests,
         studentCodes: buildStudentCodeString(exercice.studentCodes),
       });

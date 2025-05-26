@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import ExerciceAction from "./ExerciceActions";
-import { api } from "../../utils/api";
+import api from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { Exercice } from "../../utils/type";

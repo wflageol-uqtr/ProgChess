@@ -14,7 +14,7 @@ import {
   FormField,
   FormItem,
 } from "../../components/ui/form";
-import { api } from "../../utils/api";
+import api from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 

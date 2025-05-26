@@ -2,7 +2,7 @@ import { Button } from "../../components/ui/button";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { api } from "../../utils/api";
+import api from "../../utils/api";
 import { DataTable } from "../../components/table/Data-table";
 import { ExerciceColumns } from "../../components/table/ExerciceColumns";
 import { toast } from "sonner";

@@ -50,8 +50,6 @@ builder.Services.AddOpenApi();
 // add Jwt Authentication
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = 
-        options.DefaultSignOutScheme = 
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
@@ -65,7 +63,8 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]!))
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]!)),
+            ClockSkew = TimeSpan.Zero
         };
 
         options.Events = new JwtBearerEvents

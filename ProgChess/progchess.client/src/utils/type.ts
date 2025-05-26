@@ -8,7 +8,7 @@ export type UnitTest = {
 export type Exercice = {
   id: number;
   situation: string;
-  code: string;
+  baseCode: string;
   unitTests: UnitTest[];
   studentCodes: string[]
 };

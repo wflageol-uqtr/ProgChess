@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import api from "../utils/api";
 import CookieProvider, { useCookie } from "../providers/CookieProvider";
@@ -9,10 +9,12 @@ import { Book, Braces, CheckCheck } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercice } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
+import TestCaseCard from "../components/card/TestCaseCard";
 
 export default function ExerciceContent() {
   const [exerice, setExercice] = useState<Exercice>();
   const [code, setCode] = useState<string>("");
+  const codeRef = useRef("");
   const navigate = useNavigate();
   const { cookie, isLoading } = useCookie() || {};
   const { id } = useParams();
@@ -23,15 +25,34 @@ export default function ExerciceContent() {
     } else {
       navigate("/login");
     }
-  }, [cookie]);
+  }, []);
+
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
 
   const getExercice = async () => {
     try {
       const response = await api.get(`/api/exercice/${id}`);
       setExercice(response.data);
+      const startedCode = localStorage.getItem("code");
+      if (startedCode) {
+        setCode(startedCode);
+      } else {
+        setCode(response.data.baseCode);
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => saveCode(), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const saveCode = () => {
+    localStorage.setItem("code", codeRef.current);
   };
 
   return (
@@ -49,7 +70,10 @@ export default function ExerciceContent() {
           <h2 className="text-2xl px-4 text-green-500 font-semibold">
             ProgChess
           </h2>
-          <div className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[50%_auto] grid-cols-[min-content_auto] max-h-9/10">
+          <div
+            className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[auto_50%]
+ grid-cols-[min-content_auto]"
+          >
             <HorizontalResizable>
               <ExerciceCard title="Situation" icon={Book} canExecute={false}>
                 <div className="overflow-auto p-4">
@@ -58,16 +82,14 @@ export default function ExerciceContent() {
               </ExerciceCard>
             </HorizontalResizable>
             <ExerciceCard title="Code" icon={Braces} canExecute={true}>
-              <CodeEditor value={exerice?.baseCode!} onChange={setCode} />
+              <CodeEditor value={code} onChange={(e) => setCode(e)} />
             </ExerciceCard>
             <VerticalResizable>
-              <ExerciceCard
-                title="Résultats"
-                icon={CheckCheck}
-                canExecute={false}
+              <TestCaseCard
+                unitTests={exerice?.unitTests!.filter((ut) => ut.isActive)!}
               >
-                <p> Resulat</p>
-              </ExerciceCard>
+                <p></p>
+              </TestCaseCard>
             </VerticalResizable>
           </div>
           <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
@@ -78,7 +100,7 @@ export default function ExerciceContent() {
             </ExerciceCard>
 
             <ExerciceCard title="Code" icon={Braces} canExecute={true}>
-              <CodeEditor value={exerice?.baseCode!} onChange={setCode} />
+              <CodeEditor value={code} onChange={(e) => setCode(e)} />
             </ExerciceCard>
 
             <ExerciceCard

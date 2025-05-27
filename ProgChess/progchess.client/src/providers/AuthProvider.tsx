@@ -65,7 +65,6 @@ const AuthProvider = ({ children }: any) => {
 
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             setToken(accessToken);
-            console.log("ici");
 
             return axios(originalRequest);
           } catch (refreshError) {

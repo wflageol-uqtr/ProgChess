@@ -2,36 +2,35 @@ import { useEffect, useRef, useState } from "react";
 
 export default function VerticalResizable({ children }: any) {
   const isResized = useRef(false);
-
-  const [height, setHeight] = useState(225);
+  const [height, setHeight] = useState(300); // default height in px
 
   useEffect(() => {
-    window.addEventListener(
-      "mousemove",
-      (e) => {
-        if (!isResized.current) {
-          return;
-        }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResized.current) return;
 
-        setHeight((previousHeight) => previousHeight + e.movementY / 2);
-      },
-      []
-    );
+      setHeight((prev) => Math.max(prev + e.movementY, 100)); // Set a min height of 100px
+    };
 
-    window.addEventListener("mouseup", () => {
+    const handleMouseUp = () => {
       isResized.current = false;
-    });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
   }, []);
 
   return (
-    <div className="col-span-2 " style={{ height: `${height / 16}rem` }}>
+    <div className="col-span-2 flex flex-col" style={{ height: `${height}px` }}>
       <div
         className="h-2 cursor-row-resize"
-        onMouseDown={() => {
-          isResized.current = true;
-        }}
-      ></div>{" "}
-      {children}
+        onMouseDown={() => (isResized.current = true)}
+      />
+      <div className="flex-grow overflow-auto">{children}</div>
     </div>
   );
 }

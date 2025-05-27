@@ -15,7 +15,7 @@ export default function ExerciceCard({
   canExecute,
 }: BoxCardProps) {
   return (
-    <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-hidden">
+    <div className="bg-zinc-800 rounded-2xl h-full w-full flex flex-col overflow-hidden">
       <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
         <div className="flex gap-2 items-center">
           <Icon className="text-green-500" />

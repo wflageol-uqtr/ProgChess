@@ -5,11 +5,13 @@ import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciceCard from "../components/card/ExerciceCard";
-import { Book, Braces, CheckCheck } from "lucide-react";
+import { Book, Braces, CheckCheck, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercice } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
+import { Button } from "../components/ui/button";
+import { toast } from "sonner";
 
 export default function ExerciceContent() {
   const [exerice, setExercice] = useState<Exercice>();
@@ -67,9 +69,22 @@ export default function ExerciceContent() {
         </div>
       ) : (
         <div className="min-h-screen bg-zinc-900">
-          <h2 className="text-2xl px-4 text-green-500 font-semibold">
-            ProgChess
-          </h2>
+          <div className="flex py-2 px-4 items-center justify-between">
+            <h2 className="text-2xl  text-green-500 font-semibold">
+              ProgChess
+            </h2>
+            <Button
+              className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
+              type="button"
+              onClick={() => {
+                saveCode();
+                toast.success("Exercice mis à jour");
+              }}
+            >
+              <MonitorDown />
+              Sauvegarder
+            </Button>
+          </div>
           <div
             className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[auto_50%]
  grid-cols-[min-content_auto]"

@@ -48,10 +48,12 @@ export const ExerciceColumns: ColumnDef<Exercice>[] = [
           const response = await api.delete(
             `/api/exercice/delete/${row.getValue("id")}`
           );
-          toast(response.data);
+          toast.success(response.data, {
+            className: "bg-green-100",
+          });
           navigate(0);
         } catch (error) {
-          toast("Une erreur est survenue.");
+          toast.error("Une erreur est survenue.");
         }
       };
 

@@ -68,10 +68,10 @@ export default function CreateExercice() {
     startTransition(async () => {
       try {
         await api.post("/api/exercice/create", values);
-        toast("Exercice créé avec succès !");
+        toast.success("Exercice créé avec succès !");
         navigate("/admin/exercice");
       } catch (error) {
-        toast("Une erreur est survenue");
+        toast.error("Une erreur est survenue");
       }
     });
   };

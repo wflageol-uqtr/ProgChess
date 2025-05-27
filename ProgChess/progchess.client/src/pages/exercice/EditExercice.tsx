@@ -54,9 +54,9 @@ export default function EditExercice() {
       console.log(response);
 
       setExercice(response.data);
-      setSituation(exercice?.situation!);
+      setSituation(response.data.situation!);
     } catch (error) {
-      toast("Une erreur est survenue");
+      toast.error("Une erreur est survenue");
     }
   };
 
@@ -94,10 +94,10 @@ export default function EditExercice() {
     startTransition(async () => {
       try {
         await api.put(`/api/exercice/edit/${exercice?.id}`, values);
-        toast("Exercice modifié avec succès !");
+        toast.success("Exercice modifié avec succès !");
         navigate("/admin/exercice");
       } catch (error) {
-        toast("Une erreur est survenue");
+        toast.error("Une erreur est survenue");
       }
     });
   };
@@ -114,7 +114,9 @@ export default function EditExercice() {
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
         <div className="flex flex-col w-full">
-          <h2 className="text-3xl font-bold text-white">Ajouter un exercice</h2>
+          <h2 className="text-3xl font-bold text-white">
+            Modifier un exercice
+          </h2>
         </div>
         <div className="border-b border-gray-700" />
         <Form {...form}>

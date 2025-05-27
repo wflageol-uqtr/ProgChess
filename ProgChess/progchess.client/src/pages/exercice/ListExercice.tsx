@@ -15,7 +15,7 @@ export default function ListExercice() {
       const response = await api.get("/api/exercice");
       setExercice(response.data);
     } catch (error) {
-      toast("Une erreur est survenue");
+      toast.error("Une erreur est survenue");
     }
   };
 

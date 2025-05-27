@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using ProChess.Server.Authorization;
 using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -61,13 +62,9 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     }
     
     [HttpGet("verify-cookie")]
+    [ValidCodeCookie]
     public async Task<IActionResult> VerifyCookie()
     {
-        HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie);
-        
-        if (string.IsNullOrEmpty(studentCookie))
-            return Unauthorized();
-        
         return Ok();
     }
 }

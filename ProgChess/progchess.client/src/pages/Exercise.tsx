@@ -1,10 +1,10 @@
 import CookieProvider from "../providers/CookieProvider";
-import ExerciceContent from "./ExerciceContent";
+import ExerciseContent from "./ExerciseContent";
 
 export default function Exercice() {
   return (
     <CookieProvider>
-      <ExerciceContent />
+      <ExerciseContent />
     </CookieProvider>
   );
 }

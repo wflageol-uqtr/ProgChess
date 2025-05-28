@@ -17,7 +17,7 @@ export default function AppSidebar() {
   const items = [
     {
       title: "Exercice",
-      url: "/admin/exercice",
+      url: "/admin/exercise",
       icon: SquareTerminal,
     },
   ];

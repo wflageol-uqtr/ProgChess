@@ -2,10 +2,10 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import ProtectedRoute from "../components/ProtectedRoute";
 import StudentLogin from "../pages/auth/StudentLogin";
 import AdminLogin from "../pages/auth/AdminLogin";
-import CreateExercice from "../pages/exercice/CreateExercice";
-import ListExercice from "../pages/exercice/ListExercice";
-import Exercice from "../pages/Exercice";
-import EditExercice from "../pages/exercice/EditExercice";
+import CreateExercise from "../pages/exercice/CreateExercise";
+import ListExercise from "../pages/exercice/ListExercise";
+import Exercice from "../pages/Exercise";
+import EditExercise from "../pages/exercice/EditExercise";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -15,7 +15,7 @@ export default function Routes() {
       element: <StudentLogin />,
     },
     {
-      path: "/exercice/:id",
+      path: "/exercise/:id",
       element: <Exercice />,
     },
     {
@@ -31,16 +31,16 @@ export default function Routes() {
       element: <ProtectedRoute />,
       children: [
         {
-          path: "exercice",
-          element: <ListExercice />,
+          path: "exercise",
+          element: <ListExercise />,
         },
         {
-          path: "exercice/create",
-          element: <CreateExercice />,
+          path: "exercise/create",
+          element: <CreateExercise />,
         },
         {
-          path: "exercice/edit/:id",
-          element: <EditExercice />,
+          path: "exercise/edit/:id",
+          element: <EditExercise />,
         },
       ],
     },

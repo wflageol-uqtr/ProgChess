@@ -60,7 +60,7 @@ namespace ProChess.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Exercices",
+                name: "Exercises",
                 schema: "progchess",
                 columns: table => new
                 {
@@ -72,7 +72,7 @@ namespace ProChess.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Exercices", x => x.Id);
+                    table.PrimaryKey("PK_Exercises", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -201,16 +201,16 @@ namespace ProChess.Server.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Code = table.Column<string>(type: "text", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    ExerciceId = table.Column<int>(type: "integer", nullable: true)
+                    ExerciseId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UnitTests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UnitTests_Exercices_ExerciceId",
-                        column: x => x.ExerciceId,
+                        name: "FK_UnitTests_Exercises_ExerciseId",
+                        column: x => x.ExerciseId,
                         principalSchema: "progchess",
-                        principalTable: "Exercices",
+                        principalTable: "Exercises",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -219,7 +219,7 @@ namespace ProChess.Server.Migrations
                 schema: "progchess",
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RefreshToken", "RefreshTokenExpiry", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "test", 0, "fe857287-6057-4028-9d38-f2de99b83dd1", "mathy@gmail.com", true, false, null, "mathy@gmail.com", "math", "AQAAAAIAAYagAAAAEFVPIHPn6NvVyieRm2OHJ+CRxWTw7ikazgLAXFhpAfuIaUZrjy2AUDd8K8TKsb/e+A==", null, false, null, null, "8ec0744f-d827-4f9d-a0d0-e29d81d9d331", false, "math" });
+                values: new object[] { "test", 0, "7e88acca-b169-414d-8540-1570448a8414", "mathy@gmail.com", true, false, null, "mathy@gmail.com", "math", "AQAAAAIAAYagAAAAEPZQTC24uJGUIlCaAz+xG9bLK835U9b7t/dwWNA5qhYzqlESvnUE9Of3liUYkCj98Q==", null, false, null, null, "178c29fe-bfd8-45a1-bcf5-27765bc491de", false, "math" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -266,10 +266,10 @@ namespace ProChess.Server.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UnitTests_ExerciceId",
+                name: "IX_UnitTests_ExerciseId",
                 schema: "progchess",
                 table: "UnitTests",
-                column: "ExerciceId");
+                column: "ExerciseId");
         }
 
         /// <inheritdoc />
@@ -308,7 +308,7 @@ namespace ProChess.Server.Migrations
                 schema: "progchess");
 
             migrationBuilder.DropTable(
-                name: "Exercices",
+                name: "Exercises",
                 schema: "progchess");
         }
     }

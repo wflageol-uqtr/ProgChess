@@ -40,7 +40,7 @@ const validationSchema = z.object({
 
 type formSchema = z.infer<typeof validationSchema>;
 
-export default function CreateExercice() {
+export default function CreateExercise() {
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const [situation, setSituation] = useState<string>("");
@@ -67,9 +67,9 @@ export default function CreateExercice() {
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
       try {
-        await api.post("/api/exercice/create", values);
+        await api.post("/api/exercise/create", values);
         toast.success("Exercice créé avec succès !");
-        navigate("/admin/exercice");
+        navigate("/admin/exercise");
       } catch (error) {
         toast.error("Une erreur est survenue");
       }

@@ -4,23 +4,23 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
 import { DataTable } from "../../components/table/Data-table";
-import { ExerciceColumns } from "../../components/table/ExerciceColumns";
+import { ExerciseColumns } from "../../components/table/ExerciseColumns";
 import { toast } from "sonner";
 
-export default function ListExercice() {
-  const [exercice, setExercice] = useState([]);
+export default function ListExercise() {
+  const [exercise, setExercise] = useState([]);
 
-  const getAllExercice = async () => {
+  const getAllExercise = async () => {
     try {
-      const response = await api.get("/api/exercice");
-      setExercice(response.data);
+      const response = await api.get("/api/exercise");
+      setExercise(response.data);
     } catch (error) {
       toast.error("Une erreur est survenue");
     }
   };
 
   useEffect(() => {
-    getAllExercice();
+    getAllExercise();
   }, []);
 
   return (
@@ -28,7 +28,7 @@ export default function ListExercice() {
       <div className="h-min-screen flex flex-col px-4 space-y-4 w-full mt-4">
         <div className="flex justify-between w-full">
           <h2 className="text-2xl font-semibold">Liste de exercice</h2>
-          <Link to="/admin/exercice/create">
+          <Link to="/admin/exercise/create">
             <Button
               type="button"
               className="bg-green-500 hover:bg-green-700 cursor-pointer"
@@ -37,7 +37,7 @@ export default function ListExercice() {
             </Button>
           </Link>
         </div>
-        <DataTable columns={ExerciceColumns} data={exercice} />
+        <DataTable columns={ExerciseColumns} data={exercise} />
       </div>
     </AdminLayout>
   );

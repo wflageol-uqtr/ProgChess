@@ -3,7 +3,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import api from "../../utils/api";
-import type { Exercice } from "../../utils/type";
+import type { Exercise } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -41,19 +41,19 @@ const validationSchema = z.object({
 
 type formSchema = z.infer<typeof validationSchema>;
 
-export default function EditExercice() {
-  const [exercice, setExercice] = useState<Exercice>();
+export default function EditExercise() {
+  const [exercise, setExercise] = useState<Exercise>();
   const [situation, setSituation] = useState<string>("");
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const { id } = useParams();
 
-  const getExercice = async () => {
+  const getExercise = async () => {
     try {
-      const response = await api.get(`/api/exercice/${id}`);
+      const response = await api.get(`/api/exercise/${id}`);
       console.log(response);
 
-      setExercice(response.data);
+      setExercise(response.data);
       setSituation(response.data.situation!);
     } catch (error) {
       toast.error("Une erreur est survenue");
@@ -71,19 +71,19 @@ export default function EditExercice() {
   });
 
   useEffect(() => {
-    getExercice();
+    getExercise();
   }, []);
 
   useEffect(() => {
-    if (exercice) {
+    if (exercise) {
       form.reset({
-        situation: exercice.situation,
-        baseCode: exercice.baseCode,
-        unitTest: exercice.unitTests,
-        studentCodes: buildStudentCodeString(exercice.studentCodes),
+        situation: exercise.situation,
+        baseCode: exercise.baseCode,
+        unitTest: exercise.unitTests,
+        studentCodes: buildStudentCodeString(exercise.studentCodes),
       });
     }
-  }, [exercice]);
+  }, [exercise]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -93,9 +93,9 @@ export default function EditExercice() {
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
       try {
-        await api.put(`/api/exercice/edit/${exercice?.id}`, values);
+        await api.put(`/api/exercise/edit/${exercise?.id}`, values);
         toast.success("Exercice modifié avec succès !");
-        navigate("/admin/exercice");
+        navigate("/admin/exercise");
       } catch (error) {
         toast.error("Une erreur est survenue");
       }

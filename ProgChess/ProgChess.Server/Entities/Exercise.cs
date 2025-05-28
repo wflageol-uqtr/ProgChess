@@ -1,6 +1,6 @@
 namespace ProChess.Server.Entities;
 
-public class Exercice
+public class Exercise
 {
     public int Id { get; set; }
     

@@ -4,17 +4,17 @@ import api from "../utils/api";
 import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
-import ExerciceCard from "../components/card/ExerciceCard";
+import ExerciseCard from "../components/card/ExerciseCard";
 import { Book, Braces, CheckCheck, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
-import type { Exercice } from "../utils/type";
+import type { Exercise } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 
-export default function ExerciceContent() {
-  const [exerice, setExercice] = useState<Exercice>();
+export default function ExerciseContent() {
+  const [exercise, setExercise] = useState<Exercise>();
   const [code, setCode] = useState<string>("");
   const codeRef = useRef("");
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function ExerciceContent() {
 
   useEffect(() => {
     if (cookie) {
-      getExercice();
+      getExercise();
     } else {
       navigate("/login");
     }
@@ -33,10 +33,10 @@ export default function ExerciceContent() {
     codeRef.current = code;
   }, [code]);
 
-  const getExercice = async () => {
+  const getExercise = async () => {
     try {
-      const response = await api.get(`/api/exercice/${id}`);
-      setExercice(response.data);
+      const response = await api.get(`/api/exercise/${id}`);
+      setExercise(response.data);
       const startedCode = localStorage.getItem("code");
       if (startedCode) {
         setCode(startedCode);
@@ -90,41 +90,41 @@ export default function ExerciceContent() {
  grid-cols-[min-content_auto]"
           >
             <HorizontalResizable>
-              <ExerciceCard title="Situation" icon={Book} canExecute={false}>
+              <ExerciseCard title="Situation" icon={Book} canExecute={false}>
                 <div className="overflow-auto p-4">
-                  <MarkdownComponent markdown={exerice?.situation!} />
+                  <MarkdownComponent markdown={exercise?.situation!} />
                 </div>
-              </ExerciceCard>
+              </ExerciseCard>
             </HorizontalResizable>
-            <ExerciceCard title="Code" icon={Braces} canExecute={true}>
+            <ExerciseCard title="Code" icon={Braces} canExecute={true}>
               <CodeEditor value={code} onChange={(e) => setCode(e)} />
-            </ExerciceCard>
+            </ExerciseCard>
             <VerticalResizable>
               <TestCaseCard
-                unitTests={exerice?.unitTests!.filter((ut) => ut.isActive)!}
+                unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
               >
                 <p></p>
               </TestCaseCard>
             </VerticalResizable>
           </div>
           <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
-            <ExerciceCard title="Situation" icon={Book} canExecute={false}>
+            <ExerciseCard title="Situation" icon={Book} canExecute={false}>
               <div className="overflow-auto p-4">
-                <MarkdownComponent markdown={exerice?.situation!} />
+                <MarkdownComponent markdown={exercise?.situation!} />
               </div>
-            </ExerciceCard>
+            </ExerciseCard>
 
-            <ExerciceCard title="Code" icon={Braces} canExecute={true}>
+            <ExerciseCard title="Code" icon={Braces} canExecute={true}>
               <CodeEditor value={code} onChange={(e) => setCode(e)} />
-            </ExerciceCard>
+            </ExerciseCard>
 
-            <ExerciceCard
+            <ExerciseCard
               title="Résultats"
               icon={CheckCheck}
               canExecute={false}
             >
               <p>Voici les résultats</p>
-            </ExerciceCard>
+            </ExerciseCard>
           </div>
         </div>
       )}

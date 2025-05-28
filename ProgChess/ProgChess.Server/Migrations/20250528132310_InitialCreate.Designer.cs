@@ -13,7 +13,7 @@ using ProgChess.Server.Database;
 namespace ProChess.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250523145257_InitialCreate")]
+    [Migration("20250528132310_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -159,7 +159,7 @@ namespace ProChess.Server.Migrations
                     b.ToTable("AspNetUserTokens", "progchess");
                 });
 
-            modelBuilder.Entity("ProChess.Server.Entities.Exercice", b =>
+            modelBuilder.Entity("ProChess.Server.Entities.Exercise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,7 +180,7 @@ namespace ProChess.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Exercices", "progchess");
+                    b.ToTable("Exercises", "progchess");
                 });
 
             modelBuilder.Entity("ProChess.Server.Entities.UnitTest", b =>
@@ -195,7 +195,7 @@ namespace ProChess.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ExerciceId")
+                    b.Property<int?>("ExerciseId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
@@ -203,7 +203,7 @@ namespace ProChess.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExerciceId");
+                    b.HasIndex("ExerciseId");
 
                     b.ToTable("UnitTests", "progchess");
                 });
@@ -282,15 +282,15 @@ namespace ProChess.Server.Migrations
                         {
                             Id = "test",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "fe857287-6057-4028-9d38-f2de99b83dd1",
+                            ConcurrencyStamp = "7e88acca-b169-414d-8540-1570448a8414",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFVPIHPn6NvVyieRm2OHJ+CRxWTw7ikazgLAXFhpAfuIaUZrjy2AUDd8K8TKsb/e+A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPZQTC24uJGUIlCaAz+xG9bLK835U9b7t/dwWNA5qhYzqlESvnUE9Of3liUYkCj98Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8ec0744f-d827-4f9d-a0d0-e29d81d9d331",
+                            SecurityStamp = "178c29fe-bfd8-45a1-bcf5-27765bc491de",
                             TwoFactorEnabled = false,
                             UserName = "math"
                         });
@@ -349,15 +349,15 @@ namespace ProChess.Server.Migrations
 
             modelBuilder.Entity("ProChess.Server.Entities.UnitTest", b =>
                 {
-                    b.HasOne("ProChess.Server.Entities.Exercice", "Exercice")
+                    b.HasOne("ProChess.Server.Entities.Exercise", "Exercise")
                         .WithMany("UnitTests")
-                        .HasForeignKey("ExerciceId")
+                        .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Exercice");
+                    b.Navigation("Exercise");
                 });
 
-            modelBuilder.Entity("ProChess.Server.Entities.Exercice", b =>
+            modelBuilder.Entity("ProChess.Server.Entities.Exercise", b =>
                 {
                     b.Navigation("UnitTests");
                 });

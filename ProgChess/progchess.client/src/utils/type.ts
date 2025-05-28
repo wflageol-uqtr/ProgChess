@@ -5,7 +5,7 @@ export type UnitTest = {
   isActive: boolean;
 };
 
-export type Exercice = {
+export type Exercise = {
   id: number;
   situation: string;
   baseCode: string;

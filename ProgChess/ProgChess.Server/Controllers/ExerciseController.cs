@@ -8,11 +8,11 @@ namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExerciceController(IExerciceService service) : ControllerBase
+public class ExerciseController(IExerciseService service) : ControllerBase
 {
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<List<Exercice>>> GetExercicesAsync()
+    public async Task<ActionResult<List<Exercise>>> GetExercicesAsync()
     {
         var exercices = await service.GetAllExercice();
         return Ok(exercices);
@@ -31,7 +31,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
     
     [HttpPost("create")]
     [Authorize]
-    public async Task<IActionResult> Create(ExerciceDto request)
+    public async Task<IActionResult> Create(ExerciseDto request)
     {
         var result = await service.Create(request);
         if (result is null)
@@ -43,7 +43,7 @@ public class ExerciceController(IExerciceService service) : ControllerBase
 
     [HttpPut("edit/{id}")]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] int id, ExerciceDto request)
+    public async Task<IActionResult> Edit([FromRoute] int id, ExerciseDto request)
     {
         var result = await service.Edit(id, request);
         if (result is null)

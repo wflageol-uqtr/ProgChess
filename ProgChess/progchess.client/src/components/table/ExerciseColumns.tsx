@@ -1,11 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import ExerciceAction from "./ExerciceActions";
+import ExerciceAction from "./ExerciseActions";
 import api from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-import type { Exercice } from "../../utils/type";
+import type { Exercise } from "../../utils/type";
 
-export const ExerciceColumns: ColumnDef<Exercice>[] = [
+export const ExerciseColumns: ColumnDef<Exercise>[] = [
   {
     accessorKey: "id",
     header: "Numéro",
@@ -46,7 +46,7 @@ export const ExerciceColumns: ColumnDef<Exercice>[] = [
       const handleDelete = async () => {
         try {
           const response = await api.delete(
-            `/api/exercice/delete/${row.getValue("id")}`
+            `/api/exercise/delete/${row.getValue("id")}`
           );
           toast.success(response.data, {
             className: "bg-green-100",

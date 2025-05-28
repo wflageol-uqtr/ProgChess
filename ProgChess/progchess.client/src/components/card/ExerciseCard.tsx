@@ -8,7 +8,7 @@ interface BoxCardProps {
   canExecute: boolean;
 }
 
-export default function ExerciceCard({
+export default function ExerciseCard({
   children,
   title,
   icon: Icon,

@@ -12,12 +12,12 @@ import { DeleteDialog } from "../dialog/DeleteDialog";
 import { useState } from "react";
 import { Link } from "react-router";
 
-interface ExerciceActionProps {
+interface ExerciseActionProps {
   id: number;
   deleteFn: () => void;
 }
 
-export default function ExerciceAction({ id, deleteFn }: ExerciceActionProps) {
+export default function ExerciseAction({ id, deleteFn }: ExerciseActionProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -33,7 +33,7 @@ export default function ExerciceAction({ id, deleteFn }: ExerciceActionProps) {
         {openMenu && (
           <DropdownMenuContent align="end" className="bg-zinc-900 text-white">
             <DropdownMenuItem>
-              <Link className="flex mr-2" to={`/admin/exercice/edit/${id}`}>
+              <Link className="flex mr-2" to={`/admin/exercise/edit/${id}`}>
                 <Pencil className="w-5 h-5 text-green-500 mr-2" />
                 <span>Modifier l'exercice</span>
               </Link>

@@ -6,4 +6,9 @@ public static class Formatter
     {
         return codeString.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
     }
+
+    public static List<string> SplitByLine(string s)
+    {
+        return s.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
 }

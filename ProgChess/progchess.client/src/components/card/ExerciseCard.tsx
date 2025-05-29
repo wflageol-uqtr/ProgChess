@@ -6,6 +6,8 @@ interface BoxCardProps {
   title: string;
   icon: LucideIcon;
   canExecute: boolean;
+  isPending?: boolean;
+  actionFn?: () => void;
 }
 
 export default function ExerciseCard({
@@ -13,6 +15,8 @@ export default function ExerciseCard({
   title,
   icon: Icon,
   canExecute,
+  isPending,
+  actionFn,
 }: BoxCardProps) {
   return (
     <div className="bg-zinc-800 rounded-2xl h-full w-full flex flex-col overflow-hidden">
@@ -22,8 +26,12 @@ export default function ExerciseCard({
           <h4 className="font-semibold text-xl">{title}</h4>
         </div>
         {canExecute && (
-          <Button className="bg-green-500 cursor-pointer hover:bg-green-700">
-            Exécuter
+          <Button
+            disabled={isPending}
+            className="bg-green-500 cursor-pointer hover:bg-green-700"
+            onClick={actionFn}
+          >
+            {isPending ? <span>Exécution</span> : <span>Exécuter</span>}
           </Button>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import api from "../utils/api";
 import CookieProvider, { useCookie } from "../providers/CookieProvider";
@@ -12,8 +12,10 @@ import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function ExerciseContent() {
+  const [isPending, startTransition] = useTransition();
   const [exercise, setExercise] = useState<Exercise>();
   const [code, setCode] = useState<string>("");
   const codeRef = useRef("");
@@ -37,24 +39,43 @@ export default function ExerciseContent() {
     try {
       const response = await api.get(`/api/exercise/${id}`);
       setExercise(response.data);
-      const startedCode = localStorage.getItem("code");
-      if (startedCode) {
-        setCode(startedCode);
-      } else {
-        setCode(response.data.baseCode);
-      }
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
+    const startedCode = localStorage.getItem(`code:${exercise?.id}`);
+    if (startedCode) {
+      setCode(startedCode);
+    } else {
+      setCode(exercise?.baseCode!);
+    }
+
     const interval = setInterval(() => saveCode(), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [exercise]);
 
   const saveCode = () => {
-    localStorage.setItem("code", codeRef.current);
+    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+  };
+
+  const executeCode = async () => {
+    startTransition(async () => {
+      console.log("oco");
+
+      try {
+        const response = await axios.post(
+          "http://localhost:5290/api/execute",
+          {
+            exerciseId: exercise?.id,
+            code,
+          },
+          { withCredentials: true }
+        );
+        console.log(response);
+      } catch (error) {}
+    });
   };
 
   return (
@@ -86,7 +107,7 @@ export default function ExerciseContent() {
             </Button>
           </div>
           <div
-            className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[auto_50%]
+            className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[60%_40%]
  grid-cols-[min-content_auto]"
           >
             <HorizontalResizable>
@@ -96,7 +117,13 @@ export default function ExerciseContent() {
                 </div>
               </ExerciseCard>
             </HorizontalResizable>
-            <ExerciseCard title="Code" icon={Braces} canExecute={true}>
+            <ExerciseCard
+              isPending={isPending}
+              title="Code"
+              icon={Braces}
+              canExecute={true}
+              actionFn={executeCode}
+            >
               <CodeEditor value={code} onChange={(e) => setCode(e)} />
             </ExerciseCard>
             <VerticalResizable>

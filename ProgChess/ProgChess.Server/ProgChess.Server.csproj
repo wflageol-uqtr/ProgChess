@@ -31,13 +31,11 @@
 
     <ItemGroup>
       <None Remove="Codes.txt" />
-      <EmbeddedResource Include="Codes.txt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Migrations\" />
+      <Folder Include="Script\" />
     </ItemGroup>
 
 </Project>

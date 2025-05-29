@@ -29,7 +29,7 @@ export default function CodeEditor({
         value={value}
         theme={dracula}
         height={`${height}px`}
-        extensions={[langs.python()]}
+        extensions={[langs.typescript(), langs.javascript()]}
         onChange={onChange}
       />
     </div>

@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ProChess.Server.Authorization;
 
-public class ValidCodeCookieAttribute: AuthorizeAttribute, IAsyncAuthorizationFilter
+public class ValidCodeCookieAttribute: Attribute, IAsyncAuthorizationFilter
 {
     public Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var request = context.HttpContext.Request;
-
         request.Cookies.TryGetValue("studentCookie", out var studentCookie);
         if (string.IsNullOrEmpty(studentCookie))
         {

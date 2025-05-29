@@ -49,7 +49,7 @@ export default function ExerciseContent() {
       const response = await api.get(`/api/exercise/${id}`);
       setExercise(response.data);
     } catch (error) {
-      console.log(error);
+      navigate("/404");
     }
   };
 

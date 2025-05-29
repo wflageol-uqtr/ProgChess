@@ -6,21 +6,28 @@ import CreateExercise from "../pages/exercice/CreateExercise";
 import ListExercise from "../pages/exercice/ListExercise";
 import Exercice from "../pages/Exercise";
 import EditExercise from "../pages/exercice/EditExercise";
+import ErrorPage from "../pages/error/ErrorPage";
 
 export default function Routes() {
   // route public accessble par non-authentifié
   const publicRoutes = [
     {
-      path: "/login",
-      element: <StudentLogin />,
-    },
-    {
-      path: "/exercise/:id",
-      element: <Exercice />,
-    },
-    {
-      path: "/admin/login",
-      element: <AdminLogin />,
+      path: "/",
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          path: "/login",
+          element: <StudentLogin />,
+        },
+        {
+          path: "/exercise/:id",
+          element: <Exercice />,
+        },
+        {
+          path: "/admin/login",
+          element: <AdminLogin />,
+        },
+      ],
     },
   ];
 

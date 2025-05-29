@@ -145,6 +145,7 @@ export default function CreateExercise() {
                         value={field.value ?? ""}
                         onChange={field.onChange}
                         placeholder="Code de base pour la situation..."
+                        height={window.innerHeight / 2}
                       />
                     </FormControl>
                   </FormItem>
@@ -230,6 +231,7 @@ export default function CreateExercise() {
                                 placeholder={`Code de base pour le test ${
                                   index + 1
                                 } ...`}
+                                height={window.innerHeight / 2}
                               />
                             </FormControl>
                           </FormItem>

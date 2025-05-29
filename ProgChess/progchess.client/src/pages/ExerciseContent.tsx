@@ -5,29 +5,24 @@ import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import {
-  Book,
-  Braces,
-  CheckCheck,
-  CheckLine,
-  MonitorDown,
-  X,
-} from "lucide-react";
+import { Book, Braces, MonitorDown, X } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
-import type { Exercise } from "../utils/type";
+import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import TestResultPanel from "../components/panel/TestResultPanel";
 
 export default function ExerciseContent() {
   const [isPending, startTransition] = useTransition();
   const [exercise, setExercise] = useState<Exercise>();
+  const [testResult, setTestResult] = useState<TestResult[]>([]);
   const [code, setCode] = useState<string>("");
   const codeRef = useRef("");
   const navigate = useNavigate();
-  const { cookie, isLoading } = useCookie() || {};
+  const { cookie, isLoading } = useCookie();
   const { id } = useParams();
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
@@ -76,8 +71,6 @@ export default function ExerciseContent() {
 
   const executeCode = async () => {
     startTransition(async () => {
-      console.log("oco");
-
       try {
         const response = await axios.post(
           "http://localhost:5290/api/execute",
@@ -87,8 +80,11 @@ export default function ExerciseContent() {
           },
           { withCredentials: true }
         );
-        console.log(response);
-      } catch (error) {}
+        console.log(response.data);
+        setTestResult(response.data);
+      } catch (error) {
+        toast.error("Une erreur est survenue lors de l'exécution");
+      }
     });
   };
 
@@ -149,26 +145,16 @@ export default function ExerciseContent() {
                 <TestCaseCard
                   unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
                 >
-                  <div className="flex justify-end mt-1">
-                    <div className="flex items-center gap-3 px-3 py-2 bg-zinc-700 rounded-lg text-sm">
-                      <span className="text-zinc-300">(4 tests)</span>
-
-                      <div className="flex items-center gap-1">
-                        <CheckLine className="w-4 h-4 text-green-500" />
-                        <span className="text-green-400">2</span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <X className="w-4 h-4 text-red-500" />
-                        <span className="text-red-400">2</span>
-                      </div>
-                    </div>
-                  </div>
+                  <TestResultPanel
+                    isPending={isPending}
+                    testResult={testResult}
+                  />
                 </TestCaseCard>
               </div>
             </div>
           </div>
-          <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
+          {/* Mobile ! */}
+          {/* <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
             <ExerciseCard title="Situation" icon={Book} canExecute={false}>
               <div className="overflow-auto p-4">
                 <MarkdownComponent markdown={exercise?.situation!} />
@@ -176,7 +162,11 @@ export default function ExerciseContent() {
             </ExerciseCard>
 
             <ExerciseCard title="Code" icon={Braces} canExecute={true}>
-              <CodeEditor value={code} onChange={(e) => setCode(e)} />
+              <CodeEditor
+                value={code}
+                onChange={(e) => setCode(e)}
+                height={0}
+              />
             </ExerciseCard>
 
             <ExerciseCard
@@ -186,7 +176,7 @@ export default function ExerciseContent() {
             >
               <p>Voici les résultats</p>
             </ExerciseCard>
-          </div>
+          </div> */}
         </div>
       )}
     </CookieProvider>

@@ -12,3 +12,11 @@ export type Exercise = {
   unitTests: UnitTest[];
   studentCodes: string[]
 };
+
+export type TestResult = {
+  $type: string,
+  testName: string,
+  success: boolean,
+  expected?: string,
+  actual?: string
+}

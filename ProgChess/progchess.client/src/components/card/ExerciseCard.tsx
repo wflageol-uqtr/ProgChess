@@ -36,7 +36,7 @@ export default function ExerciseCard({
         )}
       </div>
 
-      {children}
+      <div className="overflow-auto">{children}</div>
     </div>
   );
 }

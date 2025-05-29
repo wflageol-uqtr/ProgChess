@@ -5,7 +5,14 @@ import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, CheckCheck, MonitorDown } from "lucide-react";
+import {
+  Book,
+  Braces,
+  CheckCheck,
+  CheckLine,
+  MonitorDown,
+  X,
+} from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -22,6 +29,9 @@ export default function ExerciseContent() {
   const navigate = useNavigate();
   const { cookie, isLoading } = useCookie() || {};
   const { id } = useParams();
+  const [height, setHeight] = useState(
+    parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
+  );
 
   useEffect(() => {
     if (cookie) {
@@ -34,6 +44,10 @@ export default function ExerciseContent() {
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
+
+  useEffect(() => {
+    localStorage.setItem("topHeight", height.toString());
+  }, [height]);
 
   const getExercise = async () => {
     try {
@@ -106,33 +120,53 @@ export default function ExerciseContent() {
               Sauvegarder
             </Button>
           </div>
-          <div
-            className="hidden w-full text-white px-4 py-2 sm:grid grid-rows-[60%_40%]
- grid-cols-[min-content_auto]"
-          >
-            <HorizontalResizable>
-              <ExerciseCard title="Situation" icon={Book} canExecute={false}>
-                <div className="overflow-auto p-4">
-                  <MarkdownComponent markdown={exercise?.situation!} />
-                </div>
-              </ExerciseCard>
-            </HorizontalResizable>
-            <ExerciseCard
-              isPending={isPending}
-              title="Code"
-              icon={Braces}
-              canExecute={true}
-              actionFn={executeCode}
-            >
-              <CodeEditor value={code} onChange={(e) => setCode(e)} />
-            </ExerciseCard>
-            <VerticalResizable>
-              <TestCaseCard
-                unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
-              >
-                <p></p>
-              </TestCaseCard>
-            </VerticalResizable>
+          <div className="hidden h-screen sm:grid grid-rows-1 text-white">
+            <div className="grid grid-cols-[min-content_auto]">
+              <HorizontalResizable>
+                <ExerciseCard title="Situation" icon={Book} canExecute={false}>
+                  <div className="overflow-auto p-4">
+                    <MarkdownComponent markdown={exercise?.situation!} />
+                  </div>
+                </ExerciseCard>
+              </HorizontalResizable>
+              <div className="h-full grid grid-rows-[min-content_auto]">
+                <VerticalResizable height={height} setHeight={setHeight}>
+                  <ExerciseCard
+                    isPending={isPending}
+                    title="Code"
+                    icon={Braces}
+                    canExecute={true}
+                    actionFn={executeCode}
+                  >
+                    <CodeEditor
+                      height={height}
+                      value={code}
+                      onChange={(e) => setCode(e)}
+                    />
+                  </ExerciseCard>
+                </VerticalResizable>
+
+                <TestCaseCard
+                  unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
+                >
+                  <div className="flex justify-end mt-1">
+                    <div className="flex items-center gap-3 px-3 py-2 bg-zinc-700 rounded-lg text-sm">
+                      <span className="text-zinc-300">(4 tests)</span>
+
+                      <div className="flex items-center gap-1">
+                        <CheckLine className="w-4 h-4 text-green-500" />
+                        <span className="text-green-400">2</span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <X className="w-4 h-4 text-red-500" />
+                        <span className="text-red-400">2</span>
+                      </div>
+                    </div>
+                  </div>
+                </TestCaseCard>
+              </div>
+            </div>
           </div>
           <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
             <ExerciseCard title="Situation" icon={Book} canExecute={false}>

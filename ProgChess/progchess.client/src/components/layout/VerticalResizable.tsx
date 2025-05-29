@@ -1,14 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-export default function VerticalResizable({ children }: any) {
+interface VerticalResizableProps {
+  children: any;
+  height: number;
+  setHeight: any;
+}
+
+export default function VerticalResizable({
+  children,
+  height,
+  setHeight,
+}: VerticalResizableProps) {
   const isResized = useRef(false);
-  const [height, setHeight] = useState(300); // default height in px
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResized.current) return;
 
-      setHeight((prev) => Math.max(prev + e.movementY, 100)); // Set a min height of 100px
+      setHeight((prev: number) => Math.max(prev + e.movementY, 100));
     };
 
     const handleMouseUp = () => {
@@ -25,12 +34,12 @@ export default function VerticalResizable({ children }: any) {
   }, []);
 
   return (
-    <div className="col-span-2 flex flex-col" style={{ height: `${height}px` }}>
+    <div className="flex flex-col" style={{ height: `${height}px` }}>
+      <div className="flex-grow overflow-auto">{children}</div>
       <div
         className="h-2 cursor-row-resize"
         onMouseDown={() => (isResized.current = true)}
       />
-      <div className="flex-grow overflow-auto">{children}</div>
     </div>
   );
 }

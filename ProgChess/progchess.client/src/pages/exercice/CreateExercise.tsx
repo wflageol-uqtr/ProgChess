@@ -131,7 +131,7 @@ export default function CreateExercise() {
                 type="button"
                 className="border bg-gray-100 text-gray-900 cursor-pointer hover:bg-gray-200"
               >
-                python
+                Javascript
               </Button>
             </div>
             <div className="h-96">

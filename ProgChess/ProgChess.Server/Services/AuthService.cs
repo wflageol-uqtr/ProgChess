@@ -47,16 +47,11 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         return await CreateTokenDto(user);
     }
 
-    public async Task<bool> LoginCodeAsync(StudentCodeDto request)
+    public async Task<bool> ContainsCodeAsync(StudentCodeDto request)
     {
         try
         {
-            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciceId);
-            Console.WriteLine(request.ExerciceId);
-            foreach (var code in exercise.StudentCodes)
-            {
-                Console.WriteLine(code);
-            }
+            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
             return exercise.StudentCodes.Contains(request.Code);
         }
         catch (Exception e)

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { hasCookie } from "../utils/cookie";
-import api from "../utils/api";
+import { useParams } from "react-router";
+import axios from "axios";
 
 interface CookieContextType {
   cookie: boolean;
@@ -10,11 +11,12 @@ interface CookieContextType {
 const CookieContext = createContext<CookieContextType>();
 
 const CookieProvider = ({ children }: any) => {
+  const { id } = useParams();
   const [cookie, setCookie] = useState<boolean>(hasCookie("studentCookie"));
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (hasCookie("studentCode")) {
+    if (hasCookie("studentCookie")) {
       verifyCookie();
     } else {
       setIsLoading(false);
@@ -23,7 +25,12 @@ const CookieProvider = ({ children }: any) => {
 
   const verifyCookie = async () => {
     try {
-      await api.get("/api/auth/verify-cookie");
+      await axios.get("http://localhost:5290/api/auth/verify-cookie", {
+        params: {
+          exerciseId: parseInt(id!),
+        },
+        withCredentials: true,
+      });
     } catch (error) {
       setCookie(false);
     } finally {

@@ -10,5 +10,5 @@ public class StudentCodeDto
     public required string Code { get; set; }
     
     [Required]
-    public required int ExerciceId { get; set; }
+    public required int ExerciseId { get; set; }
 }

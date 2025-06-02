@@ -50,7 +50,7 @@ function AdminLogin() {
       form.reset();
 
       if (!response.success) {
-        setError(response.error);
+        setError("Courriel ou mot de passe est invalide");
       } else {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);

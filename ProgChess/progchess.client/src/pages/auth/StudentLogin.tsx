@@ -25,7 +25,7 @@ const formSchema = z.object({
     .string()
     .min(12, { message: "Code permanent invalide" })
     .max(12, { message: "Code permanent invalide" }),
-  exerciceId: z.number(),
+  exerciseId: z.number(),
 });
 
 function StudentLogin() {
@@ -40,7 +40,7 @@ function StudentLogin() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
-      exerciceId: parseInt(decodedId.split("#")[1]) || 0,
+      exerciseId: parseInt(decodedId.split("#")[1]) || 0,
     },
   });
 

@@ -32,9 +32,7 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     [HttpPost("login-code")]
     public async Task<IActionResult> LoginCode(StudentCodeDto request)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        var success = await _authService.LoginCodeAsync(request);
-        Console.WriteLine(success);
+        var success = await _authService.ContainsCodeAsync(request);
         if (!success)
         {
             return BadRequest("Code est invalide");
@@ -64,8 +62,23 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     
     [HttpGet("verify-cookie")]
     [ValidCodeCookie]
-    public async Task<IActionResult> VerifyCookie()
+    public async Task<IActionResult> VerifyCookie([FromQuery] int exerciseId)
     {
-        return Ok();
+        try
+        {
+            HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie);
+            var succes = await _authService.ContainsCodeAsync(new StudentCodeDto
+            {
+                ExerciseId = exerciseId,
+                Code = studentCookie
+            });
+            if (!succes)
+                return Unauthorized();
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return Unauthorized("Étudiant non autorisé");
+        }
     }
 }

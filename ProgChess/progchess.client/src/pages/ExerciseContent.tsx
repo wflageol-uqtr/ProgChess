@@ -37,7 +37,7 @@ export default function ExerciseContent() {
     } else {
       navigate(`/login/${encodedToken}`);
     }
-  }, []);
+  }, [cookie]);
 
   useEffect(() => {
     codeRef.current = code;
@@ -93,12 +93,11 @@ export default function ExerciseContent() {
   return (
     <CookieProvider>
       {isLoading ? (
-        <div>
+        <div className="h-screen bg-zinc-900 justify-center items-center">
           <svg
             className="mr-3 size-5 animate-spin ..."
             viewBox="0 0 24 24"
           ></svg>
-          Processing…
         </div>
       ) : (
         <div className="min-h-screen bg-zinc-900">

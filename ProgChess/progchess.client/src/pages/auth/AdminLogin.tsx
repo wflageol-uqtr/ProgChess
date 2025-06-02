@@ -16,9 +16,10 @@ import { Button } from "../../components/ui/button";
 import Flash from "../../components/flash/Flash";
 import { useState, useTransition } from "react";
 import { call } from "../../actions/auth";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useAuth } from "../../providers/AuthProvider";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
@@ -37,6 +38,7 @@ function AdminLogin() {
       password: "",
     },
   });
+  const { setToken } = useAuth();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // TODO: Securite ?
@@ -53,10 +55,8 @@ function AdminLogin() {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("user", response.data.userId);
-        // Erreur avec le context, a retravaille
-        setTimeout(() => {
-          navigate("/admin/exercise");
-        }, 1000);
+        setToken(response.data.accessToken);
+        navigate("/admin/exercise");
       }
     });
   }

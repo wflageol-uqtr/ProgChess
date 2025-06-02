@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Logout from "./form/Logout";
 import {
   Sidebar,
@@ -34,10 +35,10 @@ export default function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a className="text-white" href={item.url}>
+                    <Link className="text-white" to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

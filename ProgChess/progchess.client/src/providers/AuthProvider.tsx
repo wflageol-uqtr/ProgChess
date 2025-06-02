@@ -10,11 +10,11 @@ import axios from "axios";
 import api from "../utils/api";
 interface AuthContextType {
   token: string | null;
+  setToken: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AuthContext = createContext<AuthContextType>();
 
-// Refactor
 const AuthProvider = ({ children }: any) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("accessToken")
@@ -71,7 +71,6 @@ const AuthProvider = ({ children }: any) => {
             console.error("Token refresh failed:", refreshError);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
-            // window.location.href = "/login";
             return Promise.reject(refreshError);
           }
         }
@@ -84,6 +83,7 @@ const AuthProvider = ({ children }: any) => {
     };
   }, []);
 
+  // En parler avec William
   const contextValue = useMemo(
     () => ({
       token,

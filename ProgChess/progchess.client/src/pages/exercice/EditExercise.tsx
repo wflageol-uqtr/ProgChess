@@ -181,6 +181,7 @@ export default function EditExercise() {
                         value={field.value ?? ""}
                         onChange={field.onChange}
                         placeholder="Code de base pour la situation..."
+                        height={window.innerHeight / 2}
                       />
                     </FormControl>
                   </FormItem>
@@ -245,7 +246,7 @@ export default function EditExercise() {
                         </p>
                       </div>
                     </div>
-                    <div className="h-96">
+                    <div className="h-full">
                       {form.formState.errors.situation && (
                         <span className="text-red-500">
                           {
@@ -266,6 +267,7 @@ export default function EditExercise() {
                                 placeholder={`Code de base pour le test ${
                                   index + 1
                                 } ...`}
+                                height={window.innerHeight / 2}
                               />
                             </FormControl>
                           </FormItem>

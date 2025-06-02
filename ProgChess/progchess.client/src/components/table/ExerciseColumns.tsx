@@ -30,6 +30,26 @@ export const ExerciseColumns: ColumnDef<Exercise>[] = [
     },
   },
   {
+    accessorKey: "link",
+    header: "Lien",
+    cell: ({ row }) => {
+      const id = row.getValue("id");
+      let link = "";
+
+      // A changer
+      link = `http://localhost:5173/exercise/${id}`;
+      const copyToClipboard = () => {
+        navigator.clipboard.writeText(link);
+        toast.info("Élément copié");
+      };
+      return (
+        <div className="font-medium cursor-pointer" onClick={copyToClipboard}>
+          {link}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "unitTests",
     header: "Nombre de tests",
     cell: ({ row }) => {

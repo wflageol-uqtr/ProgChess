@@ -210,7 +210,7 @@ export default function CreateExercise() {
                         </p>
                       </div>
                     </div>
-                    <div className="h-96">
+                    <div className="h-full">
                       {form.formState.errors.situation && (
                         <span className="text-red-500">
                           {

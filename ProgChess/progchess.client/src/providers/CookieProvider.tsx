@@ -2,7 +2,12 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { hasCookie } from "../utils/cookie";
 import api from "../utils/api";
 
-const CookieContext = createContext();
+interface CookieContextType {
+  cookie: boolean;
+  isLoading: boolean;
+}
+
+const CookieContext = createContext<CookieContextType>();
 
 const CookieProvider = ({ children }: any) => {
   const [cookie, setCookie] = useState<boolean>(hasCookie("studentCookie"));

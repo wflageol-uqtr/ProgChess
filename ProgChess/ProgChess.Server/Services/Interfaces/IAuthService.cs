@@ -9,4 +9,5 @@ public interface IAuthService
 {
     Task<TokenDto?> LoginAsync(UserDto request);
     Task<TokenDto?> RefreshTokenAsync(RefreshTokenDto request);
+    Task<bool> LoginCodeAsync(StudentCodeDto request);
 }

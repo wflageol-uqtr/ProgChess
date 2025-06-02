@@ -16,7 +16,7 @@ export default function Routes() {
       errorElement: <ErrorPage />,
       children: [
         {
-          path: "/login",
+          path: "/login/:id",
           element: <StudentLogin />,
         },
         {

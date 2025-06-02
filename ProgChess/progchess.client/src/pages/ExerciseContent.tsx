@@ -5,7 +5,7 @@ import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, MonitorDown, X } from "lucide-react";
+import { Book, Braces, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -28,11 +28,14 @@ export default function ExerciseContent() {
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
 
+  const rawEncoder = `${crypto.randomUUID()}}#${id}`;
+  const encodedToken = encodeURIComponent(rawEncoder);
+
   useEffect(() => {
     if (cookie) {
       getExercise();
     } else {
-      navigate("/login");
+      navigate(`/login/${encodedToken}`);
     }
   }, []);
 
@@ -80,7 +83,6 @@ export default function ExerciseContent() {
           },
           { withCredentials: true }
         );
-        console.log(response.data);
         setTestResult(response.data);
       } catch (error) {
         toast.error("Une erreur est survenue lors de l'exécution");

@@ -63,7 +63,7 @@ public class AuthControllerTests
         await using var application = new ApiWebApplicationFactory();
         
         //Create Mock
-        var jsonString = "{\"code\":\"test00000000\"}";
+        var jsonString = "{\"code\":\"test00000000\", \"exerciceId\":\"1\"}";
         using var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
         jsonContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
         

@@ -32,15 +32,16 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     [HttpPost("login-code")]
     public async Task<IActionResult> LoginCode(StudentCodeDto request)
     {
-        var validCodes = await System.IO.File.ReadAllLinesAsync("Codes.txt");
-        
-        if (validCodes.Contains(request.Code))
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var success = await _authService.LoginCodeAsync(request);
+        Console.WriteLine(success);
+        if (!success)
         {
-           _cookieService.generateNormalCookie(Response, request);
-            return Ok();
+            return BadRequest("Code est invalide");
         }
-        
-        return BadRequest("Code est invalide");
+
+        _cookieService.generateNormalCookie(Response, request);
+        return Ok();
     }
 
     [HttpPost("refresh-token")]

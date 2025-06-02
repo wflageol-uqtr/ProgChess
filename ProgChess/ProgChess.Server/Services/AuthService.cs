@@ -47,6 +47,25 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         return await CreateTokenDto(user);
     }
 
+    public async Task<bool> LoginCodeAsync(StudentCodeDto request)
+    {
+        try
+        {
+            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciceId);
+            Console.WriteLine(request.ExerciceId);
+            foreach (var code in exercise.StudentCodes)
+            {
+                Console.WriteLine(code);
+            }
+            return exercise.StudentCodes.Contains(request.Code);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
     private async Task<TokenDto> CreateTokenDto(User user)
     {
         return new TokenDto

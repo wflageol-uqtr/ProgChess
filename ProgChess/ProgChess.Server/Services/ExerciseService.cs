@@ -12,7 +12,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
     {
         try
         {
-            var exercice = new Exercise
+            var exercise = new Exercise
             {
                 Situation = request.Situation,
                 BaseCode = request.BaseCode,
@@ -23,9 +23,9 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
                     IsActive = ut.IsActive,
                 }).ToList()
             };
-            await dbContext.Exercises.AddAsync(exercice);
+            await dbContext.Exercises.AddAsync(exercise);
             await dbContext.SaveChangesAsync();
-            return exercice.Id;
+            return exercise.Id;
         }
         catch (Exception e)
         {
@@ -51,8 +51,8 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
     {
         try
         {
-            var exercice = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
-            return exercice ?? null;
+            var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+            return exercise ?? null;
         }
         catch (Exception e)
         {
@@ -66,14 +66,14 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         try
         {
             // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
-            var exercice = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests).FirstAsync();
+            var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests).FirstAsync();
 
-            dbContext.Entry(exercice).State = EntityState.Detached;
-            exercice.Situation = request.Situation;
-            exercice.BaseCode = request.BaseCode;
-            exercice.StudentCodes = Formatter.FormatCodeString(request.StudentCodes);
-            dbContext.RemoveRange(exercice.UnitTests);
-            dbContext.Exercises.Update(exercice);
+            dbContext.Entry(exercise).State = EntityState.Detached;
+            exercise.Situation = request.Situation;
+            exercise.BaseCode = request.BaseCode;
+            exercise.StudentCodes = Formatter.FormatCodeString(request.StudentCodes);
+            dbContext.RemoveRange(exercise.UnitTests);
+            dbContext.Exercises.Update(exercise);
             
             var newTest = new List<UnitTest>();
             foreach (var unitTest in request.UnitTest)
@@ -85,9 +85,9 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
                 });
             }
                 
-            exercice.UnitTests = newTest;
+            exercise.UnitTests = newTest;
             await dbContext.SaveChangesAsync();
-            return exercice.Id;
+            return exercise.Id;
         }
         catch (Exception e)
         {

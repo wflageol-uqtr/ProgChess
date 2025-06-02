@@ -54,7 +54,7 @@ function StudentLogin() {
       form.reset();
 
       if (!response.success) {
-        setError(response.error);
+        setError("Code invalide");
       } else {
         navigate(-1);
       }

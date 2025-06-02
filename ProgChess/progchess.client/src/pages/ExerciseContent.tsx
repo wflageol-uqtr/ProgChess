@@ -122,7 +122,7 @@ export default function ExerciseContent() {
             <div className="grid grid-cols-[min-content_auto]">
               <HorizontalResizable>
                 <ExerciseCard title="Situation" icon={Book} canExecute={false}>
-                  <div className="overflow-auto p-4">
+                  <div className="p-4">
                     <MarkdownComponent markdown={exercise?.situation!} />
                   </div>
                 </ExerciseCard>

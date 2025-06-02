@@ -28,7 +28,7 @@ export default function HorizontalResizable({ children }: BoxCardProps) {
   }, []);
 
   return (
-    <div className="flex">
+    <div className="flex overflow-auto">
       <div style={{ width: `${width / 16}rem` }}>{children}</div>
 
       <div

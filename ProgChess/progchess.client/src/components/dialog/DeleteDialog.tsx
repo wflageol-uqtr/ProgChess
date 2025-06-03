@@ -22,19 +22,22 @@ export function DeleteDialog({
 }: DeleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="bg-zinc-950 ">
         <DialogHeader>
-          <DialogTitle>Êtes-vous sûr ?</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Êtes-vous sûr ?</DialogTitle>
+          <DialogDescription className="text-gray-200">
             Cette action est irréversible. Cela supprimera définitivement
             l'élément.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Annuler</Button>
+            <Button className="cursor-pointer">Annuler</Button>
           </DialogClose>{" "}
-          <Button className="cursor-pointer" onClick={() => deleteFn()}>
+          <Button
+            className="cursor-pointer bg-red-600 hover:bg-red-700"
+            onClick={() => deleteFn()}
+          >
             Confirmer
           </Button>
         </DialogFooter>

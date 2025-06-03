@@ -1,13 +1,10 @@
-import "./App.css";
+import AuthProvider from "./providers/AuthProvider";
+import Routes from "./routes";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <p className="text-lime-500">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <AuthProvider>
+      <Routes />
+    </AuthProvider>
   );
 }
-
-export default App;

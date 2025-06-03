@@ -11,5 +11,5 @@ public interface ITokenService
     
     Task<string> SaveRefreshJwtTokenAsync(User user);
 
-    Task<User?> ValidateRefreshToken(int userId, string refreshToken);
+    Task<User?> ValidateRefreshToken(string userId, string refreshToken);
 }

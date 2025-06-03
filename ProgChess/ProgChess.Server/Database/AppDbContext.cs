@@ -1,35 +1,47 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using ProChess.Server.Entities;
+ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore;
+ using ProChess.Server.Entities;
+ 
+ namespace ProgChess.Server.Database;
+ 
+ public class AppDbContext: IdentityDbContext<User>
+ {
+     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+     {
+     }
+     
+     public DbSet<Exercise> Exercises { get; set; }
+     public DbSet<UnitTest> UnitTests { get; set; }
+ 
+     protected override void OnModelCreating(ModelBuilder modelBuilder)
+     {
+         base.OnModelCreating(modelBuilder);
+         modelBuilder.HasDefaultSchema("progchess");
+         SeedUsers(modelBuilder);
+         
+         // Defining the one-to-many relationship
+         modelBuilder.Entity<Exercise>().HasMany(e => e.UnitTests).WithOne(ut => ut.Exercise).HasForeignKey(ut => ut.ExerciseId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
+     }
 
-namespace ProgChess.Server.Database;
+     private void SeedUsers(ModelBuilder builder)
+     {
+         var hasher = new PasswordHasher<User>();
 
-public class AppDbContext : DbContext
-{
-    protected readonly IConfiguration Configuration;
+         var user = new User
+         {
+             Id = "test",
+             UserName = "math",
+             NormalizedUserName = "math",
+             Email = "mathy@gmail.com",
+             NormalizedEmail = "mathy@gmail.com",
+             EmailConfirmed = true,
+             SecurityStamp = Guid.NewGuid().ToString("D"),
+             ConcurrencyStamp = Guid.NewGuid().ToString("D"),
+         };
+         
+         user.PasswordHash = hasher.HashPassword(user, "test123");
 
-    public AppDbContext(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
-    
-    public DbSet<User> Users { get; set; }
-    public DbSet<Exercice> Exercices { get; set; }
-    public DbSet<UnitTest> UnitTests { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.HasDefaultSchema("progchess");
-        
-        // Insert default user
-        modelBuilder.Entity<User>().HasData(new User { Id = 1, Email = "test@test.com", Password ="test123" });
-        
-        // Defining the one-to-many relationship
-        modelBuilder.Entity<Exercice>().HasMany(e => e.UnitTests).WithOne(ut => ut.Exercice).HasForeignKey(ut => ut.ExerciceId).IsRequired(false);
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
-    }
-}
+         builder.Entity<User>().HasData(user);
+     }
+ }

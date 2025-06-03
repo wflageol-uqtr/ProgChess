@@ -18,26 +18,29 @@ import { Input } from "../../components/ui/input";
 import { call } from "../../actions/auth";
 import axios from "axios";
 
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 const formSchema = z.object({
   code: z
     .string()
     .min(12, { message: "Code permanent invalide" })
     .max(12, { message: "Code permanent invalide" }),
+  exerciseId: z.number(),
 });
 
 function StudentLogin() {
-  const location = useLocation();
   const navigate = useNavigate();
-
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const { id } = useParams();
+  const decodedId = decodeURIComponent(id!);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
+      exerciseId: parseInt(decodedId.split("#")[1]) || 0,
     },
   });
 
@@ -51,9 +54,9 @@ function StudentLogin() {
       form.reset();
 
       if (!response.success) {
-        setError(response.error);
+        setError("Code invalide");
       } else {
-        navigate("/exercice");
+        navigate(-1);
       }
     });
   }

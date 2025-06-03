@@ -18,6 +18,8 @@ import { useState, useTransition } from "react";
 import { call } from "../../actions/auth";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useAuth } from "../../providers/AuthProvider";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
@@ -25,10 +27,10 @@ const formSchema = z.object({
 });
 
 function AdminLogin() {
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const navigate = useNavigate();
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,6 +38,7 @@ function AdminLogin() {
       password: "",
     },
   });
+  const { setToken } = useAuth();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // TODO: Securite ?
@@ -47,11 +50,13 @@ function AdminLogin() {
       form.reset();
 
       if (!response.success) {
-        setError(response.error);
+        setError("Courriel ou mot de passe est invalide");
       } else {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
-        navigate("/admin/dashboard");
+        localStorage.setItem("user", response.data.userId);
+        setToken(response.data.accessToken);
+        navigate("/admin/exercise");
       }
     });
   }
@@ -86,7 +91,27 @@ function AdminLogin() {
                 <FormItem>
                   <FormLabel>Mot de passe</FormLabel>
                   <FormControl>
-                    <Input placeholder="*********" type="password" {...field} />
+                    <div className="relative">
+                      <Input
+                        placeholder="*********"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+                      <Button
+                        className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent bg-transparent cursor-pointer"
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        disabled={
+                          field.value === "" || field.value === undefined
+                        }
+                      >
+                        {showPassword && field.value !== "" ? (
+                          <EyeIcon className="w-4 h-4" aria-hidden="true" />
+                        ) : (
+                          <EyeOffIcon className="w-4 h-4" aria-hidden="true" />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage className="text-red-600" />
                 </FormItem>

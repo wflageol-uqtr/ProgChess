@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Logout from "./form/Logout";
 import {
   Sidebar,
@@ -11,19 +12,14 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 
-import { Users, SquareTerminal, LogOut } from "lucide-react"; // Make sure this import matches your icon library
+import { SquareTerminal } from "lucide-react";
 
 export default function AppSidebar() {
   const items = [
     {
       title: "Exercice",
-      url: "/admin/exercice",
+      url: "/admin/exercise",
       icon: SquareTerminal,
-    },
-    {
-      title: "Étudiant",
-      url: "/admin/student",
-      icon: Users,
     },
   ];
 
@@ -39,10 +35,10 @@ export default function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a className="text-white" href={item.url}>
+                    <Link className="text-white" to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

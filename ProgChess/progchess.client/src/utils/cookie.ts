@@ -13,7 +13,7 @@ export default function getCookie(cname: string) {
   return "";
 }
 
-export function hasCookie(cookie: string) {
+export function hasCookie(cookie: string): boolean {
     let cookieValue = getCookie(cookie);
     if (cookieValue != "") {
         return true;

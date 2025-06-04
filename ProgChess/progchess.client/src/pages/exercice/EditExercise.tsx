@@ -34,6 +34,7 @@ const validationSchema = z.object({
         }),
       })
     )
+    .length(2, { message: "Il peut n'y avoir que 2 type de test" })
     .nonempty({ message: "Au moins un test est requis" }),
   studentCodes: z.string().min(1, {
     message: "Il doit y avoir au moins un étudiant.",
@@ -90,6 +91,7 @@ export default function EditExercise() {
   const { fields } = useFieldArray({
     control: form.control,
     name: "unitTest",
+    rules: { maxLength: 2 },
   });
 
   const onSubmit = (values: formSchema) => {

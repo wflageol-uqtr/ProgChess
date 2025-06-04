@@ -25,3 +25,10 @@ export type Error = {
   status?: number,
   message?: string 
 }
+
+export type TabType = {
+  id: string,
+  name: string
+  isActive: boolean,
+  component: React.ReactElement
+}

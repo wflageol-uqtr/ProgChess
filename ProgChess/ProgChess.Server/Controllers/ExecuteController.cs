@@ -15,7 +15,25 @@ public class ExecuteController(IExecuteService executeService) : ControllerBase
     {
         try
         {
-            var results = await executeService.RunExerciseTestAsync(request.Code, request.ExerciseId);
+            // Faudrait tu que ce soit async ?
+            var results = executeService.RunVisibleExerciseTestAsync(request.Code, request.UnitTest, request.ExerciseId);
+            if (results is null)
+                return BadRequest("Une erreur est survenue");
+            return Ok(results);
+        }
+        catch (Exception e)
+        {
+            return BadRequest("Une erreur est survenue");
+        }
+    }
+    
+    [HttpPost("submit")]
+    [ValidCodeCookie]
+    public async Task<IActionResult> Submit(ExecuteSubmitDto request)
+    {
+        try
+        {
+            var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
             if (results is null)
                 return BadRequest("Une erreur est survenue");
             return Ok(results);

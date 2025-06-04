@@ -1,12 +1,53 @@
 import { PanelRightClose } from "lucide-react";
-import type { UnitTest } from "../../utils/type";
+import type { TabType, TestResult } from "../../utils/type";
+import { Tabs } from "../tabs/Tabs";
+import TestResultPanel from "../panel/TestResultPanel";
+import CodeEditor from "../form/input/CodeEditor";
 
 interface TestCaseCardProps {
-  unitTests: UnitTest[];
-  children: any;
+  isPending: boolean;
+  testResult: TestResult[];
+  unitTestCode: string;
+  setTestCode: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function TestCaseCard({ children }: TestCaseCardProps) {
+export default function TestCaseCard({
+  isPending,
+  testResult,
+  unitTestCode,
+  setTestCode,
+}: TestCaseCardProps) {
+  if (!unitTestCode) {
+    return (
+      <div className="flex w-full h-64 justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  const tabs: TabType[] = [
+    {
+      id: "result",
+      name: "Résultat",
+      isActive: true,
+      component: (
+        <TestResultPanel isPending={isPending} testResult={testResult} />
+      ),
+    },
+    {
+      id: "tests",
+      name: "Modification des tests",
+      isActive: false,
+      component: (
+        <CodeEditor
+          value={unitTestCode}
+          height={400}
+          onChange={(e) => setTestCode(e)}
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-hidden">
       <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
@@ -15,7 +56,7 @@ export default function TestCaseCard({ children }: TestCaseCardProps) {
           <h4 className="font-semibold text-xl">Résultats des tests</h4>
         </div>
       </div>
-      {children}
+      <Tabs tabs={tabs} />
     </div>
   );
 }

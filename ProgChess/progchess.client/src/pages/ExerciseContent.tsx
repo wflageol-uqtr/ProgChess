@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, MonitorDown } from "lucide-react";
+import { Book, Braces, MonitorDown, RefreshCcw } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -10,16 +10,18 @@ import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
-import TestResultPanel from "../components/panel/TestResultPanel";
+import { DeleteDialog } from "../components/dialog/DeleteDialog";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
 }
 
 export default function ExerciseContent({ exercise }: ExerciseContentProps) {
+  const [openDialog, setOpenDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
   const [code, setCode] = useState<string>("");
+  const [testCode, setTestCode] = useState<string>("");
   const codeRef = useRef("");
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
@@ -41,6 +43,8 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
       setCode(exercise?.baseCode!);
     }
 
+    setTestCode(exercise?.unitTests[0].code! || "");
+
     const interval = setInterval(() => saveCode(), 30000);
     return () => clearInterval(interval);
   }, [exercise]);
@@ -57,15 +61,25 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           {
             exerciseId: exercise?.id,
             code,
+            unitTest: testCode,
           },
           { withCredentials: true }
         );
         saveCode();
         setTestResult(response.data);
+        toast.success("Test exécuté");
       } catch (error) {
         toast.error("Une erreur est survenue lors de l'exécution");
       }
     });
+  };
+
+  const deleteCode = () => {
+    codeRef.current = exercise?.baseCode || "";
+    setCode(exercise?.baseCode || "");
+    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    setOpenDialog(false);
+    toast.success("Exercice réinitialiser");
   };
 
   return (
@@ -73,17 +87,30 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
       <div className="min-h-screen bg-zinc-900">
         <div className="flex py-2 px-4 items-center justify-between">
           <h2 className="text-2xl  text-green-500 font-semibold">ProgChess</h2>
-          <Button
-            className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
-            type="button"
-            onClick={() => {
-              saveCode();
-              toast.success("Exercice mis à jour");
-            }}
-          >
-            <MonitorDown />
-            Sauvegarder
-          </Button>
+          <div className="space-x-2">
+            <Button
+              className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenDialog(true);
+              }}
+            >
+              <RefreshCcw />
+              Réinitialiser
+            </Button>
+            <Button
+              className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
+              type="button"
+              onClick={() => {
+                saveCode();
+                toast.success("Exercice mis à jour");
+              }}
+            >
+              <MonitorDown />
+              Sauvegarder
+            </Button>
+          </div>
         </div>
         <div className="hidden h-screen sm:grid grid-rows-1 text-white">
           <div className="grid grid-cols-[min-content_auto]">
@@ -112,17 +139,21 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               </VerticalResizable>
 
               <TestCaseCard
-                unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
-              >
-                <TestResultPanel
-                  isPending={isPending}
-                  testResult={testResult}
-                />
-              </TestCaseCard>
+                isPending={isPending}
+                testResult={testResult}
+                unitTestCode={testCode}
+                setTestCode={setTestCode}
+              />
             </div>
           </div>
         </div>
       </div>
+      <DeleteDialog
+        open={openDialog}
+        message="Cette action est irréversible. Le code que vous avez jusqu'à présent sera perdu."
+        onOpenChange={setOpenDialog}
+        deleteFn={deleteCode}
+      />
     </>
   );
 }

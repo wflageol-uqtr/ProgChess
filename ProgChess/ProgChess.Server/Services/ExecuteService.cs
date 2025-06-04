@@ -21,8 +21,21 @@ public class ExecuteService: IExecuteService
         _exerciseService = exerciseService;
         filename = Guid.NewGuid();
     }
-    
-    public async Task<List<TestResult>?> RunExerciseTestAsync(string solution, int exerciseId)
+
+    public List<TestResult>? RunVisibleExerciseTestAsync(string solution, string unitTest, int exerciseId)
+    {
+        try
+        {
+            var code = BuildVisibleTestCode(solution, unitTest);
+            return RunTestsWithNode(code);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    public async Task<List<TestResult>?> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
         try
         {
@@ -76,6 +89,15 @@ public class ExecuteService: IExecuteService
             "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
             + userCode + "\n"
             + string.Join("\n", unitTests.Select(e => e.Code));
+    }
+
+    private string BuildVisibleTestCode(string userCode, string userTest)
+    {
+        return
+            "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
+            + userCode + "\n"
+            + userTest + "\n";
+        
     }
 
     private List<TestResult>? GenerateResult(List<string> output)

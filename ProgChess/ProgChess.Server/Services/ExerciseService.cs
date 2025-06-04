@@ -51,7 +51,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
     {
         try
         {
-            var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+            var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive)).FirstOrDefaultAsync(e => e.Id == id);
             return exercise ?? null;
         }
         catch (Exception e)

@@ -3,7 +3,6 @@ import { useState, useTransition } from "react";
 import MarkdownComponent from "../../components/form/input/MarkdownComponent";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { Button } from "../../components/ui/button";
-import { Trash } from "lucide-react";
 import { Checkbox } from "../../components/ui/checkbox";
 import CodeEditor from "../../components/form/input/CodeEditor";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -20,15 +19,17 @@ import { useNavigate } from "react-router";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
-    message: "Une mise en situation est requise !",
+    message: "Une mise en situation est requise",
   }),
-  baseCode: z.string().optional(),
+  baseCode: z.string().min(1, {
+    message: "Veuillez mettre du code de base",
+  }),
   unitTest: z
     .array(
       z.object({
         isActive: z.boolean().optional(),
         code: z.string().min(1, {
-          message: "Le test est trop court",
+          message: "Aucun test n'a été créé",
         }),
       })
     )
@@ -54,14 +55,18 @@ export default function CreateExercise() {
     defaultValues: {
       situation: "",
       baseCode: "",
-      unitTest: [],
+      unitTest: [
+        { code: "", isActive: true },
+        { code: "", isActive: false },
+      ],
       studentCodes: "",
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control: form.control,
     name: "unitTest",
+    rules: { maxLength: 2 },
   });
 
   const onSubmit = (values: formSchema) => {
@@ -87,6 +92,11 @@ export default function CreateExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
+              {form.formState.errors.situation && (
+                <span className="text-red-500">
+                  {form.formState.errors.situation.message}
+                </span>
+              )}
               <div className="grid mb-4 grid-cols-2 h-96 border border-zinc-700 rounded-lg overflow-hidden">
                 <div className="border-r border-gray-700">
                   <FormField
@@ -117,11 +127,6 @@ export default function CreateExercise() {
                   <MarkdownComponent markdown={situation} />
                 </div>
               </div>
-              {form.formState.errors.situation && (
-                <span className="text-red-500">
-                  {form.formState.errors.situation.message}
-                </span>
-              )}
             </div>
             <div className="border-b border-gray-700" />
 
@@ -134,7 +139,12 @@ export default function CreateExercise() {
                 Javascript
               </Button>
             </div>
-            <div className="h-96">
+            <div className="h-full">
+              {form.formState.errors.situation && (
+                <span className="text-red-500">
+                  {form.formState.errors.situation.message}
+                </span>
+              )}
               <FormField
                 name="baseCode"
                 control={form.control}
@@ -146,6 +156,7 @@ export default function CreateExercise() {
                         onChange={field.onChange}
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
+                        error={form.formState.errors.baseCode}
                       />
                     </FormControl>
                   </FormItem>
@@ -155,15 +166,8 @@ export default function CreateExercise() {
 
             <div className="border-b border-gray-700" />
 
-            <div className="flex justify-between items-center">
+            <div className="flex items-center">
               <h3 className="text-xl font-semibold">Tests unitaires</h3>
-              <Button
-                onClick={() => append({ code: "", isActive: false })}
-                type="button"
-                className="bg-green-600 cursor-pointer hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg"
-              >
-                Ajouter un test
-              </Button>
             </div>
             {fields.length > 0 && (
               <div className="space-y-6">
@@ -172,20 +176,10 @@ export default function CreateExercise() {
                     key={field.id}
                     className="bg-zinc-800 p-4 rounded-lg shadow-lg text-white"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-bold">Test {index + 1}</h3>
-                      <div className="flex items-center space-x-4">
-                        <Button
-                          type="button"
-                          onClick={() => remove(index)}
-                          className="text-red-400 cursor-pointer hover:text-red-600 transition"
-                          title="Delete Test"
-                        >
-                          <Trash />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="items-top flex space-x-2 mb-4">
+                    <h3 className="text-xl font-bold">
+                      Test {index === 0 ? "visible" : "caché"}
+                    </h3>
+                    <div className="flex">
                       <FormField
                         control={form.control}
                         name={`unitTest.${index}.isActive`}
@@ -193,6 +187,7 @@ export default function CreateExercise() {
                           <FormItem>
                             <FormControl>
                               <Checkbox
+                                hidden
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                               />
@@ -200,15 +195,6 @@ export default function CreateExercise() {
                           </FormItem>
                         )}
                       />
-                      <div className="grid gap-1.5 leading-none">
-                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Cacher ce test aux étudiants
-                        </label>
-                        <p className="text-sm text-muted-foreground">
-                          Les étudiants ne pourront pas voir ce test lors de
-                          l'exécution de leur programme.
-                        </p>
-                      </div>
                     </div>
                     <div className="h-full">
                       {form.formState.errors.situation && (
@@ -228,10 +214,13 @@ export default function CreateExercise() {
                               <CodeEditor
                                 value={field.value ?? ""}
                                 onChange={field.onChange}
-                                placeholder={`Code de base pour le test ${
-                                  index + 1
+                                placeholder={`Code de base pour les tests ${
+                                  index === 0 ? "visibles" : "cachés"
                                 } ...`}
                                 height={window.innerHeight / 2}
+                                error={
+                                  form.formState.errors.unitTest?.[index]?.code
+                                }
                               />
                             </FormControl>
                           </FormItem>

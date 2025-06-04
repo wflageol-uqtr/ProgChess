@@ -1,14 +1,10 @@
 import AuthCard from "../../components/card/AuthCard";
-
-interface ErrorPageProps {
-  status?: number;
-  message?: string;
-}
+import type { Error } from "../../utils/type";
 
 const ErrorPage = ({
   status = 404,
   message = "Aucune page n'a été trouvé.",
-}: ErrorPageProps) => {
+}: Error) => {
   return (
     <div className="h-screen flex items-center justify-center bg-zinc-900">
       <AuthCard>

@@ -20,3 +20,8 @@ export type TestResult = {
   expected?: string,
   actual?: string
 }
+
+export type Error = {
+  status?: number,
+  message?: string 
+}

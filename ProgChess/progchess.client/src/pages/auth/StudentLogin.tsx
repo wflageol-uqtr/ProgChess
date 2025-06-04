@@ -32,15 +32,13 @@ function StudentLogin() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-
   const { id } = useParams();
-  const decodedId = decodeURIComponent(id!);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
-      exerciseId: parseInt(decodedId.split("#")[1]) || 0,
+      exerciseId: parseInt(id!) || 0,
     },
   });
 
@@ -56,7 +54,7 @@ function StudentLogin() {
       if (!response.success) {
         setError("Code invalide");
       } else {
-        navigate(-1);
+        navigate(`/exercise/${id}`);
       }
     });
   }

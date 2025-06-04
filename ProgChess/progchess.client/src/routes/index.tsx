@@ -7,6 +7,7 @@ import ListExercise from "../pages/exercice/ListExercise";
 import Exercice from "../pages/Exercise";
 import EditExercise from "../pages/exercice/EditExercise";
 import ErrorPage from "../pages/error/ErrorPage";
+import CookieProvider from "../providers/CookieProvider";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -21,7 +22,11 @@ export default function Routes() {
         },
         {
           path: "/exercise/:id",
-          element: <Exercice />,
+          element: (
+            <CookieProvider>
+              <Exercice />
+            </CookieProvider>
+          ),
         },
         {
           path: "/admin/login",

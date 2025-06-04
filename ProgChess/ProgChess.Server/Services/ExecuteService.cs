@@ -22,22 +22,21 @@ public class ExecuteService: IExecuteService
         filename = Guid.NewGuid();
     }
     
-    public async Task<List<TestResult>> RunExerciseTestAsync(ExecuteDto request)
+    public async Task<List<TestResult>?> RunExerciseTestAsync(string solution, int exerciseId)
     {
         try
         {
-            var exercise = await _exerciseService.GetById(request.ExerciseId);
-            var code = BuildFullTestCode(request.Code, exercise.UnitTests);
+            var exercise = await _exerciseService.GetById(exerciseId);
+            var code = BuildFullTestCode(solution, exercise.UnitTests);
             return RunTestsWithNode(code);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return null;
         }
     }
 
-    private List<TestResult> RunTestsWithNode(string code)
+    private List<TestResult>? RunTestsWithNode(string code)
     {
         try
         { 
@@ -48,12 +47,11 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return null;
         }
     }
 
-    private List<TestResult> RunNodeCommandLine()
+    private List<TestResult>? RunNodeCommandLine()
     {
         var psi = new ProcessStartInfo
         {
@@ -80,7 +78,7 @@ public class ExecuteService: IExecuteService
             + string.Join("\n", unitTests.Select(e => e.Code));
     }
 
-    private List<TestResult> GenerateResult(List<string> output)
+    private List<TestResult>? GenerateResult(List<string> output)
     {
         var result = new List<TestResult>();
         result.AddRange(new SuccessCreator(output).createTestResults());

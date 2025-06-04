@@ -31,7 +31,6 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return null;
         }
     }

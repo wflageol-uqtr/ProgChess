@@ -15,7 +15,10 @@ public class ExecuteController(IExecuteService executeService) : ControllerBase
     {
         try
         {
-            return Ok(await executeService.RunExerciseTestAsync(request));
+            var results = await executeService.RunExerciseTestAsync(request.Code, request.ExerciseId);
+            if (results is null)
+                return BadRequest("Une erreur est survenue");
+            return Ok(results);
         }
         catch (Exception e)
         {

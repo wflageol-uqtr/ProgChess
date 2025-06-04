@@ -9,12 +9,10 @@ public class ValidCodeCookieAttribute: Attribute, IAsyncAuthorizationFilter
     public Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var request = context.HttpContext.Request;
-        request.Cookies.TryGetValue("studentCookie", out var studentCookie);
-        if (string.IsNullOrEmpty(studentCookie))
+        if (!request.Cookies.TryGetValue("studentCookie", out var studentCookie))
         {
             context.Result = new UnauthorizedResult();
         }
-        
         return Task.CompletedTask;
     }
 }

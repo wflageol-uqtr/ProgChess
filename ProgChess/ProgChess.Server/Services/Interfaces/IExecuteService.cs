@@ -5,5 +5,5 @@ namespace ProgChess.Server.Services;
 
 public interface IExecuteService
 {
-    public Task<List<TestResult>> RunExerciseTestAsync(ExecuteDto request);
+    public Task<List<TestResult>?> RunExerciseTestAsync(string solution, int exerciseId);
 }

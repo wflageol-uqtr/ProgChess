@@ -7,7 +7,7 @@ namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExecuteController(IExecuteService executeService) : ControllerBase
+public class ExecuteController(IExecuteService executeService, IScoreService scoreService, IExerciseService exerciseService) : ControllerBase
 {
     [HttpPost]
     [ValidCodeCookie]
@@ -36,7 +36,17 @@ public class ExecuteController(IExecuteService executeService) : ControllerBase
             var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
             if (results is null)
                 return BadRequest("Une erreur est survenue");
-            return Ok(results);
+            // Store Score
+            if (HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie))
+            {
+                var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results);
+                if (score is null)
+                    return BadRequest("Une erreur est survenue lors de la création du score");
+                // delete student from exercise
+                await exerciseService.RemoveStudentCode(request.ExerciseId, studentCookie);
+                return Ok(new { score, results });
+            }
+            return BadRequest("Aucun étudiant spécifié");
         }
         catch (Exception e)
         {

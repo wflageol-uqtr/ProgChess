@@ -39,7 +39,7 @@ public class ExecuteService: IExecuteService
     {
         try
         {
-            var exercise = await _exerciseService.GetById(exerciseId);
+            var exercise = await _exerciseService.GetByIdWithHiddenTest(exerciseId);
             var code = BuildFullTestCode(solution, exercise.UnitTests);
             return RunTestsWithNode(code);
         }
@@ -88,7 +88,7 @@ public class ExecuteService: IExecuteService
         return
             "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
             + userCode + "\n"
-            + string.Join("\n", unitTests.Select(e => e.Code));
+            + string.Join("\n", unitTests.Where(e => !e.IsActive).Select(e => e.Code));
     }
 
     private string BuildVisibleTestCode(string userCode, string userTest)

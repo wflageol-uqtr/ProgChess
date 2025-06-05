@@ -8,6 +8,7 @@ import Exercice from "../pages/Exercise";
 import EditExercise from "../pages/exercice/EditExercise";
 import ErrorPage from "../pages/error/ErrorPage";
 import CookieProvider from "../providers/CookieProvider";
+import Score from "../pages/Score";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -31,6 +32,10 @@ export default function Routes() {
         {
           path: "/admin/login",
           element: <AdminLogin />,
+        },
+        {
+          path: "/score",
+          element: <Score />,
         },
       ],
     },

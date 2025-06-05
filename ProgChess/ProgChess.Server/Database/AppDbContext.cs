@@ -13,7 +13,8 @@ using Microsoft.AspNetCore.Identity;
      
      public DbSet<Exercise> Exercises { get; set; }
      public DbSet<UnitTest> UnitTests { get; set; }
- 
+     public DbSet<Score> Scores { get; set; }
+
      protected override void OnModelCreating(ModelBuilder modelBuilder)
      {
          base.OnModelCreating(modelBuilder);

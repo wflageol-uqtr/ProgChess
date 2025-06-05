@@ -43,6 +43,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IExecuteService, ExecuteService>();
+builder.Services.AddScoped<IScoreService, ScoreService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

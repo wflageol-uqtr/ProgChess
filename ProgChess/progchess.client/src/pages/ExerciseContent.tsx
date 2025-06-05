@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, MonitorDown, RefreshCcw } from "lucide-react";
+import { Book, Braces, Check, MonitorDown, RefreshCcw } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -11,13 +11,17 @@ import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
 import { DeleteDialog } from "../components/dialog/DeleteDialog";
+import { useNavigate } from "react-router";
+import SubmitDialog from "../components/dialog/SubmitDialog";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
 }
 
 export default function ExerciseContent({ exercise }: ExerciseContentProps) {
-  const [openDialog, setOpenDialog] = useState(false);
+  const navigate = useNavigate();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
   const [code, setCode] = useState<string>("");
@@ -43,7 +47,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
       setCode(exercise?.baseCode!);
     }
 
-    setTestCode(exercise?.unitTests[0].code! || "");
+    if (exercise?.unitTests[0]) {
+      setTestCode(exercise?.unitTests?.[0]?.code || "");
+    }
 
     const interval = setInterval(() => saveCode(), 30000);
     return () => clearInterval(interval);
@@ -74,11 +80,34 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     });
   };
 
+  const submitCode = async () => {
+    startTransition(async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:5290/api/execute/submit",
+          {
+            exerciseId: exercise?.id,
+            code,
+          },
+          { withCredentials: true }
+        );
+        navigate("/score", {
+          state: {
+            score: response.data.score,
+            testResult: response.data.results,
+          },
+        });
+      } catch (error) {
+        toast.error("Une erreur est survenue lors de l'exécution");
+      }
+    });
+  };
+
   const deleteCode = () => {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
     localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
-    setOpenDialog(false);
+    setOpenDeleteDialog(false);
     toast.success("Exercice réinitialiser");
   };
 
@@ -93,7 +122,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setOpenDialog(true);
+                setOpenDeleteDialog(true);
               }}
             >
               <RefreshCcw />
@@ -109,6 +138,17 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
             >
               <MonitorDown />
               Sauvegarder
+            </Button>
+            <Button
+              className="bg-green-500 hover:bg-green-600 cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenSubmitDialog(true);
+              }}
+            >
+              <Check />
+              Soummettre
             </Button>
           </div>
         </div>
@@ -149,10 +189,15 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         </div>
       </div>
       <DeleteDialog
-        open={openDialog}
+        open={openDeleteDialog}
         message="Cette action est irréversible. Le code que vous avez jusqu'à présent sera perdu."
-        onOpenChange={setOpenDialog}
+        onOpenChange={setOpenDeleteDialog}
         deleteFn={deleteCode}
+      />
+      <SubmitDialog
+        open={openSubmitDialog}
+        onOpenChange={setOpenSubmitDialog}
+        submitFn={() => submitCode()}
       />
     </>
   );

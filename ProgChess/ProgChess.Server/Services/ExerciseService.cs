@@ -29,7 +29,6 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return null;
         }
     }
@@ -57,6 +56,19 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         catch (Exception e)
         {
             Console.WriteLine(e);
+            return null;
+        }
+    }
+    
+    public async Task<Exercise?> GetByIdWithHiddenTest(int id)
+    {
+        try
+        {
+            var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => !ut.IsActive)).FirstOrDefaultAsync(e => e.Id == id);
+            return exercise ?? null;
+        }
+        catch (Exception e)
+        {
             return null;
         }
     }
@@ -114,6 +126,21 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
             Console.WriteLine(e);
             return false;
 
+        }
+    }
+
+    public async Task RemoveStudentCode(int id, string permanentCode)
+    {
+        try
+        {
+            var exercise = await dbContext.Exercises.FirstOrDefaultAsync(e => e.Id == id);
+            exercise.StudentCodes.Remove(permanentCode);
+            await dbContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProgChess.Server.Database;
@@ -12,9 +13,11 @@ using ProgChess.Server.Database;
 namespace ProChess.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250605120959_AddScoreTable")]
+    partial class AddScoreTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,10 +191,6 @@ namespace ProChess.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Answer")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("ExerciseId")
                         .HasColumnType("integer");
 
@@ -308,15 +307,15 @@ namespace ProChess.Server.Migrations
                         {
                             Id = "test",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8dd24956-11a2-4656-b980-0d25b6eaa5c8",
+                            ConcurrencyStamp = "a77e9266-9b1e-4656-801b-8ee807db11f6",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIUSpEnPNTmoIEjbsxg/x9/+tAqwOHmgVSg7aNh7nLpGOTp6B1mrBm0ZNPoXxrri7w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEC+bHEBD0/THG7gxWjnC9yj6v0fMVEyiiL8sNR+Dc79nKbe7/egmxiFw5C46A62q7w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "75960a5a-f3aa-4bfd-9124-7d541911dd21",
+                            SecurityStamp = "24bdf2fd-d32c-4f1c-b960-063156405a43",
                             TwoFactorEnabled = false,
                             UserName = "math"
                         });

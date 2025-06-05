@@ -36,13 +36,12 @@ public class ExecuteController(IExecuteService executeService, IScoreService sco
             var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
             if (results is null)
                 return BadRequest("Une erreur est survenue");
-            // Store Score
             if (HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie))
             {
+                // Utilisation d'un builder pour reduire les arguments ou non nécessaire ?
                 var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results);
                 if (score is null)
                     return BadRequest("Une erreur est survenue lors de la création du score");
-                // delete student from exercise
                 await exerciseService.RemoveStudentCode(request.ExerciseId, studentCookie);
                 return Ok(new { score, results });
             }

@@ -65,7 +65,6 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         const response = await axios.post(
           "http://localhost:5290/api/execute",
           {
-            exerciseId: exercise?.id,
             code,
             unitTest: testCode,
           },

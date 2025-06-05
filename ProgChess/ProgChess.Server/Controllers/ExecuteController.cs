@@ -16,9 +16,11 @@ public class ExecuteController(IExecuteService executeService, IScoreService sco
         try
         {
             // Faudrait tu que ce soit async ?
-            var results = executeService.RunVisibleExerciseTestAsync(request.Code, request.UnitTest, request.ExerciseId);
-            if (results is null)
-                return BadRequest("Une erreur est survenue");
+            var results = executeService.RunExerciseTest(request.Code, request.UnitTest);
+            if (results.IsFailure)
+            {
+                return BadRequest(results.Error);
+            }
             return Ok(results);
         }
         catch (Exception e)
@@ -34,12 +36,14 @@ public class ExecuteController(IExecuteService executeService, IScoreService sco
         try
         {
             var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
-            if (results is null)
-                return BadRequest("Une erreur est survenue");
+            if (results != null && results.IsFailure)
+            {
+                return BadRequest(results.Error);
+            }
             if (HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie))
             {
                 // Utilisation d'un builder pour reduire les arguments ou non nécessaire ?
-                var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results);
+                var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results.Value);
                 if (score is null)
                     return BadRequest("Une erreur est survenue lors de la création du score");
                 await exerciseService.RemoveStudentCode(request.ExerciseId, studentCookie);

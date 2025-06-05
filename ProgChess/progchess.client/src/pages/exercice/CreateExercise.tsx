@@ -16,6 +16,9 @@ import {
 import api from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import axios from "axios";
+import ExecutionSheet from "../../components/sheet/ExecutionSheet";
+import type { TestResult } from "../../utils/type";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -46,6 +49,9 @@ export default function CreateExercise() {
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const [situation, setSituation] = useState<string>("");
+  const [openSheet, setOpenSheet] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [testResult, setTestResult] = useState<TestResult[]>();
 
   const updateSituation = (e: any) => {
     setSituation(e.target.value);
@@ -78,6 +84,33 @@ export default function CreateExercise() {
         navigate("/admin/exercise");
       } catch (error) {
         toast.error("Une erreur est survenue");
+      }
+    });
+  };
+
+  const executeCode = () => {
+    startTransition(async () => {
+      try {
+        const code = form.watch("baseCode");
+        const unitTest = form
+          .watch("unitTest")
+          .map((test) => test.code)
+          .join("\n");
+        const response = await axios.post(
+          "http://localhost:5290/api/execute",
+          {
+            code,
+            unitTest,
+          },
+          { withCredentials: true }
+        );
+        setOpenSheet(true);
+        setTestResult(response.data.value);
+        setError("");
+        console.log(response.data);
+      } catch (error) {
+        setOpenSheet(true);
+        setError(error.response.data);
       }
     });
   };
@@ -135,9 +168,10 @@ export default function CreateExercise() {
               <h3 className="text-xl font-semibold mb-2">Code de base</h3>
               <Button
                 type="button"
-                className="border bg-gray-100 text-gray-900 cursor-pointer hover:bg-gray-200"
+                className=" bg-green-500 text-white cursor-pointer hover:bg-green-600"
+                onClick={() => executeCode()}
               >
-                Javascript
+                Exécuter
               </Button>
             </div>
             <div className="h-full">
@@ -282,6 +316,12 @@ export default function CreateExercise() {
           </form>
         </Form>
       </div>
+      <ExecutionSheet
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        error={error}
+        testResult={testResult}
+      />
     </AdminLayout>
   );
 }

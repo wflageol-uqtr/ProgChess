@@ -1,12 +1,7 @@
 using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ProChess.Server.Entities;
 using ProChess.Server.Response;
 using ProChess.Server.Utils;
-using ProgChess.Server.Dto;
 using TestResult = ProChess.Server.Response.TestResult;
 
 namespace ProgChess.Server.Services;
@@ -22,7 +17,7 @@ public class ExecuteService: IExecuteService
         filename = Guid.NewGuid();
     }
 
-    public List<TestResult>? RunVisibleExerciseTestAsync(string solution, string unitTest, int exerciseId)
+    public ExecuteResult<List<TestResult>?>? RunExerciseTest(string solution, string unitTest)
     {
         try
         {
@@ -31,11 +26,13 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
+            Console.WriteLine("2");
+            Console.WriteLine(e);
             return null;
         }
     }
 
-    public async Task<List<TestResult>?> RunHiddenExerciseTestAsync(string solution, int exerciseId)
+    public async Task<ExecuteResult<List<TestResult>?>?> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
         try
         {
@@ -45,11 +42,13 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
+            Console.WriteLine("3");
+            Console.WriteLine(e);
             return null;
         }
     }
 
-    private List<TestResult>? RunTestsWithNode(string code)
+    private ExecuteResult<List<TestResult>?>? RunTestsWithNode(string code)
     {
         try
         { 
@@ -60,11 +59,13 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
+            Console.WriteLine("1");
+            Console.WriteLine(e);
             return null;
         }
     }
 
-    private List<TestResult>? RunNodeCommandLine()
+    private ExecuteResult<List<TestResult>> RunNodeCommandLine()
     {
         var psi = new ProcessStartInfo
         {
@@ -79,7 +80,12 @@ public class ExecuteService: IExecuteService
         
         using var process = Process.Start(psi);
         var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd(); 
         process.WaitForExit();
+        if (!string.IsNullOrEmpty(error))
+        {
+            return ExecuteResult<List<TestResult>>.Failure(error);
+        }
         return GenerateResult(Formatter.SplitByLine(output));
     }
     
@@ -100,11 +106,11 @@ public class ExecuteService: IExecuteService
         
     }
 
-    private List<TestResult>? GenerateResult(List<string> output)
+    private ExecuteResult<List<TestResult>> GenerateResult(List<string> output)
     {
         var result = new List<TestResult>();
         result.AddRange(new SuccessCreator(output).createTestResults());
         result.AddRange(new ErrorCreator(output).createTestResults());
-        return result;
+        return ExecuteResult<List<TestResult>>.Success(result);
     }
 }

@@ -23,7 +23,7 @@ export default function Exercice() {
 
   const getExercise = async () => {
     try {
-      const response = await api.get(`/api/exercise/${id}`);
+      const response = await api.get(`/api/exercise/active/${id}`);
       setExercise(response.data);
     } catch (error) {
       setError(error);

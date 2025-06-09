@@ -16,7 +16,7 @@ export default function Score() {
         <p className="text-xl mb-6">
           Score :{" "}
           <span className="font-bold">
-            {score} / {testResult.length}
+            {score} / {testResult.value.length}
           </span>
         </p>
 
@@ -34,7 +34,7 @@ export default function Score() {
         </div>
 
         <ul className="space-y-2 text-left">
-          {testResult.map((test: TestResult, index: number) => (
+          {testResult.value.map((test: TestResult, index: number) => (
             <li
               key={index}
               className={`p-3 rounded-lg flex items-center justify-between ${

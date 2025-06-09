@@ -71,7 +71,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           { withCredentials: true }
         );
         saveCode();
-        setTestResult(response.data);
+        setTestResult(response.data.value);
         toast.success("Test exécuté");
       } catch (error) {
         toast.error("Une erreur est survenue lors de l'exécution");
@@ -112,7 +112,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-zinc-900">
+      <div className="min-h-screen bg-zinc-900 overflow-auto">
         <div className="flex py-2 px-4 items-center justify-between">
           <h2 className="text-2xl  text-green-500 font-semibold">ProgChess</h2>
           <div className="space-x-2">

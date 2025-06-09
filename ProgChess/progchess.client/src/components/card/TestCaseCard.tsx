@@ -41,7 +41,7 @@ export default function TestCaseCard({
   ];
 
   return (
-    <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-hidden">
+    <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-auto">
       <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
         <div className="flex gap-2 items-center">
           <PanelRightClose className="text-green-500" />

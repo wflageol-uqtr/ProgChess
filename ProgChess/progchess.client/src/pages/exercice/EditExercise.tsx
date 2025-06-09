@@ -3,7 +3,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import api from "../../utils/api";
-import type { Exercise } from "../../utils/type";
+import type { Exercise, TestResult } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -17,10 +17,12 @@ import MarkdownComponent from "../../components/form/input/MarkdownComponent";
 import { Button } from "../../components/ui/button";
 import CodeEditor from "../../components/form/input/CodeEditor";
 import { Checkbox } from "../../components/ui/checkbox";
+import axios from "axios";
+import ExecutionSheet from "../../components/sheet/ExecutionSheet";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
-    message: "Une mise en situation est requise !",
+    message: "Une mise en situation est requise",
   }),
   baseCode: z.string().min(1, {
     message: "Veuillez mettre du code de base",
@@ -30,7 +32,7 @@ const validationSchema = z.object({
       z.object({
         isActive: z.boolean().optional(),
         code: z.string().min(1, {
-          message: "Le test est trop court",
+          message: "Aucun test n'a été créé",
         }),
       })
     )
@@ -49,6 +51,9 @@ export default function EditExercise() {
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
   const { id } = useParams();
+  const [openSheet, setOpenSheet] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [testResult, setTestResult] = useState<TestResult[]>();
 
   const getExercise = async () => {
     try {
@@ -114,6 +119,33 @@ export default function EditExercise() {
     return codeArray.join("\n");
   };
 
+  const executeCode = () => {
+    startTransition(async () => {
+      try {
+        const code = form.watch("baseCode");
+        const unitTest = form
+          .watch("unitTest")
+          .map((test) => test.code)
+          .join("\n");
+        const response = await axios.post(
+          "http://localhost:5290/api/execute",
+          {
+            code,
+            unitTest,
+          },
+          { withCredentials: true }
+        );
+        setOpenSheet(true);
+        setTestResult(response.data.value);
+        setError("");
+        console.log(response.data);
+      } catch (error) {
+        setOpenSheet(true);
+        setError(error.response.data);
+      }
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
@@ -174,9 +206,10 @@ export default function EditExercise() {
               <h3 className="text-xl font-semibold mb-2">Code de base</h3>
               <Button
                 type="button"
-                className="border bg-gray-100 text-gray-900 cursor-pointer hover:bg-gray-200"
+                className=" bg-green-500 text-white cursor-pointer hover:bg-green-600"
+                onClick={() => executeCode()}
               >
-                Javascript
+                Exécuter
               </Button>
             </div>
             <div className="h-full">
@@ -321,6 +354,12 @@ export default function EditExercise() {
           </form>
         </Form>
       </div>
+      <ExecutionSheet
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        error={error}
+        testResult={testResult}
+      />
     </AdminLayout>
   );
 }

@@ -26,8 +26,6 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
-            Console.WriteLine("2");
-            Console.WriteLine(e);
             return null;
         }
     }
@@ -42,8 +40,6 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
-            Console.WriteLine("3");
-            Console.WriteLine(e);
             return null;
         }
     }
@@ -59,8 +55,6 @@ public class ExecuteService: IExecuteService
         }
         catch (Exception e)
         {
-            Console.WriteLine("1");
-            Console.WriteLine(e);
             return null;
         }
     }

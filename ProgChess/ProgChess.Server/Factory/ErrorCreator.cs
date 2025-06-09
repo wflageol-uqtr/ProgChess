@@ -1,10 +1,10 @@
 using System.Text.RegularExpressions;
+using ProChess.Server.ExecutionError;
 using ProChess.Server.Response;
-using ProChess.Server.Strategy;
 
 namespace ProChess.Server.Utils;
 
-public class ErrorCreator : TestCreator
+public class ErrorCreator: TestCreator
 {
     private List<string> outputLines;
     private ITestErrorClassifier testErrorClassifier;
@@ -16,41 +16,52 @@ public class ErrorCreator : TestCreator
     
     public override List<TestResult> createTestResults()
     {
-        var result = new List<TestResult>();
-        var failedTest = outputLines.Where(l => l.StartsWith("✖") 
-                                                && Regex.IsMatch(l, @"\(.+?ms\)")).Distinct().ToList();
-        var errorType = ErrorChecker();
-        var counter = 0;
-        foreach (var test in failedTest)
-        { 
-            setCommonTestError((ITestErrorClassifier)Activator.CreateInstance(errorType[counter])!);
-            result.Add(executeCommonTestError(test));
-            counter++;
-        }
-        return result;
-    }
-
-    private List<Type> ErrorChecker()
-    {
-        var type = new List<Type>();
-        foreach (var line in outputLines)
+        var index = outputLines.FindIndex(l =>  l.StartsWith("✖") && Regex.IsMatch(l, "failing tests"));
+        if (index < 0)
         {
-            if (Regex.IsMatch(line, @"AssertionError|\[ERR_ASSERTION\]", RegexOptions.IgnoreCase))
-            {
-                type.Add(typeof(AssertionErrorClassifier));
-            }
-            if (Regex.IsMatch(line, @"\b(ReferenceError|TypeError|SyntaxError|RangeError)\b", RegexOptions.IgnoreCase))
-            {
-                type.Add(typeof(RuntimeErrorClassifier));
-
-            }
+            return new List<TestResult>();
         }
-        return type;
+        return ProcessTestError2(outputLines.Skip(index + 1));
+    }
+    
+
+    private List<TestResult> ProcessTestError2(IEnumerable<string> errorLines)
+    {
+        var results = new List<TestResult>();
+        return ProcessTestError(errorLines, results);
     }
 
-    private TestError executeCommonTestError(string test)
+    // Refactor ?
+    private List<TestResult> ProcessTestError(IEnumerable<string> errorLines, List<TestResult> results)
     {
-        return testErrorClassifier.execute(outputLines, test);
+        var lines = Formatter.GetLines(errorLines).Take(3).ToList();
+        var testName = lines.FirstOrDefault(l => l.StartsWith("✖"));
+        
+        if (Regex.IsMatch(lines[2], "AssertionError", RegexOptions.IgnoreCase))
+        {
+            var assertionError = errorLines.TakeWhile(e => !e.Contains("operator:"));
+            setCommonTestError(new AssertionErrorClassifier());
+            results.AddRange(executeCommonTestError(assertionError.ToList(), testName));
+        }
+
+        if (Regex.IsMatch(lines[2], @"\b(ReferenceError|TypeError|SyntaxError|RangeError|Error)\b",
+                RegexOptions.IgnoreCase))
+        { 
+            setCommonTestError(new RuntimeErrorClassifier());
+            results.AddRange(executeCommonTestError(lines, testName));
+        }
+        
+        var index = errorLines.Skip(1).ToList().FindIndex(l =>   l.Contains("test at"));
+        if (index <= 0)
+        {
+            return results;
+        }
+        return ProcessTestError(errorLines.Skip(index + 1), results);
+    }
+    
+    private TestError executeCommonTestError(List<string> assertionError, string test)
+    {
+        return testErrorClassifier.execute(assertionError, test);
     }
 
     private void setCommonTestError(ITestErrorClassifier testErrorClassifier)

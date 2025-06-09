@@ -1,6 +1,6 @@
 using ProChess.Server.Response;
 
-namespace ProChess.Server.Strategy;
+namespace ProChess.Server.ExecutionError;
 
 public class AssertionErrorClassifier : ITestErrorClassifier
 {

@@ -10,7 +10,7 @@ namespace ProChess.Server.Controllers;
 public class ExecuteController(IExecuteService executeService, IScoreService scoreService, IExerciseService exerciseService) : ControllerBase
 {
     [HttpPost]
-    [ValidCodeCookie]
+    // [ValidCodeCookie]
     public async Task<IActionResult> Execute(ExecuteDto request)
     {
         try

@@ -8,6 +8,8 @@ namespace ProgChess.Server.Services;
 
 public class ExerciseService(AppDbContext dbContext) : IExerciseService
 {
+    private IExerciseService _exerciseServiceImplementation;
+
     public async Task<int?> Create(ExerciseDto request)
     {
         try
@@ -50,7 +52,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
     {
         try
         {
-            var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive)).FirstOrDefaultAsync(e => e.Id == id);
+            var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
             return exercise ?? null;
         }
         catch (Exception e)
@@ -59,12 +61,12 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
             return null;
         }
     }
-    
-    public async Task<Exercise?> GetByIdWithHiddenTest(int id)
+
+    public async Task<Exercise?> GetByIdWithTestType(int id, bool isActive)
     {
         try
         {
-            var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => !ut.IsActive)).FirstOrDefaultAsync(e => e.Id == id);
+            var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive == isActive)).FirstOrDefaultAsync(e => e.Id == id);
             return exercise ?? null;
         }
         catch (Exception e)

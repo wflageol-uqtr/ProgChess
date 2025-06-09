@@ -19,9 +19,21 @@ public class ExerciseController(IExerciseService service) : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetExerciceByIdAsync(int id)
     {
         var exercice = await service.GetById(id);
+        if (exercice is null)
+        {
+            return NotFound("Not Found");
+        }
+        return Ok(exercice);
+    }
+    
+    [HttpGet("active/{id}")]
+    public async Task<IActionResult> GetExerciseByIdAsyncWithActiveTest(int id)
+    {
+        var exercice = await service.GetByIdWithTestType(id, true);
         if (exercice is null)
         {
             return NotFound("Not Found");

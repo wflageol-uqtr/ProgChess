@@ -34,7 +34,7 @@ public class ExecuteService: IExecuteService
     {
         try
         {
-            var exercise = await _exerciseService.GetByIdWithHiddenTest(exerciseId);
+            var exercise = await _exerciseService.GetByIdWithTestType(exerciseId, false);
             var code = BuildFullTestCode(solution, exercise.UnitTests);
             return RunTestsWithNode(code);
         }

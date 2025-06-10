@@ -12,7 +12,7 @@ public class ExerciseController(IExerciseService service) : ControllerBase
 {
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<List<Exercise>>> GetExercicesAsync()
+    public async Task<ActionResult<List<Exercise>>> GetExercisesAsync()
     {
         var exercices = await service.GetAllExercice();
         return Ok(exercices);
@@ -20,7 +20,7 @@ public class ExerciseController(IExerciseService service) : ControllerBase
 
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<IActionResult> GetExerciceByIdAsync(int id)
+    public async Task<IActionResult> GetExerciseByIdAsync(int id)
     {
         var exercice = await service.GetById(id);
         if (exercice is null)

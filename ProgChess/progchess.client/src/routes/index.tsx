@@ -9,6 +9,7 @@ import EditExercise from "../pages/exercice/EditExercise";
 import ErrorPage from "../pages/error/ErrorPage";
 import CookieProvider from "../providers/CookieProvider";
 import Score from "../pages/Score";
+import ListScore from "../pages/score/ListScore";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -58,6 +59,10 @@ export default function Routes() {
         {
           path: "exercise/edit/:id",
           element: <EditExercise />,
+        },
+        {
+          path: "score",
+          element: <ListScore />,
         },
       ],
     },

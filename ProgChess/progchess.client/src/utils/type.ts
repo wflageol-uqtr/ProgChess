@@ -21,6 +21,14 @@ export type TestResult = {
   actual?: string
 }
 
+export type Score = {
+  id: number,
+  permanentCode: string,
+  exercise: Exercise,
+  scoreValue: number,
+  answer: string
+}
+
 export type Error = {
   status?: number,
   message?: string 

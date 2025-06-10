@@ -71,10 +71,11 @@ const AuthProvider = ({ children }: any) => {
             console.error("Token refresh failed:", refreshError);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
-            return Promise.reject(refreshError);
+            localStorage.removeItem("user");
+            return Promise.reject({ redirectTo: "/admin/login" });
           }
         }
-        return Promise.reject(error);
+        return Promise.reject({ error });
       }
     );
 

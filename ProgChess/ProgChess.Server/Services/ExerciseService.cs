@@ -43,7 +43,6 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return null;
         }
     }

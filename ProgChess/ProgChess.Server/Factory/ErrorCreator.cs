@@ -21,11 +21,11 @@ public class ErrorCreator: TestCreator
         {
             return new List<TestResult>();
         }
-        return ProcessTestError2(outputLines.Skip(index + 1));
+        return GenerateTestErrorList(outputLines.Skip(index + 1));
     }
     
 
-    private List<TestResult> ProcessTestError2(IEnumerable<string> errorLines)
+    private List<TestResult> GenerateTestErrorList(IEnumerable<string> errorLines)
     {
         var results = new List<TestResult>();
         return ProcessTestError(errorLines, results);

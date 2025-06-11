@@ -15,10 +15,10 @@ import Flash from "../../components/flash/Flash";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/ui/input";
-import { call } from "../../actions/auth";
 import axios from "axios";
 
 import { useNavigate, useParams } from "react-router";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 const formSchema = z.object({
   code: z
@@ -44,18 +44,27 @@ function StudentLogin() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
-      const response = await call(() =>
-        axios.post("http://localhost:5290/api/auth/login-code", values, {
+      try {
+        await axios.post("http://localhost:5290/api/auth/login-code", values, {
           withCredentials: true,
-        })
-      );
-      form.reset();
-
-      if (!response.success) {
-        setError("Code invalide");
-      } else {
+        });
         navigate(`/exercise/${id}`);
+      } catch (error) {
+        handleApiError(error, setError);
+        form.reset();
       }
+      // const response = await call(() =>
+      //   axios.post("http://localhost:5290/api/auth/login-code", values, {
+      //     withCredentials: true,
+      //   })
+      // );
+      // form.reset();
+
+      // if (!response.success) {
+      //   setError("Code invalide");
+      // } else {
+      //   navigate(`/exercise/${id}`);
+      // }
     });
   }
 

@@ -8,6 +8,7 @@ import {
 } from "react";
 import axios from "axios";
 import api from "../utils/api";
+import { handleApiError } from "../utils/apiErrorHandler";
 interface AuthContextType {
   token: string | null;
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
@@ -68,7 +69,7 @@ const AuthProvider = ({ children }: any) => {
 
             return axios(originalRequest);
           } catch (refreshError) {
-            console.error("Token refresh failed:", refreshError);
+            handleApiError(error);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");

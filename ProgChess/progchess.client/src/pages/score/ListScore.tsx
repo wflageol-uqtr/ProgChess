@@ -3,9 +3,9 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import { Button } from "../../components/ui/button";
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
-import { toast } from "sonner";
 import { DataTable } from "../../components/table/Data-table";
 import { ScoreColumns } from "../../components/table/ScoreColumns";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 export default function ListScore() {
   const [score, setScore] = useState([]);
@@ -15,7 +15,7 @@ export default function ListScore() {
       const response = await api.get("/api/score");
       setScore(response.data);
     } catch (error) {
-      toast.error("Une erreur est survenue");
+      handleApiError(error);
     }
   };
 

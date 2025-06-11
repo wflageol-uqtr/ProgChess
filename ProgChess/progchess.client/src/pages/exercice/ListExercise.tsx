@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import api from "../../utils/api";
 import { DataTable } from "../../components/table/Data-table";
 import { ExerciseColumns } from "../../components/table/ExerciseColumns";
-import { toast } from "sonner";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 export default function ListExercise() {
   const [exercise, setExercise] = useState([]);
@@ -15,7 +15,7 @@ export default function ListExercise() {
       const response = await api.get("/api/exercise");
       setExercise(response.data);
     } catch (error) {
-      toast.error("Une erreur est survenue");
+      handleApiError(error);
     }
   };
 

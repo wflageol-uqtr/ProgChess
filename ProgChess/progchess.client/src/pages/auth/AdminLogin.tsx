@@ -15,11 +15,11 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import Flash from "../../components/flash/Flash";
 import { useState, useTransition } from "react";
-import { call } from "../../actions/auth";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
@@ -41,22 +41,20 @@ function AdminLogin() {
   const { setToken } = useAuth();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: Securite ?
     startTransition(async () => {
-      const response = await call(() =>
-        axios.post("http://localhost:5290/api/auth/login", values)
-      );
-
-      form.reset();
-
-      if (!response.success) {
-        setError("Courriel ou mot de passe est invalide");
-      } else {
+      try {
+        const response = await axios.post(
+          "http://localhost:5290/api/auth/login",
+          values
+        );
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("user", response.data.userId);
         setToken(response.data.accessToken);
         navigate("/admin/exercise");
+      } catch (error) {
+        handleApiError(error, setError);
+        form.reset();
       }
     });
   }

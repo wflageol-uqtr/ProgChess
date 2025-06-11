@@ -19,6 +19,7 @@ import CodeEditor from "../../components/form/input/CodeEditor";
 import { Checkbox } from "../../components/ui/checkbox";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -61,7 +62,7 @@ export default function EditExercise() {
       setExercise(response.data);
       setSituation(response.data.situation!);
     } catch (error) {
-      toast.error("Une erreur est survenue");
+      handleApiError(error);
     }
   };
 
@@ -106,7 +107,7 @@ export default function EditExercise() {
         toast.success("Exercice modifié avec succès !");
         navigate("/admin/exercise");
       } catch (error) {
-        toast.error("Une erreur est survenue");
+        handleApiError(error);
       }
     });
   };

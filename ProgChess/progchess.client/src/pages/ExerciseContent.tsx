@@ -13,6 +13,7 @@ import axios from "axios";
 import { DeleteDialog } from "../components/dialog/DeleteDialog";
 import { useNavigate } from "react-router";
 import SubmitDialog from "../components/dialog/SubmitDialog";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -74,7 +75,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         setTestResult(response.data.value);
         toast.success("Test exécuté");
       } catch (error) {
-        toast.error("Une erreur est survenue lors de l'exécution");
+        handleApiError(error);
       }
     });
   };
@@ -97,7 +98,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           },
         });
       } catch (error) {
-        toast.error("Une erreur est survenue lors de l'exécution");
+        handleApiError(error);
       }
     });
   };

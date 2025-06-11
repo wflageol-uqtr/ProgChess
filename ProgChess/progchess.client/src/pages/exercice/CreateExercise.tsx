@@ -19,6 +19,7 @@ import { useNavigate } from "react-router";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
 import type { TestResult } from "../../utils/type";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -83,7 +84,7 @@ export default function CreateExercise() {
         toast.success("Exercice créé avec succès !");
         navigate("/admin/exercise");
       } catch (error) {
-        toast.error("Une erreur est survenue");
+        handleApiError(error);
       }
     });
   };

@@ -88,6 +88,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
 builder.Services.AddExceptionHandler<UnauthorizedExceptionHandler>();
+builder.Services.AddExceptionHandler<ForbiddenExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 

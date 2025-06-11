@@ -54,7 +54,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         {
             var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
             if (exercise == null)
-                throw new NotFoundException("Exercise not found");
+                throw new NotFoundException("Exercice introuvable");
             return exercise;
         }
         catch (NotFoundException e)
@@ -73,7 +73,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         {
             var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive == isActive)).FirstOrDefaultAsync(e => e.Id == id);
             if (exercise == null)
-                throw new NotFoundException("Exercise not found");
+                throw new NotFoundException("Exercice introuvable");
             return exercise;
         }
         catch (NotFoundException e)
@@ -126,7 +126,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         {
              var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
              if (exercise == null)
-                 throw new NotFoundException("Exercise not found");
+                 throw new NotFoundException("Exercice introuvable");
              dbContext.Exercises.Remove(exercise);
              await dbContext.SaveChangesAsync();
         }
@@ -145,13 +145,18 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         try
         {
             var exercise = await dbContext.Exercises.FirstOrDefaultAsync(e => e.Id == id);
+            if (exercise == null)
+                throw new NotFoundException("Exercice introuvable");
             exercise.StudentCodes.Remove(permanentCode);
             await dbContext.SaveChangesAsync();
         }
+        catch (NotFoundException e)
+        {
+            throw;
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            throw new Exception(e.Message);
         }
     }
 }

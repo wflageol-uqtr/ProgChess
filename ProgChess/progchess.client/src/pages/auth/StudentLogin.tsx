@@ -53,18 +53,6 @@ function StudentLogin() {
         handleApiError(error, setError);
         form.reset();
       }
-      // const response = await call(() =>
-      //   axios.post("http://localhost:5290/api/auth/login-code", values, {
-      //     withCredentials: true,
-      //   })
-      // );
-      // form.reset();
-
-      // if (!response.success) {
-      //   setError("Code invalide");
-      // } else {
-      //   navigate(`/exercise/${id}`);
-      // }
     });
   }
 

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProChess.Server.Response;
 using ProChess.Server.Utils;
 using TestResult = ProChess.Server.Response.TestResult;
@@ -17,46 +18,59 @@ public class ExecuteService: IExecuteService
         filename = Guid.NewGuid();
     }
 
-    public ExecuteResult<List<TestResult>?>? RunExerciseTest(string solution, string unitTest)
+    public ExecuteResult<List<TestResult>> RunExerciseTest(string solution, string unitTest)
     {
         try
         {
             var code = BuildVisibleTestCode(solution, unitTest);
-            return RunTestsWithNode(code);
+            var result = RunTestsWithNode(code);
+            if (result.IsFailure)
+                throw new BadRequestException(result.Error);
+            return result;
+        }
+        catch (BadRequestException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
-    public async Task<ExecuteResult<List<TestResult>?>?> RunHiddenExerciseTestAsync(string solution, int exerciseId)
+    public async Task<ExecuteResult<List<TestResult>>> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
         try
         {
             var exercise = await _exerciseService.GetByIdWithTestType(exerciseId, false);
+            if (exercise == null)
+                throw new NotFoundException("Aucun exercice trouvé");
             var code = BuildFullTestCode(solution, exercise.UnitTests);
-            return RunTestsWithNode(code);
+            var result = RunTestsWithNode(code);
+            if (result.IsFailure)
+                throw new BadRequestException(result.Error);
+            return result;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
+        }
+        catch (BadRequestException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
-    private ExecuteResult<List<TestResult>?>? RunTestsWithNode(string code)
+    private ExecuteResult<List<TestResult>> RunTestsWithNode(string code)
     {
-        try
-        { 
-            File.WriteAllText($"Script/{filename}.js", code);
-            var result = RunNodeCommandLine();
-            File.Delete($"Script/{filename}.js");
-            return result;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
+        File.WriteAllText($"Script/{filename}.js", code);
+        var result = RunNodeCommandLine();
+        File.Delete($"Script/{filename}.js");
+        return result;
     }
 
     private ExecuteResult<List<TestResult>> RunNodeCommandLine()

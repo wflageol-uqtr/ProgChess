@@ -37,7 +37,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         {
             var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
             if (user == null)
-                throw new UnauthorizedException("Refresh token is invalid");
+                throw new UnauthorizedException("Refresh token est invalide");
             return await CreateTokenDto(user);
         }
         catch (UnauthorizedException e)
@@ -78,11 +78,15 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         {
             var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
             if (exercise == null)
-                throw new UnauthorizedException("Permission missing");
+                throw new NotFoundException("Exercice introuvable");
             if (!exercise.StudentCodes.Contains(request.Code))
-                throw new UnauthorizedException("Permission missing");
+                throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
         }
-        catch (UnauthorizedException e)
+        catch (NotFoundException e)
+        {
+            throw;
+        }
+        catch (ForbiddenException e)
         {
             throw;
         }

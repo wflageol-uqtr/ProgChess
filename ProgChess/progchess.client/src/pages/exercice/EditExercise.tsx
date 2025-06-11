@@ -139,10 +139,9 @@ export default function EditExercise() {
         setOpenSheet(true);
         setTestResult(response.data.value);
         setError("");
-        console.log(response.data);
       } catch (error) {
         setOpenSheet(true);
-        setError(error.response.data);
+        handleApiError(error, setError);
       }
     });
   };

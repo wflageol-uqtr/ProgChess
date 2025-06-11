@@ -5,6 +5,7 @@ import api from "../utils/api";
 import { useNavigate, useParams } from "react-router";
 import type { Exercise, Error } from "../utils/type";
 import ErrorPage from "./error/ErrorPage";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 export default function Exercice() {
   const [exercise, setExercise] = useState<Exercise>();
@@ -26,7 +27,7 @@ export default function Exercice() {
       const response = await api.get(`/api/exercise/active/${id}`);
       setExercise(response.data);
     } catch (error) {
-      setError(error);
+      handleApiError(error, setError);
     }
   };
 

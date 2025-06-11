@@ -111,7 +111,7 @@ export default function CreateExercise() {
         console.log(response.data);
       } catch (error) {
         setOpenSheet(true);
-        setError(error.response.data);
+        handleApiError(error, setError);
       }
     });
   };

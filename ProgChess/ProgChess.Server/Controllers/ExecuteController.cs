@@ -13,45 +13,19 @@ public class ExecuteController(IExecuteService executeService, IScoreService sco
     // [ValidCodeCookie]
     public async Task<IActionResult> Execute(ExecuteDto request)
     {
-        try
-        {
-            // Faudrait tu que ce soit async ?
-            var results = executeService.RunExerciseTest(request.Code, request.UnitTest);
-            if (results.IsFailure)
-            {
-                return BadRequest(results.Error);
-            }
-            return Ok(results);
-        }
-        catch (Exception e)
-        {
-            return BadRequest("Une erreur est survenue");
-        }
+        //  Faudrait tu que ce soit async ?
+        var results = executeService.RunExerciseTest(request.Code, request.UnitTest);
+        return Ok(results);
     }
     
     [HttpPost("submit")]
     [ValidCodeCookie]
     public async Task<IActionResult> Submit(ExecuteSubmitDto request)
     {
-        try
-        {
-            var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
-            if (results != null && results.IsFailure)
-            {
-                return BadRequest(results.Error);
-            }
-            if (HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie))
-            {
-                // Utilisation d'un builder pour reduire les arguments ou non nécessaire ?
-                var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results.Value);
-                await exerciseService.RemoveStudentCode(request.ExerciseId, studentCookie);
-                return Ok(new { score, results });
-            }
-            return BadRequest("Aucun étudiant spécifié");
-        }
-        catch (Exception e)
-        {
-            return BadRequest("Une erreur est survenue");
-        }
+        var studentCookie = HttpContext.Items["studentCookie"] as string;
+        var results = await executeService.RunHiddenExerciseTestAsync(request.Code, request.ExerciseId);
+        var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results.Value);
+        await exerciseService.RemoveStudentCode(request.ExerciseId, studentCookie);
+        return Ok(new { score, results });
     }
 }

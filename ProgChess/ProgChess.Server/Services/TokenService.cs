@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using ProChess.Server.Entities;
 using ProgChess.Server.Database;
-using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProChess.Server.Utils;
 using ProgChess.Server.Database;
 using ProgChess.Server.Dto;
@@ -10,7 +11,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
 {
     private IExerciseService _exerciseServiceImplementation;
 
-    public async Task<int?> Create(ExerciseDto request)
+    public async Task<int> Create(ExerciseDto request)
     {
         try
         {
@@ -31,7 +32,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
@@ -43,7 +44,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
@@ -52,12 +53,17 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         try
         {
             var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
-            return exercise ?? null;
+            if (exercise == null)
+                throw new NotFoundException("Exercise not found");
+            return exercise;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
@@ -66,21 +72,27 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         try
         {
             var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive == isActive)).FirstOrDefaultAsync(e => e.Id == id);
-            return exercise ?? null;
+            if (exercise == null)
+                throw new NotFoundException("Exercise not found");
+            return exercise;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
-    public async Task<int?> Edit(int id, ExerciseDto request)
+    public async Task<int> Edit(int id, ExerciseDto request)
     {
         try
         {
             // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
             var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests).FirstAsync();
-
+            
             dbContext.Entry(exercise).State = EntityState.Detached;
             exercise.Situation = request.Situation;
             exercise.BaseCode = request.BaseCode;
@@ -104,29 +116,27 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return null;
+         throw new Exception(e.Message);
         }
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task Delete(int id)
     {
         try
         {
-             var exercice = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
-             if (exercice == null)
-             {
-                 return false;
-             }
-             dbContext.Exercises.Remove(exercice);
+             var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+             if (exercise == null)
+                 throw new NotFoundException("Exercise not found");
+             dbContext.Exercises.Remove(exercise);
              await dbContext.SaveChangesAsync();
-             return true;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return false;
-
+            throw new Exception(e.Message);   
         }
     }
 

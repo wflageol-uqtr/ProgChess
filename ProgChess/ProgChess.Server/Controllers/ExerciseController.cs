@@ -14,31 +14,23 @@ public class ExerciseController(IExerciseService service) : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<Exercise>>> GetExercisesAsync()
     {
-        var exercices = await service.GetAllExercice();
-        return Ok(exercices);
+        var exercises = await service.GetAllExercice();
+        return Ok(exercises);
     }
 
     [HttpGet("{id}")]
     [Authorize]
     public async Task<IActionResult> GetExerciseByIdAsync(int id)
     {
-        var exercice = await service.GetById(id);
-        if (exercice is null)
-        {
-            return NotFound("Not Found");
-        }
-        return Ok(exercice);
+        var exercise = await service.GetById(id);
+        return Ok(exercise);
     }
     
     [HttpGet("active/{id}")]
     public async Task<IActionResult> GetExerciseByIdAsyncWithActiveTest(int id)
     {
-        var exercice = await service.GetByIdWithTestType(id, true);
-        if (exercice is null)
-        {
-            return NotFound("Not Found");
-        }
-        return Ok(exercice);
+        var exercise = await service.GetByIdWithTestType(id, true);
+        return Ok(exercise);
     }
     
     [HttpPost("create")]
@@ -46,10 +38,6 @@ public class ExerciseController(IExerciseService service) : ControllerBase
     public async Task<IActionResult> Create(ExerciseDto request)
     {
         var result = await service.Create(request);
-        if (result is null)
-        {
-            return StatusCode(500);
-        }
         return Ok(result);
     }
 
@@ -58,21 +46,14 @@ public class ExerciseController(IExerciseService service) : ControllerBase
     public async Task<IActionResult> Edit([FromRoute] int id, ExerciseDto request)
     {
         var result = await service.Edit(id, request);
-        if (result is null)
-            return BadRequest("There is no such an exercise for id: " + id);
-        return Ok();
+        return Ok(result);
     }
 
     [HttpDelete("delete/{id}")]
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
-        var success = await service.Delete(id);
-        if (!success)
-        {
-            return BadRequest("L'élément n'existe pas ");
-        }
-
+        await service.Delete(id);
         return Ok("Exercice supprimé avec succès");
     }
 }

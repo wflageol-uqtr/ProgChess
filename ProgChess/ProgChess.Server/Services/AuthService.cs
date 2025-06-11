@@ -1,62 +1,95 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using ProgChess.Server.Database;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProgChess.Server.Dto;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace ProgChess.Server.Services;
 
-public class AuthService(AppDbContext context, ITokenService tokenService, SignInManager<User> signInManager) : IAuthService
+public class AuthService(AppDbContext context, ITokenService tokenService, SignInManager<User> signInManager, ICookieService cookieService) : IAuthService
 {
-    public async Task<TokenDto?> LoginAsync(UserDto request)
+    public async Task<TokenDto> LoginAsync(UserDto request)
     {
         try
         {
             var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
             if (user == null)
-                return null;
+                throw new BadRequestException("Courriel ou mot de passe invalide");
             var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (!result.Succeeded)
-                return null;
+                throw new BadRequestException("Courriel ou mot de passe invalide");
             return await CreateTokenDto(user);
+        }
+        catch (BadRequestException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
     public async Task<TokenDto?> RefreshTokenAsync(RefreshTokenDto request)
     {
-        var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
-        if (user == null)
+        try
         {
-            return null;
+            var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
+            if (user == null)
+                throw new UnauthorizedException("Refresh token is invalid");
+            return await CreateTokenDto(user);
         }
-
-        return await CreateTokenDto(user);
+        catch (UnauthorizedException e)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
-    public async Task<bool> ContainsCodeAsync(StudentCodeDto request)
+    public async Task LoginCodeAsync(StudentCodeDto request, HttpResponse response)
     {
         try
         {
             var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
-            return exercise.StudentCodes.Contains(request.Code);
+            if (exercise == null)
+                throw new BadRequestException("Code est invalide");
+            if (!exercise.StudentCodes.Contains(request.Code))
+                throw new BadRequestException("Code est invalide");
+            cookieService.generateNormalCookie(response, request);
+        }
+        catch (BadRequestException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return false;
+            
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task VerifyCodeAsync(StudentCodeDto request)
+    {
+        try
+        {
+            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
+            if (exercise == null)
+                throw new UnauthorizedException("Permission missing");
+            if (!exercise.StudentCodes.Contains(request.Code))
+                throw new UnauthorizedException("Permission missing");
+        }
+        catch (UnauthorizedException e)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            
+            throw new Exception(e.Message);
         }
     }
 

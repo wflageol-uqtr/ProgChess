@@ -13,6 +13,8 @@ public class ValidCodeCookieAttribute: Attribute, IAsyncAuthorizationFilter
         {
             context.Result = new UnauthorizedResult();
         }
+        context.HttpContext.Items["studentCookie"] = studentCookie;
+
         return Task.CompletedTask;
     }
 }

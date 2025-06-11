@@ -14,7 +14,6 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
     public async Task<ActionResult<List<Score>>> GetScores()
     {
         var result = await scoreService.GetAllScores();
-        if (result is null) return NotFound();
         return Ok(result);
     }
 
@@ -22,12 +21,7 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
     [Authorize]
     public async Task<ActionResult> Delete(int id)
     {
-        var success = await scoreService.Delete(id);
-        if (!success)
-        {
-            return BadRequest("L'élément n'existe pas ");
-        }
-
+        await scoreService.Delete(id);
         return Ok("Score supprimé avec succès");
     }
 }

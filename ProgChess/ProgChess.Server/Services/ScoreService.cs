@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProChess.Server.Response;
 using ProgChess.Server.Database;
 
@@ -7,7 +8,7 @@ namespace ProgChess.Server.Services;
 
 public class ScoreService(AppDbContext context): IScoreService
 {
-    public async Task<int?> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
+    public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
     {
         try
         {
@@ -24,8 +25,7 @@ public class ScoreService(AppDbContext context): IScoreService
         }
         catch (Exception e)
         {
-            return null;
-
+            throw new Exception(e.Message);
         }
     }
 
@@ -37,26 +37,27 @@ public class ScoreService(AppDbContext context): IScoreService
         }
         catch (Exception e)
         {
-            return null;
+            throw new Exception(e.Message);
         }
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task Delete(int id)
     {
         try
         {
             var score = await context.Scores.FindAsync(id);
             if (score == null)
-            {
-                return false;
-            }
+                throw new NotFoundException("Score not found");
             context.Scores.Remove(score);
             await context.SaveChangesAsync();
-            return true;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return false;
+            throw new Exception(e.Message);
         }
     }
 

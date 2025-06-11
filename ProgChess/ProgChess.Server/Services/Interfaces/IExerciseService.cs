@@ -5,11 +5,11 @@ namespace ProgChess.Server.Services;
 
 public interface IExerciseService
 {
-    public Task<int?> Create(ExerciseDto request);
+    public Task<int> Create(ExerciseDto request);
     Task<List<Exercise>?> GetAllExercice();
     Task<Exercise?> GetById(int id);
     Task<Exercise?> GetByIdWithTestType(int id, bool isActive);
-    Task<int?> Edit(int id, ExerciseDto request);
-    Task<bool> Delete(int id);
+    Task<int> Edit(int id, ExerciseDto request);
+    Task Delete(int id);
     Task RemoveStudentCode(int id, string permanentCode);
 }

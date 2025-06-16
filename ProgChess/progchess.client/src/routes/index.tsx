@@ -12,6 +12,8 @@ import Score from "../pages/Score";
 import ListScore from "../pages/score/ListScore";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
+import CreateScore from "../pages/score/CreateScore";
+import EditScore from "../pages/score/EditScore";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -73,6 +75,10 @@ export default function Routes() {
         {
           path: "score",
           element: <ListScore />,
+        },
+        {
+          path: "score/create",
+          element: <CreateScore />,
         },
       ],
     },

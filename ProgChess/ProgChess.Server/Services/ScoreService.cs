@@ -3,6 +3,7 @@ using ProChess.Server.Entities;
 using ProChess.Server.Exceptions;
 using ProChess.Server.Response;
 using ProgChess.Server.Database;
+using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
@@ -28,6 +29,26 @@ public class ScoreService(AppDbContext context): IScoreService
             throw new Exception(e.Message);
         }
     }
+
+    public async Task<int> Create(ScoreDto request)
+    {
+        try
+        {
+            var score = new Score
+            {
+                PermanentCode = request.PermanentCode,
+                ExerciseId = request.ExerciseId,
+                Answer = request.Answer,
+                ScoreValue = request.Score,
+            };
+            await context.Scores.AddAsync(score);
+            await context.SaveChangesAsync();
+            return score.ScoreValue;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }    }
 
     public async Task<List<Score>> GetAllScores()
     {

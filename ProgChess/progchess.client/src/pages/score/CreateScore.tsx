@@ -1,0 +1,240 @@
+import { z } from "zod";
+import AdminLayout from "../../components/layout/AdminLayout";
+import { useEffect, useState, useTransition } from "react";
+import type { Exercise } from "../../utils/type";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import api from "../../utils/api";
+import { handleApiError } from "../../utils/apiErrorHandler";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../../components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { Input } from "../../components/ui/input";
+import CodeEditor from "../../components/form/input/CodeEditor";
+import { Button } from "../../components/ui/button";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
+
+const validationSchema = z.object({
+  permanentCode: z.string().min(12, "Code de l'étudiant requis"),
+  exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
+  scoreValue: z.number({ message: "Un chiffre est requis" }),
+  answer: z.string(),
+});
+
+type formSchema = z.infer<typeof validationSchema>;
+
+export default function CreateScore() {
+  const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [currentExercise, setCurrentExercise] = useState<Exercise>();
+
+  const form = useForm<formSchema>({
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      permanentCode: "",
+      exerciseId: 0,
+      scoreValue: 0,
+      answer: "",
+    },
+  });
+
+  const getAllExercise = async () => {
+    try {
+      const response = await api.get("/api/exercise");
+      setExercises(response.data);
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllExercise();
+  }, []);
+
+  const onSubmit = async (values: formSchema) => {
+    console.log(values);
+
+    startTransition(async () => {
+      try {
+        await api.post("/api/score/create", values);
+        toast.success("Score créé avec succès !");
+        navigate("/admin/score");
+      } catch (error) {
+        handleApiError(error);
+      }
+    });
+  };
+
+  const formattedSituation = (situation: string) => {
+    if (typeof situation === "string") {
+      return situation.length > 20
+        ? situation.substring(0, 23) + "..."
+        : situation;
+    } else {
+      return String(situation ?? "");
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <div className="h-miin-screen flex flex-col w-full space-y-4 mt-4 px-4">
+        <div className="flex">
+          <h2 className="text-2xl font-bold text-white">Ajouter un score</h2>
+        </div>
+        <div className="border-b border-gray-700" />
+        <Form {...form}>
+          <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Exercice</h3>
+                <FormField
+                  control={form.control}
+                  name="exerciseId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        onValueChange={(id) => {
+                          field.onChange(parseInt(id));
+                          const selected = exercises.find(
+                            (exercise) => exercise.id === parseInt(id)
+                          );
+                          setCurrentExercise(selected);
+                        }}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choisir un exercice..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-zinc-950">
+                          {exercises.map((exercise) => (
+                            <SelectItem
+                              key={exercise.id}
+                              value={exercise.id.toString()}
+                            >
+                              {formattedSituation(exercise.situation)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-600" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
+                <FormField
+                  control={form.control}
+                  name="permanentCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        onValueChange={(code) => field.onChange(code)}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choisir un code permanent..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-zinc-950">
+                          {currentExercise?.studentCodes.map((code, index) => (
+                            <SelectItem key={index} value={code}>
+                              {code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-600" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <div className="border-b border-gray-700" />
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Score</h3>
+              <FormField
+                control={form.control}
+                name="scoreValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p>L'étudiant a obtenu un score de :</p>
+                        <Input
+                          placeholder="0"
+                          type="text"
+                          className="w-16 text-center"
+                          {...field}
+                        />
+                        <p>
+                          /{" "}
+                          {currentExercise?.unitTests.filter(
+                            (exercise) => !exercise.isActive
+                          ).length ?? "X"}
+                        </p>
+                      </div>
+                    </FormControl>
+                    <FormMessage className="text-red-600" />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="border-b border-gray-700" />
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">
+                Réponse de l'étudiant
+              </h3>
+
+              <FormField
+                name={"answer"}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="h-full">
+                    <FormControl>
+                      <CodeEditor
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        height={window.innerHeight / 2}
+                        error={form.formState.errors.answer}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="border-b border-gray-700" />
+
+            <div className="flex justify-end h-12">
+              <Button
+                type="submit"
+                className="bg-green-600 cursor-pointer hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg"
+              >
+                {isPending ? "Soummission..." : "Soummettre"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </AdminLayout>
+  );
+}

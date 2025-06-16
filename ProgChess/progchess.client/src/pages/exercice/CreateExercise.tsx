@@ -120,7 +120,7 @@ export default function CreateExercise() {
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
         <div className="flex flex-col w-full">
-          <h2 className="text-3xl font-bold text-white">Ajouter un exercice</h2>
+          <h2 className="text-2xl font-bold text-white">Ajouter un exercice</h2>
         </div>
         <div className="border-b border-gray-700" />
         <Form {...form}>

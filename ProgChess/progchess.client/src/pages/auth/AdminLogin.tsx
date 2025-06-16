@@ -15,7 +15,7 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import Flash from "../../components/flash/Flash";
 import { useState, useTransition } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
@@ -86,7 +86,7 @@ function AdminLogin() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-0">
                   <FormLabel>Mot de passe</FormLabel>
                   <FormControl>
                     <div className="relative">
@@ -115,6 +115,15 @@ function AdminLogin() {
                 </FormItem>
               )}
             />
+            <div className="flex justify-start">
+              <Link
+                to="/admin/forgot-password"
+                className="text-sm text-white underline hover:text-green-300 transition-colors duration-200 mt-2"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
+
             <Button
               type="submit"
               className="w-full bg-green-500 cursor-pointer hover:bg-green-600"

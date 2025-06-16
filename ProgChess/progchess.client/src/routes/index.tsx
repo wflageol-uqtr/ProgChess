@@ -10,6 +10,8 @@ import ErrorPage from "../pages/error/ErrorPage";
 import CookieProvider from "../providers/CookieProvider";
 import Score from "../pages/Score";
 import ListScore from "../pages/score/ListScore";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -33,6 +35,14 @@ export default function Routes() {
         {
           path: "/admin/login",
           element: <AdminLogin />,
+        },
+        {
+          path: "/admin/forgot-password",
+          element: <ForgotPassword />,
+        },
+        {
+          path: "/admin/reset-password",
+          element: <ResetPassword />,
         },
         {
           path: "/score",

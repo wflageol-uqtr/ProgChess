@@ -11,4 +11,6 @@ public interface IAuthService
     Task<TokenDto?> RefreshTokenAsync(RefreshTokenDto request);
     Task LoginCodeAsync(StudentCodeDto request, HttpResponse response);
     Task VerifyCodeAsync(StudentCodeDto request);
+    Task ForgotPassword(string email);
+    Task ResetPassword(ResetPasswordDto request);
 }

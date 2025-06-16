@@ -1,5 +1,8 @@
+using System.Buffers.Text;
+using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProgChess.Server.Database;
 using ProChess.Server.Entities;
 using ProChess.Server.Exceptions;
@@ -7,7 +10,7 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class AuthService(AppDbContext context, ITokenService tokenService, SignInManager<User> signInManager, ICookieService cookieService) : IAuthService
+public class AuthService(AppDbContext context, ITokenService tokenService, SignInManager<User> signInManager, ICookieService cookieService, UserManager<User> userManager, IEmailService emailService, IConfiguration configuration) : IAuthService
 {
     public async Task<TokenDto> LoginAsync(UserDto request)
     {
@@ -93,6 +96,53 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         catch (Exception e)
         {
             
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task ForgotPassword(string email)
+    {
+        try
+        {
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (user != null)
+            {
+                // Serveur SMTP ?
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var link = $"{configuration["FrontendUrl"]}/admin/reset-password?email={user.Email}&activationToken={Base64UrlEncoder.Encode(token)}";
+                var response = await emailService.SendEmailAsync(user.Email!, "Reset Password", link);
+                if (!response)
+                    throw new Exception("Erreur lors de l'envoie du courriel");
+            }
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task ResetPassword(ResetPasswordDto request)
+    {
+        try
+        {
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+            if (user == null)
+                throw new NotFoundException("Email ou token invalide");
+            var result = await userManager.ResetPasswordAsync(user, Base64UrlEncoder.Decode(request.Token), request.Password);
+            result.Errors.ToList().ForEach(error => Console.WriteLine(error.Description));
+            if (!result.Succeeded)
+                throw new BadRequestException("Token invalide");
+        }
+        catch (NotFoundException e)
+        {
+            throw;
+        }
+        catch (BadRequestException e)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
             throw new Exception(e.Message);
         }
     }

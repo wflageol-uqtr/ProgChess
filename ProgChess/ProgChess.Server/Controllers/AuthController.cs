@@ -51,4 +51,21 @@ public class AuthController(IAuthService _authService): ControllerBase
         });
         return Ok();
     }
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
+    {
+        await _authService.ForgotPassword(request.Email);
+        return Ok("Courriel de vérification envoyé");
+    }
+
+
+    [HttpPut("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
+    {
+        await _authService.ResetPassword(request);
+        return Ok();
+    }
 }

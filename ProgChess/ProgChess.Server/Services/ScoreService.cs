@@ -39,7 +39,7 @@ public class ScoreService(AppDbContext context): IScoreService
                 PermanentCode = request.PermanentCode,
                 ExerciseId = request.ExerciseId,
                 Answer = request.Answer,
-                ScoreValue = request.Score,
+                ScoreValue = request.ScoreValue,
             };
             await context.Scores.AddAsync(score);
             await context.SaveChangesAsync();
@@ -50,11 +50,57 @@ public class ScoreService(AppDbContext context): IScoreService
             throw new Exception(e.Message);
         }    }
 
+    public async Task<Score> GetScoreByIdAsync(int id)
+    {
+        try
+        {
+            var result = await context.Scores.Include(s => s.Exercise).FirstOrDefaultAsync(s => s.Id == id);
+            if (result == null)
+                throw new NotFoundException("Aucun score trouvé");
+            return result;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     public async Task<List<Score>> GetAllScores()
     {
         try
         {
             return await context.Scores.Include(e => e.Exercise).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task<int> Edit(int id, ScoreDto request)
+    {
+        try
+        {
+            var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
+            if (score == null)
+                throw new NotFoundException("Aucun score trouvé");
+            
+            context.Entry(score).State = EntityState.Detached;
+            score.PermanentCode = request.PermanentCode;
+            score.ExerciseId = request.ExerciseId;
+            score.Answer = request.Answer;
+            score.ScoreValue = request.ScoreValue;
+            context.Scores.Update(score);
+            await context.SaveChangesAsync();
+            return score.Id;
+        }
+        catch (NotFoundException e)
+        {
+            throw;
         }
         catch (Exception e)
         {

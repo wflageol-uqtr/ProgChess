@@ -6,11 +6,13 @@ namespace ProgChess.Server.Services;
 
 public interface IScoreService
 {
-    public Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results);
+    Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results);
 
-    public Task<int> Create(ScoreDto request);
-
-    public Task<List<Score>> GetAllScores();
+    Task<int> Create(ScoreDto request);
     
+    Task<Score> GetScoreByIdAsync(int id);
+
+    Task<List<Score>> GetAllScores();
+    Task<int> Edit(int id, ScoreDto request);
     Task Delete(int id);
 }

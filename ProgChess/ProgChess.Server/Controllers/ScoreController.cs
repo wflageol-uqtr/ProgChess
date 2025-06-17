@@ -10,6 +10,14 @@ namespace ProChess.Server.Controllers;
 [ApiController]
 public class ScoreController(IScoreService scoreService) : ControllerBase
 {
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetScoreById(int id)
+    {
+        var score = await scoreService.GetScoreByIdAsync(id);
+        return Ok(score);
+    }
+    
     [HttpGet]
     [Authorize]
     public async Task<ActionResult<List<Score>>> GetScores()
@@ -23,6 +31,14 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
     public async Task<ActionResult<Score>> Create(ScoreDto request)
     {
         var result = await scoreService.Create(request);
+        return Ok(result);
+    }
+
+    [HttpPut("edit/{id}")]
+    [Authorize]
+    public async Task<IActionResult> Edit([FromRoute] int id, ScoreDto request)
+    {
+        var result = await scoreService.Edit(id, request);
         return Ok(result);
     }
 

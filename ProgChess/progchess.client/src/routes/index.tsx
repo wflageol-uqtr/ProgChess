@@ -80,6 +80,10 @@ export default function Routes() {
           path: "score/create",
           element: <CreateScore />,
         },
+        {
+          path: "score/edit/:id",
+          element: <EditScore />,
+        },
       ],
     },
   ];

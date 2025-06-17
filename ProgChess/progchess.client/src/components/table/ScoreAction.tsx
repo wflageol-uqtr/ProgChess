@@ -33,7 +33,7 @@ export default function ScoreAction({ id, deleteFn }: ScoreActionProps) {
         {openMenu && (
           <DropdownMenuContent align="end" className="bg-zinc-900 text-white">
             <DropdownMenuItem>
-              <Link className="flex mr-2" to={`/admin/exercise/edit/${id}`}>
+              <Link className="flex mr-2" to={`/admin/score/edit/${id}`}>
                 <Pencil className="w-5 h-5 text-green-500 mr-2" />
                 <span>Modifier le score</span>
               </Link>

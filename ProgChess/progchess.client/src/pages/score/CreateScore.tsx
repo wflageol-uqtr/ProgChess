@@ -65,8 +65,6 @@ export default function CreateScore() {
   }, []);
 
   const onSubmit = async (values: formSchema) => {
-    console.log(values);
-
     startTransition(async () => {
       try {
         await api.post("/api/score/create", values);

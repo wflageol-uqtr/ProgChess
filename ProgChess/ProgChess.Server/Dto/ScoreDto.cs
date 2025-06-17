@@ -8,7 +8,7 @@ public class ScoreDto
     public int ExerciseId { get; set; }
     
     [Required]
-    public int Score { get; set; }
+    public int ScoreValue { get; set; }
     
     public required string PermanentCode { get; set; }
     

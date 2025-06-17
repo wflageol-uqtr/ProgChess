@@ -14,137 +14,65 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
 {
     public async Task<TokenDto> LoginAsync(UserDto request)
     {
-        try
-        {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
-            if (user == null)
-                throw new BadRequestException("Courriel ou mot de passe invalide");
-            var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!result.Succeeded)
-                throw new BadRequestException("Courriel ou mot de passe invalide");
-            return await CreateTokenDto(user);
-        }
-        catch (BadRequestException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        if (user == null)
+            throw new BadRequestException("Courriel ou mot de passe invalide");
+        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        if (!result.Succeeded)
+            throw new BadRequestException("Courriel ou mot de passe invalide");
+        return await CreateTokenDto(user);
     }
 
     public async Task<TokenDto?> RefreshTokenAsync(RefreshTokenDto request)
     {
-        try
-        {
-            var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
-            if (user == null)
-                throw new UnauthorizedException("Refresh token est invalide");
-            return await CreateTokenDto(user);
-        }
-        catch (UnauthorizedException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+        var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
+        if (user == null)
+            throw new UnauthorizedException("Refresh token est invalide");
+        return await CreateTokenDto(user);
     }
 
     public async Task LoginCodeAsync(StudentCodeDto request, HttpResponse response)
     {
-        try
-        {
-            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
-            if (exercise == null)
-                throw new BadRequestException("Code est invalide");
-            if (!exercise.StudentCodes.Contains(request.Code))
-                throw new BadRequestException("Code est invalide");
-            cookieService.generateNormalCookie(response, request);
-        }
-        catch (BadRequestException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            
-            throw new Exception(e.Message);
-        }
+        var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
+        if (exercise == null)
+            throw new BadRequestException("Code est invalide");
+        if (!exercise.StudentCodes.Contains(request.Code))
+            throw new BadRequestException("Code est invalide");
+        cookieService.generateNormalCookie(response, request);
     }
 
     public async Task VerifyCodeAsync(StudentCodeDto request)
     {
-        try
-        {
-            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
-            if (exercise == null)
-                throw new NotFoundException("Exercice introuvable");
-            if (!exercise.StudentCodes.Contains(request.Code))
-                throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
-        }
-        catch (NotFoundException e)
-        {
-            throw;
-        }
-        catch (ForbiddenException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            
-            throw new Exception(e.Message);
-        }
+        var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
+        if (exercise == null)
+            throw new NotFoundException("Exercice introuvable");
+        if (!exercise.StudentCodes.Contains(request.Code))
+            throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
     }
 
     public async Task ForgotPassword(string email)
     {
-        try
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Email == email);
+        if (user != null)
         {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == email);
-            if (user != null)
-            {
-                // Serveur SMTP ?
-                var token = await userManager.GeneratePasswordResetTokenAsync(user);
-                var link = $"{configuration["FrontendUrl"]}/admin/reset-password?email={user.Email}&activationToken={Base64UrlEncoder.Encode(token)}";
-                var response = await emailService.SendEmailAsync(user.Email!, "Reset Password", link);
-                if (!response)
-                    throw new Exception("Erreur lors de l'envoie du courriel");
-            }
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
+            // Serveur SMTP ?
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var link = $"{configuration["FrontendUrl"]}/admin/reset-password?email={user.Email}&activationToken={Base64UrlEncoder.Encode(token)}";
+            var response = await emailService.SendEmailAsync(user.Email!, "Reset Password", link);
+            if (!response)
+                throw new Exception("Erreur lors de l'envoie du courriel");
         }
     }
 
     public async Task ResetPassword(ResetPasswordDto request)
     {
-        try
-        {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
-            if (user == null)
-                throw new NotFoundException("Email ou token invalide");
-            var result = await userManager.ResetPasswordAsync(user, Base64UrlEncoder.Decode(request.Token), request.Password);
-            result.Errors.ToList().ForEach(error => Console.WriteLine(error.Description));
-            if (!result.Succeeded)
-                throw new BadRequestException("Token invalide");
-        }
-        catch (NotFoundException e)
-        {
-            throw;
-        }
-        catch (BadRequestException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        if (user == null)
+            throw new NotFoundException("Email ou token invalide");
+        var result = await userManager.ResetPasswordAsync(user, Base64UrlEncoder.Decode(request.Token), request.Password);
+        result.Errors.ToList().ForEach(error => Console.WriteLine(error.Description));
+        if (!result.Succeeded)
+            throw new BadRequestException("Token invalide");
     }
 
     private async Task<TokenDto> CreateTokenDto(User user)

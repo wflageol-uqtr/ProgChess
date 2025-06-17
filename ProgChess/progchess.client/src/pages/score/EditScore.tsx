@@ -57,8 +57,8 @@ export default function EditScore() {
     try {
       const response = await api.get(`/api/score/${id}`);
       setScore(response.data);
-    } catch (error) {
-      handleApiError(error);
+    } catch (error: any) {
+      handleApiError(error.error);
     }
   };
 
@@ -218,12 +218,7 @@ export default function EditScore() {
                             )
                           }
                         />
-                        <p>
-                          /{" "}
-                          {currentExercise?.unitTests.filter(
-                            (exercise) => !exercise.isActive
-                          ).length ?? "X"}
-                        </p>
+                        <p>/ X</p>
                       </div>
                     </FormControl>
                     <FormMessage className="text-red-600" />

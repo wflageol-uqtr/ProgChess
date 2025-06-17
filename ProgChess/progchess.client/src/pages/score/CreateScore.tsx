@@ -88,7 +88,7 @@ export default function CreateScore() {
 
   return (
     <AdminLayout>
-      <div className="h-miin-screen flex flex-col w-full space-y-4 mt-4 px-4">
+      <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
         <div className="flex">
           <h2 className="text-2xl font-bold text-white">Ajouter un score</h2>
         </div>
@@ -118,7 +118,7 @@ export default function CreateScore() {
                             <SelectValue placeholder="Choisir un exercice..." />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-zinc-950">
+                        <SelectContent className="bg-zinc-950 text-white">
                           {exercises.map((exercise) => (
                             <SelectItem
                               key={exercise.id}
@@ -151,7 +151,7 @@ export default function CreateScore() {
                             <SelectValue placeholder="Choisir un code permanent..." />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-zinc-950">
+                        <SelectContent className="bg-zinc-950 text-white">
                           {currentExercise?.studentCodes.map((code, index) => (
                             <SelectItem key={index} value={code}>
                               {code}
@@ -179,16 +179,18 @@ export default function CreateScore() {
                         <p>L'étudiant a obtenu un score de :</p>
                         <Input
                           placeholder="0"
-                          type="text"
+                          type="number"
                           className="w-16 text-center"
-                          {...field}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value)
+                            )
+                          }
                         />
-                        <p>
-                          /{" "}
-                          {currentExercise?.unitTests.filter(
-                            (exercise) => !exercise.isActive
-                          ).length ?? "X"}
-                        </p>
+                        <p>/ X</p>
                       </div>
                     </FormControl>
                     <FormMessage className="text-red-600" />

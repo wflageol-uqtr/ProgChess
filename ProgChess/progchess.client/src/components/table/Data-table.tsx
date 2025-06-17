@@ -31,9 +31,9 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  filter,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState<any>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
@@ -48,6 +48,7 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       columnFilters,
+      globalFilter,
     },
   });
 
@@ -56,16 +57,17 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center py-4">
         <Input
           placeholder="Filtrer."
-          value={(table.getColumn(filter)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(filter)?.setFilterValue(event.target.value)
-          }
+          value={globalFilter ?? ""}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            table.setGlobalFilter(String(e.target.value));
+          }}
           className="max-w-sm"
         />
       </div>
       <div className="rounded-md border">
         <Table>
-          <TableCaption>Une liste de vos exercices.</TableCaption>
+          <TableCaption>Voici votre table de résultats.</TableCaption>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -113,6 +115,10 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        Page {table.getState().pagination.pageIndex + 1} de{" "}
+        {table.getPageCount()}
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button

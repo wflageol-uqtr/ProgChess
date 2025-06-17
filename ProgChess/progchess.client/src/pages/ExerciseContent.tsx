@@ -31,6 +31,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
+  const [disabledSelect, setDisabledSelect] = useState(false);
 
   useEffect(() => {
     codeRef.current = code;
@@ -152,9 +153,13 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
             </Button>
           </div>
         </div>
-        <div className="hidden h-screen sm:grid grid-rows-1 text-white">
+        <div
+          className={`hidden h-screen sm:grid grid-rows-1 text-white ${
+            disabledSelect ? "select-none" : ""
+          }`}
+        >
           <div className="grid grid-cols-[min-content_auto]">
-            <HorizontalResizable>
+            <HorizontalResizable setDisabledSelect={setDisabledSelect}>
               <ExerciseCard title="Situation" icon={Book} canExecute={false}>
                 <div className="p-4">
                   <MarkdownComponent markdown={exercise?.situation!} />
@@ -162,7 +167,11 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               </ExerciseCard>
             </HorizontalResizable>
             <div className="h-full grid grid-rows-[min-content_auto]">
-              <VerticalResizable height={height} setHeight={setHeight}>
+              <VerticalResizable
+                setDisabledSelect={setDisabledSelect}
+                height={height}
+                setHeight={setHeight}
+              >
                 <ExerciseCard
                   isPending={isPending}
                   title="Code"

@@ -20,49 +20,23 @@ public class ExecuteService: IExecuteService
 
     public ExecuteResult<List<TestResult>> RunExerciseTest(string solution, string unitTest)
     {
-        try
-        {
-            var code = BuildVisibleTestCode(solution, unitTest);
-            var result = RunTestsWithNode(code);
-            if (result.IsFailure)
-                throw new BadRequestException(result.Error);
-            return result;
-        }
-        catch (BadRequestException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+        var code = BuildVisibleTestCode(solution, unitTest);
+        var result = RunTestsWithNode(code);
+        if (result.IsFailure)
+            throw new BadRequestException(result.Error);
+        return result;
     }
 
     public async Task<ExecuteResult<List<TestResult>>> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
-        try
-        {
-            var exercise = await _exerciseService.GetByIdWithTestType(exerciseId, false);
-            if (exercise == null)
-                throw new NotFoundException("Aucun exercice trouvé");
-            var code = BuildFullTestCode(solution, exercise.UnitTests);
-            var result = RunTestsWithNode(code);
-            if (result.IsFailure)
-                throw new BadRequestException(result.Error);
-            return result;
-        }
-        catch (NotFoundException e)
-        {
-            throw;
-        }
-        catch (BadRequestException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+        var exercise = await _exerciseService.GetByIdWithTestType(exerciseId, false);
+        if (exercise == null)
+            throw new NotFoundException("Aucun exercice trouvé");
+        var code = BuildFullTestCode(solution, exercise.UnitTests);
+        var result = RunTestsWithNode(code);
+        if (result.IsFailure)
+            throw new BadRequestException(result.Error);
+        return result;
     }
 
     private ExecuteResult<List<TestResult>> RunTestsWithNode(string code)

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity;
      public DbSet<Exercise> Exercises { get; set; }
      public DbSet<UnitTest> UnitTests { get; set; }
      public DbSet<Score> Scores { get; set; }
+     public DbSet<Student> Students { get; set; }
+     public DbSet<StudentExercise> StudentExercises { get; set; }
 
      protected override void OnModelCreating(ModelBuilder modelBuilder)
      {
@@ -23,6 +25,24 @@ using Microsoft.AspNetCore.Identity;
          
          // Defining the one-to-many relationship
          modelBuilder.Entity<Exercise>().HasMany(e => e.UnitTests).WithOne(ut => ut.Exercise).HasForeignKey(ut => ut.ExerciseId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
+
+         // Defining the many-to-many relationship
+         modelBuilder.Entity<StudentExercise>()
+             .HasKey(se => new { se.StudentId, se.ExerciseId });
+         
+         modelBuilder.Entity<Exercise>()
+             .HasMany(e => e.StudentExercises)
+             .WithOne(s => s.Exercise)
+             .IsRequired();
+         
+         modelBuilder.Entity<Student>()
+             .HasMany(s => s.StudentExercises)
+             .WithOne(s => s.Student)
+             .IsRequired();
+         
+         modelBuilder.Entity<StudentExercise>()
+             .Property(se => se.IsComplete)
+             .HasDefaultValue(false);
      }
 
      private void SeedUsers(ModelBuilder builder)

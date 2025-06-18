@@ -28,6 +28,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const [code, setCode] = useState<string>("");
   const [testCode, setTestCode] = useState<string>("");
   const codeRef = useRef("");
+  const unitTestRef = useRef("");
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
@@ -36,6 +37,10 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
+
+  useEffect(() => {
+    unitTestRef.current = testCode;
+  }, [testCode]);
 
   useEffect(() => {
     localStorage.setItem("topHeight", height.toString());
@@ -49,7 +54,10 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
       setCode(exercise?.baseCode!);
     }
 
-    if (exercise?.unitTests[0]) {
+    const startedUnitTest = localStorage.getItem(`unitTest:${exercise?.id}`);
+    if (startedUnitTest) {
+      setTestCode(startedUnitTest);
+    } else {
       setTestCode(exercise?.unitTests?.[0]?.code || "");
     }
 
@@ -59,6 +67,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   const saveCode = () => {
     localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    localStorage.setItem(`unitTest:${exercise?.id}`, unitTestRef.current);
   };
 
   const executeCode = async () => {
@@ -108,6 +117,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
     localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
+    setTestCode(exercise?.unitTests?.[0]?.code || "");
+    localStorage.setItem(`unitTest:${exercise?.id}`, codeRef.current);
     setOpenDeleteDialog(false);
     toast.success("Exercice réinitialiser");
   };

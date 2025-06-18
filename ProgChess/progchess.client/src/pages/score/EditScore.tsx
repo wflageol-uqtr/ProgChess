@@ -27,7 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 const validationSchema = z.object({
-  permanentCode: z.string().min(12, "Code de l'étudiant requis"),
+  studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
   scoreValue: z.number({ message: "Un chiffre est requis" }),
   answer: z.string(),
@@ -46,7 +46,7 @@ export default function EditScore() {
   const form = useForm<formSchema>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
-      permanentCode: "",
+      studentId: 0,
       exerciseId: 0,
       scoreValue: 0,
       answer: "",
@@ -79,17 +79,17 @@ export default function EditScore() {
   useEffect(() => {
     if (score) {
       form.reset({
-        permanentCode: score?.permanentCode,
+        studentId: score?.student.id,
         exerciseId: score?.exercise.id,
         scoreValue: score?.scoreValue,
         answer: score?.answer,
       });
-      const currentExercise = exercises.find(
-        (exercise) => exercise.id === score.exercise.id
+      var currentExercise = exercises.find(
+        (exercise) => exercise.id == score.exercise.id
       );
       setCurrentExercise(currentExercise);
     }
-  }, [score]);
+  }, [score, exercises]);
 
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
@@ -167,12 +167,12 @@ export default function EditScore() {
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
-                  name="permanentCode"
+                  name="studentId"
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={(code) => field.onChange(code)}
-                        value={field.value}
+                        onValueChange={(id) => field.onChange(parseInt(id))}
+                        value={field.value.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -180,12 +180,21 @@ export default function EditScore() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-zinc-950 text-white">
-                          {currentExercise?.studentExercises.map(
-                            (code, index) => (
-                              <SelectItem key={index} value={code}>
-                                {code}
-                              </SelectItem>
+                          {currentExercise?.studentExercises?.length! > 0 ? (
+                            currentExercise?.studentExercises.map(
+                              (item, index) => (
+                                <SelectItem
+                                  key={index}
+                                  value={item.studentId.toString()}
+                                >
+                                  {item.student.permanentCode}
+                                </SelectItem>
+                              )
                             )
+                          ) : (
+                            <div className="text-sm p-2 text-white">
+                              Pas d'étudiant associé
+                            </div>
                           )}
                         </SelectContent>
                       </Select>

@@ -10,7 +10,8 @@ public class ScoreDto
     [Required]
     public int ScoreValue { get; set; }
     
-    public required string PermanentCode { get; set; }
+    [Required]
+    public int StudentId { get; set; }
     
     public required string Answer { get; set; }
 }

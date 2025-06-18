@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Score } from "../../utils/type";
+import type { Score, Student } from "../../utils/type";
 import { useNavigate } from "react-router";
 import api from "../../utils/api";
 import { toast } from "sonner";
@@ -13,7 +13,8 @@ export const ScoreColumns: ColumnDef<Score>[] = [
     header: "Id",
   },
   {
-    accessorKey: "permanentCode",
+    accessorFn: (row) => row.student.permanentCode,
+    id: "permanentCode",
     header: "Code permanent",
   },
   {

@@ -26,10 +26,11 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<int> Create(ScoreDto request)
     {
-        var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
+        // Validation nécessaire ?
+        // var student = await studentService.GetStudentByIdAsync(request.StudentId);
         var score = new Score
         {
-            StudentId = student.Id,
+            StudentId = request.StudentId,
             ExerciseId = request.ExerciseId,
             Answer = request.Answer,
             ScoreValue = request.ScoreValue,
@@ -41,7 +42,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<Score> GetScoreByIdAsync(int id)
     {
-        var result = await context.Scores.Include(s => s.Exercise).FirstOrDefaultAsync(s => s.Id == id);
+        var result = await context.Scores.Include(s => s.Exercise).Include(s => s.Student).FirstOrDefaultAsync(s => s.Id == id);
         if (result == null)
             throw new NotFoundException("Aucun score trouvé");
         return result;
@@ -49,18 +50,18 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<List<Score>> GetAllScores()
     {
-        return await context.Scores.Include(e => e.Exercise).ToListAsync();
+        return await context.Scores.Include(e => e.Exercise).Include(s => s.Student).ToListAsync();
     }
 
     public async Task<int> Edit(int id, ScoreDto request)
     {
         var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
-        var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
+        // var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
         if (score == null)
             throw new NotFoundException("Aucun score trouvé");
         
         context.Entry(score).State = EntityState.Detached;
-        score.StudentId = student.Id;
+        score.StudentId = request.StudentId;
         score.ExerciseId = request.ExerciseId;
         score.Answer = request.Answer;
         score.ScoreValue = request.ScoreValue;

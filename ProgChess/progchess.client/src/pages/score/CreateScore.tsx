@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 
 const validationSchema = z.object({
-  permanentCode: z.string().min(12, "Code de l'étudiant requis"),
+  studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
   scoreValue: z.number({ message: "Un chiffre est requis" }),
   answer: z.string(),
@@ -44,7 +44,7 @@ export default function CreateScore() {
   const form = useForm<formSchema>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
-      permanentCode: "",
+      studentId: 0,
       exerciseId: 0,
       scoreValue: 0,
       answer: "",
@@ -139,12 +139,12 @@ export default function CreateScore() {
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
-                  name="permanentCode"
+                  name="studentId"
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={(code) => field.onChange(code)}
-                        defaultValue={field.value}
+                        onValueChange={(id) => field.onChange(parseInt(id))}
+                        defaultValue={field.value.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -152,12 +152,21 @@ export default function CreateScore() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-zinc-950 text-white">
-                          {currentExercise?.studentExercises.map(
-                            (code, index) => (
-                              <SelectItem key={index} value={code}>
-                                {code}
-                              </SelectItem>
+                          {currentExercise?.studentExercises?.length! > 0 ? (
+                            currentExercise?.studentExercises.map(
+                              (item, index) => (
+                                <SelectItem
+                                  key={index}
+                                  value={item.studentId.toString()}
+                                >
+                                  {item.student.permanentCode}
+                                </SelectItem>
+                              )
                             )
+                          ) : (
+                            <div className="text-sm p-2 text-white">
+                              Pas d'étudiant associé
+                            </div>
                           )}
                         </SelectContent>
                       </Select>

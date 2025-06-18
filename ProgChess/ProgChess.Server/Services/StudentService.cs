@@ -14,4 +14,11 @@ public class StudentService(AppDbContext dbContext): IStudentService
             throw new NotFoundException("Aucun étudiant à ce code permanent");
         return result;
     }
+
+    public async Task<Student> GetStudentByIdAsync(int id)
+    {
+        var result = await dbContext.Students.FirstOrDefaultAsync(s => s.Id == id);
+        if (result == null)
+            throw new NotFoundException("Aucun étudiant trouvé");
+        return result;    }
 }

@@ -31,7 +31,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<List<Exercise>?> GetAllExercice()
     {
-        return await dbContext.Exercises.Include(e => e.UnitTests).ToListAsync();
+        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).ThenInclude(se => se.Student).ToListAsync();
     }
 
     public async Task<Exercise?> GetById(int id)

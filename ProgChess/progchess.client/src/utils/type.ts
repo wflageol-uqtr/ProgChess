@@ -25,6 +25,7 @@ export type Score = {
   id: number,
   permanentCode: string,
   exercise: Exercise,
+  student: Student,
   scoreValue: number,
   answer: string
 }

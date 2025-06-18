@@ -7,13 +7,14 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ScoreService(AppDbContext context): IScoreService
+public class ScoreService(AppDbContext context, IStudentService studentService): IScoreService
 {
     public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
     {
+        var student = await studentService.GetStudentByPermanentCodeAsync(permanentCode);
         var score = new Score
         {
-            PermanentCode = permanentCode,
+            StudentId = student.Id,
             ExerciseId = exerciseId,
             Answer = answer,
             ScoreValue = CalculateScore(results),
@@ -25,9 +26,10 @@ public class ScoreService(AppDbContext context): IScoreService
 
     public async Task<int> Create(ScoreDto request)
     {
+        var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
         var score = new Score
         {
-            PermanentCode = request.PermanentCode,
+            StudentId = student.Id,
             ExerciseId = request.ExerciseId,
             Answer = request.Answer,
             ScoreValue = request.ScoreValue,
@@ -53,11 +55,12 @@ public class ScoreService(AppDbContext context): IScoreService
     public async Task<int> Edit(int id, ScoreDto request)
     {
         var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
+        var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
         if (score == null)
             throw new NotFoundException("Aucun score trouvé");
         
         context.Entry(score).State = EntityState.Detached;
-        score.PermanentCode = request.PermanentCode;
+        score.StudentId = student.Id;
         score.ExerciseId = request.ExerciseId;
         score.Answer = request.Answer;
         score.ScoreValue = request.ScoreValue;

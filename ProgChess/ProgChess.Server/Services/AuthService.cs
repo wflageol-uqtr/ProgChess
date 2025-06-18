@@ -19,7 +19,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
             throw new BadRequestException("Courriel ou mot de passe invalide");
         var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
         if (!result.Succeeded)
-            throw new BadRequestException("Courriel ou mot de passe invalide");
+            throw new BadRequestException("Courriel ou mot de passe invalide 2");
         return await CreateTokenDto(user);
     }
 
@@ -33,21 +33,21 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
 
     public async Task LoginCodeAsync(StudentCodeDto request, HttpResponse response)
     {
-        var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
-        if (exercise == null)
+        bool exists = await context.StudentExercises
+            .Where(se => se.ExerciseId == request.ExerciseId && se.Student.PermanentCode == request.Code)
+            .AnyAsync();
+        if (!exists)
             throw new BadRequestException("Code est invalide");
-        // if (!exercise.Students.Contains(request.Code))
-        //     throw new BadRequestException("Code est invalide");
         cookieService.generateNormalCookie(response, request);
     }
 
     public async Task VerifyCodeAsync(StudentCodeDto request)
     {
-        var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
-        if (exercise == null)
-            throw new NotFoundException("Exercice introuvable");
-        // if (!exercise.Students.Contains(request.Code))
-        //     throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
+        bool exists = await context.StudentExercises
+            .Where(se => se.ExerciseId == request.ExerciseId && se.Student.PermanentCode == request.Code)
+            .AnyAsync();
+        if (!exists)
+            throw new NotFoundException("Vérification du cookie est invalide");
     }
 
     public async Task ForgotPassword(string email)

@@ -47,6 +47,8 @@ builder.Services.AddScoped<IExecuteService, ExecuteService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IStudentExerciseService, StudentExerciseService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

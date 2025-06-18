@@ -7,7 +7,7 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ExerciseService(AppDbContext dbContext) : IExerciseService
+public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService): IExerciseService
 {
     private IExerciseService _exerciseServiceImplementation;
 
@@ -17,7 +17,6 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         {
             Situation = request.Situation,
             BaseCode = request.BaseCode,
-            StudentCodes = Formatter.FormatCodeString(request.StudentCodes),
             UnitTests = request.UnitTest.Select(ut => new UnitTest
             {
                 Code = ut.Code,
@@ -26,6 +25,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         };
         await dbContext.Exercises.AddAsync(exercise);
         await dbContext.SaveChangesAsync();
+        await studentExerciseService.Create(exercise.Id, Formatter.FormatCodeString(request.StudentCodes));
         return exercise.Id;
     }
 
@@ -36,7 +36,8 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
 
     public async Task<Exercise?> GetById(int id)
     {
-        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises)
+            .ThenInclude(se => se.Student).FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
         return exercise;
@@ -53,12 +54,12 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
     public async Task<int> Edit(int id, ExerciseDto request)
     {
         // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
-        var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests).FirstAsync();
-        
+        var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests)
+            .Include(e => e.StudentExercises).ThenInclude(se => se.Student)
+            .FirstAsync();
         dbContext.Entry(exercise).State = EntityState.Detached;
         exercise.Situation = request.Situation;
         exercise.BaseCode = request.BaseCode;
-        exercise.StudentCodes = Formatter.FormatCodeString(request.StudentCodes);
         dbContext.RemoveRange(exercise.UnitTests);
         dbContext.Exercises.Update(exercise);
         
@@ -74,6 +75,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
             
         exercise.UnitTests = newTest;
         await dbContext.SaveChangesAsync();
+        await studentExerciseService.Update(id, Formatter.FormatCodeString(request.StudentCodes));
         return exercise.Id;
     }
 
@@ -91,7 +93,7 @@ public class ExerciseService(AppDbContext dbContext) : IExerciseService
         var exercise = await dbContext.Exercises.FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
-        exercise.StudentCodes.Remove(permanentCode);
+        // exercise.Students.Remove(permanentCode);
         await dbContext.SaveChangesAsync();
     }
 }

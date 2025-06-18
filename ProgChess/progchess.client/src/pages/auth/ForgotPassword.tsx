@@ -36,8 +36,6 @@ export default function ForgotPassword() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        console.log(values);
-
         await axios.post(
           "http://localhost:5290/api/auth/forgot-password",
           values

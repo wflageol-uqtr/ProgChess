@@ -16,7 +16,7 @@ public class ScoreService(AppDbContext context): IScoreService
             PermanentCode = permanentCode,
             ExerciseId = exerciseId,
             Answer = answer,
-            ScoreValue = calculateScore(results),
+            ScoreValue = CalculateScore(results),
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
@@ -75,7 +75,7 @@ public class ScoreService(AppDbContext context): IScoreService
         await context.SaveChangesAsync();
     }
 
-    private int calculateScore(List<TestResult> testResults)
+    private int CalculateScore(List<TestResult> testResults)
     {
         return testResults.OfType<TestSuccess>().Count();
     }

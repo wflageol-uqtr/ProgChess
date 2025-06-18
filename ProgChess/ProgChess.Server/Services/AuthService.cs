@@ -36,8 +36,8 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
         if (exercise == null)
             throw new BadRequestException("Code est invalide");
-        if (!exercise.StudentCodes.Contains(request.Code))
-            throw new BadRequestException("Code est invalide");
+        // if (!exercise.Students.Contains(request.Code))
+        //     throw new BadRequestException("Code est invalide");
         cookieService.generateNormalCookie(response, request);
     }
 
@@ -46,8 +46,8 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
         var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == request.ExerciseId);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
-        if (!exercise.StudentCodes.Contains(request.Code))
-            throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
+        // if (!exercise.Students.Contains(request.Code))
+        //     throw new ForbiddenException("Vous ne pouvez pas accéder à cette exercice");
     }
 
     public async Task ForgotPassword(string email)
@@ -58,6 +58,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
             // Serveur SMTP ?
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var link = $"{configuration["FrontendUrl"]}/admin/reset-password?email={user.Email}&activationToken={Base64UrlEncoder.Encode(token)}";
+            Console.WriteLine(link);
             var response = await emailService.SendEmailAsync(user.Email!, "Reset Password", link);
             if (!response)
                 throw new Exception("Erreur lors de l'envoie du courriel");

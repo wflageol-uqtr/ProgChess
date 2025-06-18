@@ -10,7 +10,7 @@ export type Exercise = {
   situation: string;
   baseCode: string;
   unitTests: UnitTest[];
-  studentCodes: string[]
+  studentExercises: StudentExercice[]
 };
 
 export type TestResult = {
@@ -27,6 +27,19 @@ export type Score = {
   exercise: Exercise,
   scoreValue: number,
   answer: string
+}
+
+export type Student = {
+  id: number,
+  permanentCode: string
+}
+
+export type StudentExercice = {
+  exerciseId: number,
+  exercise?: Exercise,
+  studentId: 1,
+  student: Student,
+  isComplete: boolean,
 }
 
 export type Error = {

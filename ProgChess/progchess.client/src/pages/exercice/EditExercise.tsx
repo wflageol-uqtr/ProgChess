@@ -3,7 +3,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import api from "../../utils/api";
-import type { Exercise, TestResult } from "../../utils/type";
+import type { Exercise, StudentExercice, TestResult } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -89,7 +89,7 @@ export default function EditExercise() {
         situation: exercise.situation,
         baseCode: exercise.baseCode,
         unitTest: exercise.unitTests,
-        studentCodes: buildStudentCodeString(exercise.studentCodes),
+        studentCodes: buildStudentCodeString(exercise.studentExercises),
       });
     }
   }, [exercise]);
@@ -116,8 +116,10 @@ export default function EditExercise() {
     setSituation(e.target.value);
   };
 
-  const buildStudentCodeString = (codeArray: string[]) => {
-    return codeArray.join("\n");
+  const buildStudentCodeString = (studentExercises: StudentExercice[]) => {
+    return studentExercises
+      .map((studentExercise) => studentExercise.student.permanentCode)
+      .join("\n");
   };
 
   const executeCode = () => {

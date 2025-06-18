@@ -180,11 +180,13 @@ export default function EditScore() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-zinc-950 text-white">
-                          {currentExercise?.studentCodes.map((code, index) => (
-                            <SelectItem key={index} value={code}>
-                              {code}
-                            </SelectItem>
-                          ))}
+                          {currentExercise?.studentExercises.map(
+                            (code, index) => (
+                              <SelectItem key={index} value={code}>
+                                {code}
+                              </SelectItem>
+                            )
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage className="text-red-600" />

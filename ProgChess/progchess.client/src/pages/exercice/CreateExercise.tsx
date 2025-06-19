@@ -108,7 +108,6 @@ export default function CreateExercise() {
         setOpenSheet(true);
         setTestResult(response.data.value);
         setError("");
-        console.log(response.data);
       } catch (error) {
         setOpenSheet(true);
         handleApiError(error, setError);

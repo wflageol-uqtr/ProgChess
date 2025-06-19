@@ -6,13 +6,15 @@ import { useNavigate, useParams } from "react-router";
 import type { Exercise, Error } from "../utils/type";
 import ErrorPage from "./error/ErrorPage";
 import { handleApiError } from "../utils/apiErrorHandler";
+import Score from "./Score";
 
 export default function Exercice() {
   const [exercise, setExercise] = useState<Exercise>();
   const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
-  const { cookie, isLoading } = useCookie();
+  const { cookie } = useCookie();
 
   useEffect(() => {
     if (cookie) {
@@ -28,6 +30,8 @@ export default function Exercice() {
       setExercise(response.data);
     } catch (error) {
       handleApiError(error, setError);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,7 +45,11 @@ export default function Exercice() {
           ></svg>
         </div>
       ) : !error ? (
-        <ExerciseContent exercise={exercise} />
+        exercise?.studentExercises[0].isComplete ? (
+          <Score exerciseId={id} />
+        ) : (
+          <ExerciseContent exercise={exercise} />
+        )
       ) : (
         <ErrorPage status={error.status} message={error.message} />
       )}

@@ -43,9 +43,19 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
         return exercise;
     }
 
-    public async Task<Exercise?> GetByIdWithTestType(int id, bool isActive)
+    public async Task<Exercise?> GetByIdWithActiveTest(int id, string studentCode)
     {
-        var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive == isActive)).FirstOrDefaultAsync(e => e.Id == id);
+        var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive))
+            .Include(e => e.StudentExercises.Where(se => se.Student.PermanentCode == studentCode))
+            .FirstOrDefaultAsync(e => e.Id == id);
+        if (exercise == null)
+            throw new NotFoundException("Exercice introuvable");
+        return exercise;
+    }
+    
+    public async Task<Exercise?> GetByIdWithHiddenTest(int id)
+    {
+        var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => !ut.IsActive)).Include(e => e.StudentExercises).FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
         return exercise;
@@ -86,14 +96,5 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
              throw new NotFoundException("Exercice introuvable");
          dbContext.Exercises.Remove(exercise);
          await dbContext.SaveChangesAsync();
-    }
-
-    public async Task RemoveStudentCode(int id, string permanentCode)
-    {
-        var exercise = await dbContext.Exercises.FirstOrDefaultAsync(e => e.Id == id);
-        if (exercise == null)
-            throw new NotFoundException("Exercice introuvable");
-        // exercise.Students.Remove(permanentCode);
-        await dbContext.SaveChangesAsync();
     }
 }

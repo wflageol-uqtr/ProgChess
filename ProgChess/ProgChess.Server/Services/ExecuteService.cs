@@ -29,7 +29,7 @@ public class ExecuteService: IExecuteService
 
     public async Task<ExecuteResult<List<TestResult>>> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
-        var exercise = await _exerciseService.GetByIdWithTestType(exerciseId, false);
+        var exercise = await _exerciseService.GetByIdWithHiddenTest(exerciseId);
         if (exercise == null)
             throw new NotFoundException("Aucun exercice trouvé");
         var code = BuildFullTestCode(solution, exercise.UnitTests);

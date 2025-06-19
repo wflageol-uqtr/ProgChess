@@ -21,7 +21,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
-        return score.ScoreValue;
+        return score.Id;
     }
 
     public async Task<int> Create(ScoreDto request)
@@ -43,6 +43,16 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
     public async Task<Score> GetScoreByIdAsync(int id)
     {
         var result = await context.Scores.Include(s => s.Exercise).Include(s => s.Student).FirstOrDefaultAsync(s => s.Id == id);
+        if (result == null)
+            throw new NotFoundException("Aucun score trouvé");
+        return result;
+    }
+
+    public async Task<Score> GetScoreByExerciseIdAndStudent(int id, string studentCode)
+    {
+        var result = await context.Scores.Include(s => s.ScoreTests)
+            .Where(s => s.Student.PermanentCode == studentCode && s.ExerciseId == id)
+            .FirstOrDefaultAsync();
         if (result == null)
             throw new NotFoundException("Aucun score trouvé");
         return result;

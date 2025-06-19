@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProChess.Server.Authorization;
 using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -24,6 +25,17 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
     {
         var result = await scoreService.GetAllScores();
         return Ok(result);
+    }
+    
+    
+    [HttpGet("{id}/student-result")]
+    [ValidCodeCookie]
+    public async Task<IActionResult> GetScoreByExerciseAndStudent(int id)
+    {
+        var studentCookie = HttpContext.Items["studentCookie"] as string;
+        
+        var score = await scoreService.GetScoreByExerciseIdAndStudent(id, studentCookie);
+        return Ok(score);
     }
 
     [HttpPost("create")]

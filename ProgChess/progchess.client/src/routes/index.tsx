@@ -8,7 +8,6 @@ import Exercice from "../pages/Exercise";
 import EditExercise from "../pages/exercice/EditExercise";
 import ErrorPage from "../pages/error/ErrorPage";
 import CookieProvider from "../providers/CookieProvider";
-import Score from "../pages/Score";
 import ListScore from "../pages/score/ListScore";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
@@ -45,10 +44,6 @@ export default function Routes() {
         {
           path: "/admin/reset-password",
           element: <ResetPassword />,
-        },
-        {
-          path: "/score",
-          element: <Score />,
         },
       ],
     },

@@ -1,10 +1,11 @@
 using ProChess.Server.Entities;
 using Microsoft.EntityFrameworkCore;
+using ProChess.Server.Exceptions;
 using ProgChess.Server.Database;
 
 namespace ProgChess.Server.Services;
 
-public class StudentExerciseService(AppDbContext dbContext): IStudentExerciseService
+public class StudentExerciseService(AppDbContext dbContext, IStudentService studentService): IStudentExerciseService
 {
     public async Task Create(int exerciseId, List<string> permanentCodes)
     {
@@ -51,6 +52,20 @@ public class StudentExerciseService(AppDbContext dbContext): IStudentExerciseSer
             .ToList();
 
         dbContext.StudentExercises.AddRange(newStudentExercises);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateComplete(int exerciseId, string permanentCode)
+    {
+        var student = await studentService.GetStudentByPermanentCodeAsync(permanentCode);
+        if (student == null)
+            throw new NotFoundException("Étudiant introuvable");
+        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == exerciseId && se.StudentId == student.Id)
+            .FirstOrDefaultAsync();
+        
+        if (result == null)
+            throw new NotFoundException("Exercice ou étudiant introuvable");
+        result.IsComplete = true;
         await dbContext.SaveChangesAsync();
     }
 

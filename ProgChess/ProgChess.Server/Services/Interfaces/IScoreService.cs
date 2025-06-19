@@ -11,7 +11,7 @@ public interface IScoreService
     Task<int> Create(ScoreDto request);
     
     Task<Score> GetScoreByIdAsync(int id);
-
+    Task<Score> GetScoreByExerciseIdAndStudent(int id, string studentCode);
     Task<List<Score>> GetAllScores();
     Task<int> Edit(int id, ScoreDto request);
     Task Delete(int id);

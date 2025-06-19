@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProChess.Server.Authorization;
 using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -27,9 +28,12 @@ public class ExerciseController(IExerciseService exerciseService) : ControllerBa
     }
     
     [HttpGet("active/{id}")]
+    [ValidCodeCookie]
     public async Task<IActionResult> GetExerciseByIdAsyncWithActiveTest(int id)
     {
-        var exercise = await exerciseService.GetByIdWithTestType(id, true);
+        var studentCookie = HttpContext.Items["studentCookie"] as string;
+
+        var exercise = await exerciseService.GetByIdWithActiveTest(id, studentCookie);
         return Ok(exercise);
     }
     

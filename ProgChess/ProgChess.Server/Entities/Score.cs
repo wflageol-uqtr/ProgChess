@@ -1,3 +1,5 @@
+using ProChess.Server.Response;
+
 namespace ProChess.Server.Entities;
 
 public class Score
@@ -15,4 +17,7 @@ public class Score
     public int ScoreValue { get; set; }
     
     public string Answer { get; set; } = string.Empty;
+    
+    public ICollection<ScoreTest> ScoreTests { get; } = new List<ScoreTest>();
+
 }

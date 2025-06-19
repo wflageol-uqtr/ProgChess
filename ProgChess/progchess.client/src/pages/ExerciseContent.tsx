@@ -93,7 +93,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const submitCode = async () => {
     startTransition(async () => {
       try {
-        const response = await axios.post(
+        await axios.post(
           "http://localhost:5290/api/execute/submit",
           {
             exerciseId: exercise?.id,
@@ -101,12 +101,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           },
           { withCredentials: true }
         );
-        navigate("/score", {
-          state: {
-            score: response.data.score,
-            testResult: response.data.results,
-          },
-        });
+        navigate(0);
       } catch (error) {
         handleApiError(error);
       }

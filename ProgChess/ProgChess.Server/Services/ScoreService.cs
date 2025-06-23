@@ -24,7 +24,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         return score.Id;
     }
 
-    public async Task<int> Create(ScoreDto request)
+    public async Task<Score> Create(ScoreDto request)
     {
         // Validation nécessaire ?
         // var student = await studentService.GetStudentByIdAsync(request.StudentId);
@@ -37,7 +37,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
-        return score.ScoreValue; 
+        return score; 
     }
 
     public async Task<Score> GetScoreByIdAsync(int id)
@@ -63,7 +63,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         return await context.Scores.Include(e => e.Exercise).Include(s => s.Student).ToListAsync();
     }
 
-    public async Task<int> Edit(int id, ScoreDto request)
+    public async Task<Score> Edit(int id, ScoreDto request)
     {
         var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
         // var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
@@ -77,7 +77,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         score.ScoreValue = request.ScoreValue;
         context.Scores.Update(score);
         await context.SaveChangesAsync();
-        return score.Id;
+        return score;
     }
 
     public async Task Delete(int id)

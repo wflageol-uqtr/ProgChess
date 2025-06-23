@@ -8,11 +8,11 @@ public interface IScoreService
 {
     Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results);
 
-    Task<int> Create(ScoreDto request);
+    Task<Score> Create(ScoreDto request);
     
     Task<Score> GetScoreByIdAsync(int id);
     Task<Score> GetScoreByExerciseIdAndStudent(int id, string studentCode);
     Task<List<Score>> GetAllScores();
-    Task<int> Edit(int id, ScoreDto request);
+    Task<Score> Edit(int id, ScoreDto request);
     Task Delete(int id);
 }

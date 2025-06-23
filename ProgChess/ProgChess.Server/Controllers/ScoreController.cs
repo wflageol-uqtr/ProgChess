@@ -40,7 +40,7 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
 
     [HttpPost("create")]
     [Authorize]
-    public async Task<ActionResult<Score>> Create(ScoreDto request)
+    public async Task<ActionResult<int>> Create(ScoreDto request)
     {
         var result = await scoreService.Create(request);
         return Ok(result);

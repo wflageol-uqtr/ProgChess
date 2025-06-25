@@ -24,7 +24,7 @@ export default function Score({ exerciseId }: ScoreProps) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-6">
-      <div className="bg-zinc-800 p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
+      <div className="bg-zinc-800 p-8 rounded-2xl shadow-lg w-full max-w-lg text-center">
         <h1 className="text-3xl font-bold mb-4">
           🎯 Résultat du test #{exerciseId}
         </h1>

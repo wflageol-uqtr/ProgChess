@@ -65,6 +65,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<Score> Edit(int id, ScoreDto request)
     {
+        // TODO: Set to his complete
         var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
         // var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
         if (score == null)

@@ -17,7 +17,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
             throw new BadRequestException("Courriel ou mot de passe invalide");
         var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
         if (!result.Succeeded)
-            throw new BadRequestException("Courriel ou mot de passe invalide 2");
+            throw new BadRequestException("Courriel ou mot de passe invalide");
         return await CreateTokenDto(user);
     }
 

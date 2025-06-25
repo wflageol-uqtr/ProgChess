@@ -163,7 +163,6 @@ export default function EditScore() {
               </div>
 
               <div>
-                {/* Explorer ce qui se passe ici  */}
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
@@ -171,8 +170,13 @@ export default function EditScore() {
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={(id) => field.onChange(parseInt(id))}
-                        value={field.value.toString()}
+                        onValueChange={(id) => {
+                          const parsed = parseInt(id);
+                          if (!isNaN(parsed)) {
+                            field.onChange(parsed);
+                          }
+                        }}
+                        value={field.value?.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">

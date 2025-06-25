@@ -8,7 +8,7 @@ import type { Exercise } from "../../utils/type";
 export const ExerciseColumns: ColumnDef<Exercise>[] = [
   {
     accessorKey: "id",
-    header: "Numéro",
+    header: "Id",
   },
   {
     accessorKey: "situation",

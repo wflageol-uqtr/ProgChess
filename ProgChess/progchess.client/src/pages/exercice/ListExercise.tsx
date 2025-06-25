@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import api from "../../utils/api";
 import { DataTable } from "../../components/table/Data-table";
 import { ExerciseColumns } from "../../components/table/ExerciseColumns";
-import { toast } from "sonner";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 export default function ListExercise() {
   const [exercise, setExercise] = useState([]);
@@ -15,7 +15,7 @@ export default function ListExercise() {
       const response = await api.get("/api/exercise");
       setExercise(response.data);
     } catch (error) {
-      toast.error("Une erreur est survenue");
+      handleApiError(error);
     }
   };
 
@@ -27,7 +27,7 @@ export default function ListExercise() {
     <AdminLayout>
       <div className="h-min-screen flex flex-col px-4 space-y-4 w-full mt-4">
         <div className="flex justify-between w-full">
-          <h2 className="text-2xl font-semibold">Liste de exercice</h2>
+          <h2 className="text-2xl font-semibold">Liste des exercices</h2>
           <Link to="/admin/exercise/create">
             <Button
               type="button"
@@ -37,7 +37,7 @@ export default function ListExercise() {
             </Button>
           </Link>
         </div>
-        <DataTable columns={ExerciseColumns} data={exercise} />
+        <DataTable columns={ExerciseColumns} data={exercise} filter="id" />
       </div>
     </AdminLayout>
   );

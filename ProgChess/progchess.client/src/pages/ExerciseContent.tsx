@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useNavigate, useParams } from "react-router";
-import api from "../utils/api";
-import CookieProvider, { useCookie } from "../providers/CookieProvider";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
 import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, MonitorDown } from "lucide-react";
+import { Book, Braces, Check, MonitorDown, RefreshCcw } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -13,48 +10,41 @@ import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
-import TestResultPanel from "../components/panel/TestResultPanel";
+import { DeleteDialog } from "../components/dialog/DeleteDialog";
+import { useNavigate } from "react-router";
+import SubmitDialog from "../components/dialog/SubmitDialog";
+import { handleApiError } from "../utils/apiErrorHandler";
 
-export default function ExerciseContent() {
+interface ExerciseContentProps {
+  exercise?: Exercise;
+}
+
+export default function ExerciseContent({ exercise }: ExerciseContentProps) {
+  const navigate = useNavigate();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [exercise, setExercise] = useState<Exercise>();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
   const [code, setCode] = useState<string>("");
+  const [testCode, setTestCode] = useState<string>("");
   const codeRef = useRef("");
-  const navigate = useNavigate();
-  const { cookie, isLoading } = useCookie();
-  const { id } = useParams();
+  const unitTestRef = useRef("");
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
-
-  const rawEncoder = `${crypto.randomUUID()}}#${id}`;
-  const encodedToken = encodeURIComponent(rawEncoder);
-
-  useEffect(() => {
-    if (cookie) {
-      getExercise();
-    } else {
-      navigate(`/login/${encodedToken}`);
-    }
-  }, [cookie]);
+  const [disabledSelect, setDisabledSelect] = useState(false);
 
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
 
   useEffect(() => {
+    unitTestRef.current = testCode;
+  }, [testCode]);
+
+  useEffect(() => {
     localStorage.setItem("topHeight", height.toString());
   }, [height]);
-
-  const getExercise = async () => {
-    try {
-      const response = await api.get(`/api/exercise/${id}`);
-      setExercise(response.data);
-    } catch (error) {
-      navigate("/404");
-    }
-  };
 
   useEffect(() => {
     const startedCode = localStorage.getItem(`code:${exercise?.id}`);
@@ -64,12 +54,20 @@ export default function ExerciseContent() {
       setCode(exercise?.baseCode!);
     }
 
+    const startedUnitTest = localStorage.getItem(`unitTest:${exercise?.id}`);
+    if (startedUnitTest) {
+      setTestCode(startedUnitTest);
+    } else {
+      setTestCode(exercise?.unitTests?.[0]?.code || "");
+    }
+
     const interval = setInterval(() => saveCode(), 30000);
     return () => clearInterval(interval);
   }, [exercise]);
 
   const saveCode = () => {
     localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    localStorage.setItem(`unitTest:${exercise?.id}`, unitTestRef.current);
   };
 
   const executeCode = async () => {
@@ -78,33 +76,66 @@ export default function ExerciseContent() {
         const response = await axios.post(
           "http://localhost:5290/api/execute",
           {
+            code,
+            unitTest: testCode,
+          },
+          { withCredentials: true }
+        );
+        saveCode();
+        setTestResult(response.data.value);
+        toast.success("Test exécuté");
+      } catch (error) {
+        handleApiError(error);
+      }
+    });
+  };
+
+  const submitCode = async () => {
+    startTransition(async () => {
+      try {
+        await axios.post(
+          "http://localhost:5290/api/execute/submit",
+          {
             exerciseId: exercise?.id,
             code,
           },
           { withCredentials: true }
         );
-        setTestResult(response.data);
+        navigate(0);
       } catch (error) {
-        toast.error("Une erreur est survenue lors de l'exécution");
+        handleApiError(error);
       }
     });
   };
 
+  const deleteCode = () => {
+    codeRef.current = exercise?.baseCode || "";
+    setCode(exercise?.baseCode || "");
+    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
+    setTestCode(exercise?.unitTests?.[0]?.code || "");
+    localStorage.setItem(`unitTest:${exercise?.id}`, codeRef.current);
+    setOpenDeleteDialog(false);
+    toast.success("Exercice réinitialiser");
+  };
+
   return (
-    <CookieProvider>
-      {isLoading ? (
-        <div className="h-screen bg-zinc-900 justify-center items-center">
-          <svg
-            className="mr-3 size-5 animate-spin ..."
-            viewBox="0 0 24 24"
-          ></svg>
-        </div>
-      ) : (
-        <div className="min-h-screen bg-zinc-900">
-          <div className="flex py-2 px-4 items-center justify-between">
-            <h2 className="text-2xl  text-green-500 font-semibold">
-              ProgChess
-            </h2>
+    <>
+      <div className="min-h-screen bg-zinc-900 overflow-auto">
+        <div className="flex py-2 px-4 items-center justify-between">
+          <h2 className="text-2xl  text-green-500 font-semibold">ProgChess</h2>
+          <div className="space-x-2">
+            <Button
+              className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenDeleteDialog(true);
+              }}
+            >
+              <RefreshCcw />
+              Réinitialiser
+            </Button>
             <Button
               className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
               type="button"
@@ -116,70 +147,74 @@ export default function ExerciseContent() {
               <MonitorDown />
               Sauvegarder
             </Button>
+            <Button
+              className="bg-green-500 hover:bg-green-600 cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenSubmitDialog(true);
+              }}
+            >
+              <Check />
+              Soummettre
+            </Button>
           </div>
-          <div className="hidden h-screen sm:grid grid-rows-1 text-white">
-            <div className="grid grid-cols-[min-content_auto]">
-              <HorizontalResizable>
-                <ExerciseCard title="Situation" icon={Book} canExecute={false}>
-                  <div className="p-4">
-                    <MarkdownComponent markdown={exercise?.situation!} />
-                  </div>
-                </ExerciseCard>
-              </HorizontalResizable>
-              <div className="h-full grid grid-rows-[min-content_auto]">
-                <VerticalResizable height={height} setHeight={setHeight}>
-                  <ExerciseCard
-                    isPending={isPending}
-                    title="Code"
-                    icon={Braces}
-                    canExecute={true}
-                    actionFn={executeCode}
-                  >
-                    <CodeEditor
-                      height={height}
-                      value={code}
-                      onChange={(e) => setCode(e)}
-                    />
-                  </ExerciseCard>
-                </VerticalResizable>
-
-                <TestCaseCard
-                  unitTests={exercise?.unitTests!.filter((ut) => ut.isActive)!}
+        </div>
+        <div
+          className={`hidden h-screen sm:grid grid-rows-1 text-white ${
+            disabledSelect ? "select-none" : ""
+          }`}
+        >
+          <div className="grid grid-cols-[min-content_auto]">
+            <HorizontalResizable setDisabledSelect={setDisabledSelect}>
+              <ExerciseCard title="Situation" icon={Book} canExecute={false}>
+                <div className="p-4">
+                  <MarkdownComponent markdown={exercise?.situation!} />
+                </div>
+              </ExerciseCard>
+            </HorizontalResizable>
+            <div className="h-full grid grid-rows-[min-content_auto]">
+              <VerticalResizable
+                setDisabledSelect={setDisabledSelect}
+                height={height}
+                setHeight={setHeight}
+              >
+                <ExerciseCard
+                  isPending={isPending}
+                  title="Code"
+                  icon={Braces}
+                  canExecute={true}
+                  actionFn={executeCode}
                 >
-                  <TestResultPanel
-                    isPending={isPending}
-                    testResult={testResult}
+                  <CodeEditor
+                    height={height}
+                    value={code}
+                    onChange={(e) => setCode(e)}
                   />
-                </TestCaseCard>
-              </div>
+                </ExerciseCard>
+              </VerticalResizable>
+
+              <TestCaseCard
+                isPending={isPending}
+                testResult={testResult}
+                unitTestCode={testCode}
+                setTestCode={setTestCode}
+              />
             </div>
           </div>
-          {/* Mobile ! */}
-          {/* <div className="grid md:hidden h-full gap-2 flex-1 px-4 space-y-4 bg-zinc-900 text-white">
-            <ExerciseCard title="Situation" icon={Book} canExecute={false}>
-              <div className="overflow-auto p-4">
-                <MarkdownComponent markdown={exercise?.situation!} />
-              </div>
-            </ExerciseCard>
-
-            <ExerciseCard title="Code" icon={Braces} canExecute={true}>
-              <CodeEditor
-                value={code}
-                onChange={(e) => setCode(e)}
-                height={0}
-              />
-            </ExerciseCard>
-
-            <ExerciseCard
-              title="Résultats"
-              icon={CheckCheck}
-              canExecute={false}
-            >
-              <p>Voici les résultats</p>
-            </ExerciseCard>
-          </div> */}
         </div>
-      )}
-    </CookieProvider>
+      </div>
+      <DeleteDialog
+        open={openDeleteDialog}
+        message="Cette action est irréversible. Le code que vous avez jusqu'à présent sera perdu."
+        onOpenChange={setOpenDeleteDialog}
+        deleteFn={deleteCode}
+      />
+      <SubmitDialog
+        open={openSubmitDialog}
+        onOpenChange={setOpenSubmitDialog}
+        submitFn={() => submitCode()}
+      />
+    </>
   );
 }

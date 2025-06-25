@@ -11,12 +11,14 @@ import { Button } from "../ui/button";
 
 interface DeleteDialogProps {
   open: boolean;
+  message: string;
   onOpenChange: (open: boolean) => void;
   deleteFn: () => void;
 }
 
 export function DeleteDialog({
   open,
+  message,
   onOpenChange,
   deleteFn,
 }: DeleteDialogProps) {
@@ -26,8 +28,7 @@ export function DeleteDialog({
         <DialogHeader>
           <DialogTitle className="text-white">Êtes-vous sûr ?</DialogTitle>
           <DialogDescription className="text-gray-200">
-            Cette action est irréversible. Cela supprimera définitivement
-            l'élément.
+            {message}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

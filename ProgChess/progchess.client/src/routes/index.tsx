@@ -7,6 +7,12 @@ import ListExercise from "../pages/exercice/ListExercise";
 import Exercice from "../pages/Exercise";
 import EditExercise from "../pages/exercice/EditExercise";
 import ErrorPage from "../pages/error/ErrorPage";
+import CookieProvider from "../providers/CookieProvider";
+import ListScore from "../pages/score/ListScore";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+import CreateScore from "../pages/score/CreateScore";
+import EditScore from "../pages/score/EditScore";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -21,11 +27,23 @@ export default function Routes() {
         },
         {
           path: "/exercise/:id",
-          element: <Exercice />,
+          element: (
+            <CookieProvider>
+              <Exercice />
+            </CookieProvider>
+          ),
         },
         {
           path: "/admin/login",
           element: <AdminLogin />,
+        },
+        {
+          path: "/admin/forgot-password",
+          element: <ForgotPassword />,
+        },
+        {
+          path: "/admin/reset-password",
+          element: <ResetPassword />,
         },
       ],
     },
@@ -48,6 +66,18 @@ export default function Routes() {
         {
           path: "exercise/edit/:id",
           element: <EditExercise />,
+        },
+        {
+          path: "score",
+          element: <ListScore />,
+        },
+        {
+          path: "score/create",
+          element: <CreateScore />,
+        },
+        {
+          path: "score/edit/:id",
+          element: <EditScore />,
         },
       ],
     },

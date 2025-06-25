@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 
-import { SquareTerminal } from "lucide-react";
+import { NotebookPen, SquareTerminal } from "lucide-react";
 
 export default function AppSidebar() {
   const items = [
@@ -20,6 +20,11 @@ export default function AppSidebar() {
       title: "Exercice",
       url: "/admin/exercise",
       icon: SquareTerminal,
+    },
+    {
+      title: "Score",
+      url: "/admin/score",
+      icon: NotebookPen,
     },
   ];
 

@@ -1,12 +1,8 @@
 using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProChess.Server.Response;
 using ProChess.Server.Utils;
-using ProgChess.Server.Dto;
 using TestResult = ProChess.Server.Response.TestResult;
 
 namespace ProgChess.Server.Services;
@@ -21,39 +17,37 @@ public class ExecuteService: IExecuteService
         _exerciseService = exerciseService;
         filename = Guid.NewGuid();
     }
-    
-    public async Task<List<TestResult>> RunExerciseTestAsync(ExecuteDto request)
+
+    public ExecuteResult<List<TestResult>> RunExerciseTest(string solution, string unitTest)
     {
-        try
-        {
-            var exercise = await _exerciseService.GetById(request.ExerciseId);
-            var code = BuildFullTestCode(request.Code, exercise.UnitTests);
-            return RunTestsWithNode(code);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        var code = BuildVisibleTestCode(solution, unitTest);
+        var result = RunTestsWithNode(code);
+        if (result.IsFailure)
+            throw new BadRequestException(result.Error);
+        return result;
     }
 
-    private List<TestResult> RunTestsWithNode(string code)
+    public async Task<ExecuteResult<List<TestResult>>> RunHiddenExerciseTestAsync(string solution, int exerciseId)
     {
-        try
-        { 
-            File.WriteAllText($"Script/{filename}.js", code);
-            var result = RunNodeCommandLine();
-            File.Delete($"Script/{filename}.js");
-            return result;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        var exercise = await _exerciseService.GetByIdWithHiddenTest(exerciseId);
+        if (exercise == null)
+            throw new NotFoundException("Aucun exercice trouvé");
+        var code = BuildFullTestCode(solution, exercise.UnitTests);
+        var result = RunTestsWithNode(code);
+        if (result.IsFailure)
+            throw new BadRequestException(result.Error);
+        return result;
     }
 
-    private List<TestResult> RunNodeCommandLine()
+    private ExecuteResult<List<TestResult>> RunTestsWithNode(string code)
+    {
+        File.WriteAllText($"Script/{filename}.js", code);
+        var result = RunNodeCommandLine();
+        File.Delete($"Script/{filename}.js");
+        return result;
+    }
+
+    private ExecuteResult<List<TestResult>> RunNodeCommandLine()
     {
         var psi = new ProcessStartInfo
         {
@@ -68,7 +62,12 @@ public class ExecuteService: IExecuteService
         
         using var process = Process.Start(psi);
         var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd(); 
         process.WaitForExit();
+        if (!string.IsNullOrEmpty(error))
+        {
+            return ExecuteResult<List<TestResult>>.Failure(error);
+        }
         return GenerateResult(Formatter.SplitByLine(output));
     }
     
@@ -77,14 +76,23 @@ public class ExecuteService: IExecuteService
         return
             "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
             + userCode + "\n"
-            + string.Join("\n", unitTests.Select(e => e.Code));
+            + string.Join("\n", unitTests.Where(e => !e.IsActive).Select(e => e.Code));
     }
 
-    private List<TestResult> GenerateResult(List<string> output)
+    private string BuildVisibleTestCode(string userCode, string userTest)
+    {
+        return
+            "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
+            + userCode + "\n"
+            + userTest + "\n";
+        
+    }
+
+    private ExecuteResult<List<TestResult>> GenerateResult(List<string> output)
     {
         var result = new List<TestResult>();
         result.AddRange(new SuccessCreator(output).createTestResults());
         result.AddRange(new ErrorCreator(output).createTestResults());
-        return result;
+        return ExecuteResult<List<TestResult>>.Success(result);
     }
 }

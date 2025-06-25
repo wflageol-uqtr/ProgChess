@@ -15,10 +15,10 @@ import Flash from "../../components/flash/Flash";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/ui/input";
-import { call } from "../../actions/auth";
 import axios from "axios";
 
 import { useNavigate, useParams } from "react-router";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 const formSchema = z.object({
   code: z
@@ -32,31 +32,26 @@ function StudentLogin() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-
   const { id } = useParams();
-  const decodedId = decodeURIComponent(id!);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
-      exerciseId: parseInt(decodedId.split("#")[1]) || 0,
+      exerciseId: parseInt(id!) || 0,
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
-      const response = await call(() =>
-        axios.post("http://localhost:5290/api/auth/login-code", values, {
+      try {
+        await axios.post("http://localhost:5290/api/auth/login-code", values, {
           withCredentials: true,
-        })
-      );
-      form.reset();
-
-      if (!response.success) {
-        setError("Code invalide");
-      } else {
-        navigate(-1);
+        });
+        navigate(`/exercise/${id}`);
+      } catch (error) {
+        handleApiError(error, setError);
+        form.reset();
       }
     });
   }

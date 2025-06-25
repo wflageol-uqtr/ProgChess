@@ -54,6 +54,8 @@ export default function ExerciseAction({ id, deleteFn }: ExerciseActionProps) {
       </DropdownMenu>
       <DeleteDialog
         open={openDialog}
+        message=" Cette action est irréversible. Cela supprimera définitivement
+            l'élément."
         onOpenChange={setOpenDialog}
         deleteFn={deleteFn}
       />

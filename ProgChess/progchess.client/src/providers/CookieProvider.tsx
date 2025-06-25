@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { hasCookie } from "../utils/cookie";
 import { useParams } from "react-router";
 import axios from "axios";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 interface CookieContextType {
   cookie: boolean;
@@ -33,6 +34,7 @@ const CookieProvider = ({ children }: any) => {
       });
     } catch (error) {
       setCookie(false);
+      handleApiError(error);
     } finally {
       setIsLoading(false);
     }

@@ -8,6 +8,7 @@ interface CodeEditorProps {
   value: string;
   height: number;
   onChange: (value: string) => void;
+  error?: any;
 }
 
 export default function CodeEditor({
@@ -15,10 +16,12 @@ export default function CodeEditor({
   value,
   height,
   onChange,
+  error,
 }: CodeEditorProps) {
   return (
     <div className="h-full">
       <CodeMirror
+        className={error ? "border border-red-500 rounded-lg" : ""}
         placeholder={placeholder}
         value={value}
         theme={dracula}

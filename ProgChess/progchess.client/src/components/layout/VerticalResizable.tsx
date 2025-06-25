@@ -4,12 +4,14 @@ interface VerticalResizableProps {
   children: any;
   height: number;
   setHeight: any;
+  setDisabledSelect: any;
 }
 
 export default function VerticalResizable({
   children,
   height,
   setHeight,
+  setDisabledSelect,
 }: VerticalResizableProps) {
   const isResized = useRef(false);
 
@@ -22,6 +24,7 @@ export default function VerticalResizable({
 
     const handleMouseUp = () => {
       isResized.current = false;
+      setDisabledSelect(false);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -38,7 +41,10 @@ export default function VerticalResizable({
       <div className="flex-grow overflow-auto">{children}</div>
       <div
         className="h-2 cursor-row-resize"
-        onMouseDown={() => (isResized.current = true)}
+        onMouseDown={() => {
+          isResized.current = true;
+          setDisabledSelect(true);
+        }}
       />
     </div>
   );

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using ProChess.Server.Entities;
+using ProChess.Server.Exceptions;
 using ProgChess.Server.Database;
 using ProgChess.Server.Services;
 
@@ -43,6 +44,12 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IExecuteService, ExecuteService>();
+builder.Services.AddScoped<IScoreService, ScoreService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IStudentExerciseService, StudentExerciseService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IScoreTestService, ScoreTestService>();
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -82,6 +89,14 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+// Configure Exception
+builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<UnauthorizedExceptionHandler>();
+builder.Services.AddExceptionHandler<ForbiddenExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -92,6 +107,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

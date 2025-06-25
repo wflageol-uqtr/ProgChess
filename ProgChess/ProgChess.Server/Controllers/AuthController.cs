@@ -1,12 +1,6 @@
-using System.Net;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using ProChess.Server.Authorization;
-using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
 
@@ -14,42 +8,26 @@ namespace ProgChess.Server.Controllers;
 
 [Route("/api/[controller]")]
 [ApiController]
-public class AuthController(IAuthService _authService, ICookieService _cookieService): ControllerBase
+public class AuthController(IAuthService _authService): ControllerBase
 {
     [HttpPost("login")]
     public async Task<ActionResult<TokenDto>> Login(UserDto request)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _authService.LoginAsync(request);
-        if (result == null)
-        {
-            return BadRequest("Courriel ou mot de passe est invalide");
-        }
-        
         return Ok(result);
     }
 
     [HttpPost("login-code")]
     public async Task<IActionResult> LoginCode(StudentCodeDto request)
     {
-        var success = await _authService.ContainsCodeAsync(request);
-        if (!success)
-        {
-            return BadRequest("Code est invalide");
-        }
-
-        _cookieService.generateNormalCookie(Response, request);
-        return Ok();
+        await _authService.LoginCodeAsync(request, Response);
+        return Ok("Connexion réussi");
     }
 
     [HttpPost("refresh-token")]
     public async Task<ActionResult<TokenDto>> RefreshToken(RefreshTokenDto request)
     {
         var result = await _authService.RefreshTokenAsync(request);
-        if (result == null)
-        {
-            return Unauthorized("Refresh token invalid");
-        }
         return Ok(result);
     }
     
@@ -64,21 +42,30 @@ public class AuthController(IAuthService _authService, ICookieService _cookieSer
     [ValidCodeCookie]
     public async Task<IActionResult> VerifyCookie([FromQuery] int exerciseId)
     {
-        try
+        var studentCookie = HttpContext.Items["studentCookie"] as string;
+        
+        await _authService.VerifyCodeAsync(new StudentCodeDto
         {
-            HttpContext.Request.Cookies.TryGetValue("studentCookie", out var studentCookie);
-            var succes = await _authService.ContainsCodeAsync(new StudentCodeDto
-            {
-                ExerciseId = exerciseId,
-                Code = studentCookie
-            });
-            if (!succes)
-                return Unauthorized();
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return Unauthorized("Étudiant non autorisé");
-        }
+            ExerciseId = exerciseId,
+            Code = studentCookie
+        });
+        return Ok();
+    }
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
+    {
+        await _authService.ForgotPassword(request.Email);
+        return Ok("Courriel de vérification envoyé");
+    }
+
+
+    [HttpPut("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto request)
+    {
+        await _authService.ResetPassword(request);
+        return Ok();
     }
 }

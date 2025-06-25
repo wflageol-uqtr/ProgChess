@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProChess.Server.Authorization;
 using ProChess.Server.Entities;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -8,36 +9,39 @@ namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExerciseController(IExerciseService service) : ControllerBase
+public class ExerciseController(IExerciseService exerciseService) : ControllerBase
 {
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<List<Exercise>>> GetExercicesAsync()
+    public async Task<ActionResult<List<Exercise>>> GetExercisesAsync()
     {
-        var exercices = await service.GetAllExercice();
-        return Ok(exercices);
+        var exercises = await exerciseService.GetAllExercice();
+        return Ok(exercises);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetExerciceByIdAsync(int id)
+    [Authorize]
+    public async Task<IActionResult> GetExerciseByIdAsync(int id)
     {
-        var exercice = await service.GetById(id);
-        if (exercice is null)
-        {
-            return NotFound("Not Found");
-        }
-        return Ok(exercice);
+        var exercise = await exerciseService.GetById(id);
+        return Ok(exercise);
+    }
+    
+    [HttpGet("active/{id}")]
+    [ValidCodeCookie]
+    public async Task<IActionResult> GetExerciseByIdAsyncWithActiveTest(int id)
+    {
+        var studentCookie = HttpContext.Items["studentCookie"] as string;
+
+        var exercise = await exerciseService.GetByIdWithActiveTest(id, studentCookie);
+        return Ok(exercise);
     }
     
     [HttpPost("create")]
     [Authorize]
     public async Task<IActionResult> Create(ExerciseDto request)
     {
-        var result = await service.Create(request);
-        if (result is null)
-        {
-            return StatusCode(500);
-        }
+        var result = await exerciseService.Create(request);
         return Ok(result);
     }
 
@@ -45,22 +49,15 @@ public class ExerciseController(IExerciseService service) : ControllerBase
     [Authorize]
     public async Task<IActionResult> Edit([FromRoute] int id, ExerciseDto request)
     {
-        var result = await service.Edit(id, request);
-        if (result is null)
-            return BadRequest("There is no such an exercise for id: " + id);
-        return Ok();
+        var result = await exerciseService.Edit(id, request);
+        return Ok(result);
     }
 
     [HttpDelete("delete/{id}")]
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
-        var success = await service.Delete(id);
-        if (!success)
-        {
-            return BadRequest("L'élément n'existe pas ");
-        }
-
+        await exerciseService.Delete(id);
         return Ok("Exercice supprimé avec succès");
     }
 }

@@ -33,6 +33,8 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
   const [disabledSelect, setDisabledSelect] = useState(false);
+  const [executionError, setExecutionError] = useState("");
+  const { setBadgeTabs } = useBadge();
 
   useEffect(() => {
     codeRef.current = code;
@@ -199,6 +201,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 testResult={testResult}
                 unitTestCode={testCode}
                 setTestCode={setTestCode}
+                executionError={executionError}
               />
             </div>
           </div>

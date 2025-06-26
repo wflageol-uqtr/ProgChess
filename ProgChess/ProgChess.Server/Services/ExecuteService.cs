@@ -23,7 +23,7 @@ public class ExecuteService: IExecuteService
         var code = BuildVisibleTestCode(solution, unitTest);
         var result = RunTestsWithNode(code);
         if (result.IsFailure)
-            throw new BadRequestException(result.Error);
+            throw new ExecutionErrorException(result.Error);
         return result;
     }
 

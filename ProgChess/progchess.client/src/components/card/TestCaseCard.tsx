@@ -9,6 +9,7 @@ interface TestCaseCardProps {
   testResult: TestResult[];
   unitTestCode: string;
   setTestCode: React.Dispatch<React.SetStateAction<string>>;
+  executionError?: string;
 }
 
 export default function TestCaseCard({
@@ -16,6 +17,7 @@ export default function TestCaseCard({
   testResult,
   unitTestCode,
   setTestCode,
+  executionError,
 }: TestCaseCardProps) {
   const tabs: TabType[] = [
     {
@@ -28,7 +30,7 @@ export default function TestCaseCard({
     },
     {
       id: "tests",
-      name: "Modification des tests",
+      name: "Test unitaire",
       isActive: false,
       component: (
         <CodeEditor
@@ -36,6 +38,29 @@ export default function TestCaseCard({
           height={400}
           onChange={(e) => setTestCode(e)}
         />
+      ),
+    },
+    {
+      id: "errors",
+      name: "Erreur d'exécution",
+      isActive: false,
+      component: (
+        <>
+          {executionError ? (
+            <>
+              <h3 className="text-lg font-semibold text-red-500 mb-2">
+                Erreur lors de l'exécution
+              </h3>
+              <p className="text-sm text-red-600 leading-relaxed">
+                {executionError}
+              </p>
+            </>
+          ) : (
+            <div className="flex w-full h-64 justify-center items-center text-zinc-400">
+              Exécuter les tests pour voir une sortie
+            </div>
+          )}
+        </>
       ),
     },
   ];

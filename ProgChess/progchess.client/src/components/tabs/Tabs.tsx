@@ -1,12 +1,22 @@
 import { useState } from "react";
 import type { TabType } from "../../utils/type";
 import { Tab } from "./Tab";
+import { useBadge } from "../../providers/ShowBadgeProvider";
 
 interface TabsProps {
   tabs: TabType[];
 }
 
 export function Tabs({ tabs }: TabsProps) {
+  const { badgeTabs, setBadgeTabs } = useBadge();
+
+  const removeBadge = (tabKey: string) => {
+    setBadgeTabs((prev) => ({
+      ...prev,
+      [tabKey]: false,
+    }));
+  };
+
   const findActiveTab = (a: TabType[]) => {
     return a.reduce((accumulator, currentValue, i) => {
       if (currentValue.isActive) {
@@ -29,6 +39,8 @@ export function Tabs({ tabs }: TabsProps) {
                 currentTab={i}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
+                showBadge={badgeTabs[`${item.id}`]}
+                resetBadge={() => removeBadge(item.id)}
               >
                 {item.name}
               </Tab>

@@ -14,6 +14,7 @@ import { DeleteDialog } from "../components/dialog/DeleteDialog";
 import { useNavigate } from "react-router";
 import SubmitDialog from "../components/dialog/SubmitDialog";
 import { handleApiError } from "../utils/apiErrorHandler";
+import { useBadge } from "../providers/ShowBadgeProvider";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -85,9 +86,17 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         );
         saveCode();
         setTestResult(response.data.value);
+        setBadgeTabs((prev) => ({
+          ...prev,
+          result: true,
+        }));
         toast.success("Test exécuté");
       } catch (error) {
-        handleApiError(error);
+        handleApiError(error, setExecutionError);
+        setBadgeTabs((prev) => ({
+          ...prev,
+          errors: true,
+        }));
       }
     });
   };

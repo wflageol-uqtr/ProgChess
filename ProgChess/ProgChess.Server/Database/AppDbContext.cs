@@ -45,6 +45,24 @@ using Microsoft.AspNetCore.Identity;
              .HasDefaultValue(false);
      }
 
+     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
+     {
+         var entries = ChangeTracker
+             .Entries()
+             .Where(e => e.Entity is DateEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+         foreach (var entityEntry in entries)
+         {
+             ((DateEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+             if (entityEntry.State == EntityState.Added)
+             {
+                 ((DateEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+
+             }
+         }
+         return base.SaveChangesAsync(cancellationToken);
+     }
+
      private void SeedUsers(ModelBuilder builder)
      {
          var hasher = new PasswordHasher<User>();

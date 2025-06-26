@@ -1,6 +1,6 @@
 namespace ProChess.Server.Entities;
 
-public class UnitTest
+public class UnitTest: DateEntity
 {
     public int Id { get; set; }
     public string Code { get; set; } = string.Empty;

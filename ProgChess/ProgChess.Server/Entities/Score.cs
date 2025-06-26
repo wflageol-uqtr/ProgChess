@@ -2,7 +2,7 @@ using ProChess.Server.Response;
 
 namespace ProChess.Server.Entities;
 
-public class Score
+public class Score: DateEntity
 {
     public int Id { get; set; }
     

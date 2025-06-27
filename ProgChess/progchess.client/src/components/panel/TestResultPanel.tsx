@@ -40,47 +40,60 @@ export default function TestResultPanel({
               </div>
             </div>
           </div>
-          <div className="flex mt-4 max-h-1/2 mx-4 rounded-xl overflow-auto border border-zinc-700 shadow-sm">
-            <div className="w-1/2 bg-zinc-800 p-3 space-y-1">
+          <div className="flex mt-6 mx-6 rounded-2xl overflow-auto border border-zinc-700 shadow-md">
+            <div className="w-1/2 bg-zinc-800 p-4 space-y-2 overflow-auto max-h-72">
               {testResult.map((value, index) => (
                 <div
                   key={index}
-                  className={`p-2 rounded-md cursor-pointer transition-colors ${
-                    selectedIndex === index
-                      ? "bg-zinc-600"
-                      : "bg-zinc-700 hover:bg-zinc-600"
-                  }`}
                   onClick={() => setSelectedIndex(index)}
+                  className={`bg-zinc-600 p-4 rounded-xl shadow-sm border-l-4 transition-all duration-150 cursor-pointer hover:bg-zinc-500 ${
+                    value.success ? "border-green-600" : "border-red-600"
+                  }`}
                 >
-                  <span
-                    className={`${
-                      value.$type === "success"
-                        ? "text-green-400"
-                        : "text-red-400"
-                    } font-medium`}
-                  >
+                  <h2 className="text-base font-semibold text-zinc-100 mb-1">
                     {value.testName}
-                  </span>
+                  </h2>
+                  <p className="text-sm text-zinc-300">
+                    Statut :{" "}
+                    <span
+                      className={`font-medium ${
+                        value.success ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {value.success ? "Réussie" : "Échoué"}
+                    </span>
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="w-1/2 bg-zinc-900 p-4 text-sm text-zinc-200">
+            <div className="w-1/2 bg-zinc-900 p-6 overflow-y-auto text-sm text-zinc-200">
               {selectedIndex !== null && (
-                <div>
-                  <div className="font-semibold text-lg mb-3 text-zinc-100">
+                <div className="space-y-4">
+                  <div className="text-lg font-semibold text-zinc-100">
                     {testResult[selectedIndex].testName}
                   </div>
 
                   {testResult[selectedIndex].actual && (
                     <div className="space-y-2">
-                      <pre className="bg-zinc-800 p-2 rounded whitespace-pre-wrap break-words">
-                        {testResult[selectedIndex].actual}
-                      </pre>
-                      {testResult[selectedIndex].expected && (
-                        <pre className="bg-zinc-800 p-2 rounded whitespace-pre-wrap break-words">
-                          {testResult[selectedIndex].expected}
+                      <div>
+                        <div className="text-xs text-zinc-400 mb-1">
+                          Actual:
+                        </div>
+                        <pre className="bg-zinc-800 p-3 rounded-lg whitespace-pre-wrap break-words">
+                          {testResult[selectedIndex].actual}
                         </pre>
+                      </div>
+
+                      {testResult[selectedIndex].expected && (
+                        <div>
+                          <div className="text-xs text-zinc-400 mb-1">
+                            Expected:
+                          </div>
+                          <pre className="bg-zinc-800 p-3 rounded-lg whitespace-pre-wrap break-words">
+                            {testResult[selectedIndex].expected}
+                          </pre>
+                        </div>
                       )}
                     </div>
                   )}

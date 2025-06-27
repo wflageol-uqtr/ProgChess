@@ -49,14 +49,18 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   }, [height]);
 
   useEffect(() => {
-    const startedCode = localStorage.getItem(`code:${exercise?.id}`);
+    const startedCode = localStorage.getItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+    );
     if (startedCode) {
       setCode(startedCode);
     } else {
       setCode(exercise?.baseCode!);
     }
 
-    const startedUnitTest = localStorage.getItem(`unitTest:${exercise?.id}`);
+    const startedUnitTest = localStorage.getItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+    );
     if (startedUnitTest) {
       setTestCode(startedUnitTest);
     } else {
@@ -68,8 +72,14 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   }, [exercise]);
 
   const saveCode = () => {
-    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
-    localStorage.setItem(`unitTest:${exercise?.id}`, unitTestRef.current);
+    localStorage.setItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      codeRef.current
+    );
+    localStorage.setItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      unitTestRef.current
+    );
   };
 
   const executeCode = async () => {
@@ -121,14 +131,20 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const deleteCode = () => {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
-    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    localStorage.setItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      codeRef.current
+    );
     toast.success("Exercice réinitialiser");
   };
 
   const deleteUnitTest = () => {
     unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
     setTestCode(exercise?.unitTests?.[0]?.code || "");
-    localStorage.setItem(`unitTest:${exercise?.id}`, unitTestRef.current);
+    localStorage.setItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      unitTestRef.current
+    );
     toast.success("Test réinitialiser");
   };
 

@@ -7,7 +7,7 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ScoreService(AppDbContext context, IStudentService studentService): IScoreService
+public class ScoreService(AppDbContext context, IStudentService studentService, IStudentExerciseService studentExerciseService): IScoreService
 {
     public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
     {
@@ -17,7 +17,6 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
             StudentId = student.Id,
             ExerciseId = exerciseId,
             Answer = answer,
-            ScoreValue = CalculateScore(results),
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
@@ -26,23 +25,21 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<Score> Create(ScoreDto request)
     {
-        // Validation nécessaire ?
-        // var student = await studentService.GetStudentByIdAsync(request.StudentId);
         var score = new Score
         {
             StudentId = request.StudentId,
             ExerciseId = request.ExerciseId,
             Answer = request.Answer,
-            ScoreValue = request.ScoreValue,
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
+        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentId));
         return score; 
     }
 
     public async Task<Score> GetScoreByIdAsync(int id)
     {
-        var result = await context.Scores.Include(s => s.Exercise).Include(s => s.Student).FirstOrDefaultAsync(s => s.Id == id);
+        var result = await context.Scores.Include(s => s.Exercise).ThenInclude(s => s.StudentExercises).Include(s => s.Student).FirstOrDefaultAsync(s => s.Id == id);
         if (result == null)
             throw new NotFoundException("Aucun score trouvé");
         return result;
@@ -65,9 +62,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
 
     public async Task<Score> Edit(int id, ScoreDto request)
     {
-        // TODO: Set to his complete
         var score = await context.Scores.FirstOrDefaultAsync(s => s.Id == id);
-        // var student = await studentService.GetStudentByPermanentCodeAsync(request.PermanentCode);
         if (score == null)
             throw new NotFoundException("Aucun score trouvé");
         
@@ -75,9 +70,9 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
         score.StudentId = request.StudentId;
         score.ExerciseId = request.ExerciseId;
         score.Answer = request.Answer;
-        score.ScoreValue = request.ScoreValue;
         context.Scores.Update(score);
         await context.SaveChangesAsync();
+        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentId), request.IsComplete);
         return score;
     }
 
@@ -88,10 +83,5 @@ public class ScoreService(AppDbContext context, IStudentService studentService):
             throw new NotFoundException("Score not found");
         context.Scores.Remove(score);
         await context.SaveChangesAsync();
-    }
-
-    private int CalculateScore(List<TestResult> testResults)
-    {
-        return testResults.OfType<TestSuccess>().Count();
     }
 }

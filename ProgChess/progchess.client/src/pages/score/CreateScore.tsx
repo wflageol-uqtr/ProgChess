@@ -25,12 +25,14 @@ import CodeEditor from "../../components/form/input/CodeEditor";
 import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Label } from "../../components/ui/label";
 
 const validationSchema = z.object({
   studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
-  scoreValue: z.number({ message: "Un chiffre est requis" }),
   answer: z.string(),
+  isComplete: z.boolean().optional(),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
@@ -46,8 +48,8 @@ export default function CreateScore() {
     defaultValues: {
       studentId: 0,
       exerciseId: 0,
-      scoreValue: 0,
       answer: "",
+      isComplete: true,
     },
   });
 
@@ -182,29 +184,21 @@ export default function CreateScore() {
               <h3 className="text-xl font-semibold mb-2">Score</h3>
               <FormField
                 control={form.control}
-                name="scoreValue"
+                name="isComplete"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p>L'étudiant a obtenu un score de :</p>
-                        <Input
-                          placeholder="0"
-                          type="number"
-                          className="w-16 text-center"
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value)
-                            )
-                          }
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="isComplete"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
-                        <p>/ X</p>
+                        <Label htmlFor="isComplete">
+                          L'étudiant a complété l'exercice
+                        </Label>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-red-600" />
                   </FormItem>
                 )}
               />

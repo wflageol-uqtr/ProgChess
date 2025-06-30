@@ -1,7 +1,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
-import type { Exercise, Score } from "../../utils/type";
+import type { Exercise, Score, StudentExercice } from "../../utils/type";
 import api from "../../utils/api";
 import { handleApiError } from "../../utils/apiErrorHandler";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -14,7 +14,6 @@ import {
 } from "../../components/ui/form";
 import { Button } from "../../components/ui/button";
 import CodeEditor from "../../components/form/input/CodeEditor";
-import { Input } from "../../components/ui/input";
 import {
   Select,
   SelectContent,
@@ -22,15 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Label } from "../../components/ui/label";
 
 const validationSchema = z.object({
   studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
-  scoreValue: z.number({ message: "Un chiffre est requis" }),
   answer: z.string(),
+  isComplete: z.boolean().optional(),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
@@ -40,6 +41,9 @@ export default function EditScore() {
   const [isPending, startTransition] = useTransition();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [score, setScore] = useState<Score>();
+  const [studentExercises, setStudentExercises] = useState<StudentExercice[]>(
+    []
+  );
   const [currentExercise, setCurrentExercise] = useState<Exercise>();
   const { id } = useParams();
 
@@ -48,10 +52,12 @@ export default function EditScore() {
     defaultValues: {
       studentId: 0,
       exerciseId: 0,
-      scoreValue: 0,
       answer: "",
+      isComplete: true,
     },
   });
+
+  const [exerciseId, studentId] = form.watch(["exerciseId", "studentId"]);
 
   const getScore = async () => {
     try {
@@ -71,9 +77,19 @@ export default function EditScore() {
     }
   };
 
+  const getAllStudentExercise = async () => {
+    try {
+      const response = await api.get("/api/studentexercise");
+      setStudentExercises(response.data);
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
   useEffect(() => {
     getAllExercise();
     getScore();
+    getAllStudentExercise();
   }, []);
 
   useEffect(() => {
@@ -81,7 +97,6 @@ export default function EditScore() {
       form.reset({
         studentId: score?.student.id,
         exerciseId: score?.exercise.id,
-        scoreValue: score?.scoreValue,
         answer: score?.answer,
       });
       var currentExercise = exercises.find(
@@ -90,6 +105,17 @@ export default function EditScore() {
       setCurrentExercise(currentExercise);
     }
   }, [score, exercises]);
+
+  useEffect(() => {
+    if (score) {
+      var result = studentExercises.find(
+        (item) =>
+          item.exerciseId === Number(exerciseId) &&
+          item.studentId === Number(studentId)
+      );
+      form.setValue("isComplete", result?.isComplete);
+    }
+  }, [studentId, exerciseId]);
 
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
@@ -214,29 +240,21 @@ export default function EditScore() {
               <h3 className="text-xl font-semibold mb-2">Score</h3>
               <FormField
                 control={form.control}
-                name="scoreValue"
+                name="isComplete"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p>L'étudiant a obtenu un score de :</p>
-                        <Input
-                          placeholder="0"
-                          type="text"
-                          className="w-16 text-center"
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value)
-                            )
-                          }
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="isComplete"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
-                        <p>/ X</p>
+                        <Label htmlFor="isComplete">
+                          L'étudiant a complété l'exercice
+                        </Label>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-red-600" />
                   </FormItem>
                 )}
               />

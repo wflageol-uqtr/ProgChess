@@ -7,6 +7,11 @@ namespace ProgChess.Server.Services;
 
 public class StudentExerciseService(AppDbContext dbContext, IStudentService studentService): IStudentExerciseService
 {
+    public async Task<List<StudentExercise>> GetStudentExercises()
+    {
+        return await dbContext.StudentExercises.ToListAsync();
+    }
+
     public async Task Create(int exerciseId, List<string> permanentCodes)
     {
         var students = await CreateOrGetStudents(permanentCodes);
@@ -68,6 +73,17 @@ public class StudentExerciseService(AppDbContext dbContext, IStudentService stud
         result.IsComplete = true;
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task UpdateComplete((int exerciseId, int studentId) identifier, bool isComplete = false)
+    {
+        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == identifier.exerciseId && se.StudentId == identifier.studentId)
+            .FirstOrDefaultAsync();
+        if (result == null)
+            throw new NotFoundException("Exercice ou étudiant introuvable");
+        result.IsComplete = isComplete;
+        await dbContext.SaveChangesAsync();
+    }
+    
 
     private async Task<List<Student>> CreateOrGetStudents(List<string> permanentCodes)
     {

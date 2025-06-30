@@ -14,8 +14,6 @@ public class Score: DateEntity
     
     public Exercise Exercise { get; set; }
     
-    public int ScoreValue { get; set; }
-    
     public string Answer { get; set; } = string.Empty;
     
     public ICollection<ScoreTest> ScoreTests { get; } = new List<ScoreTest>();

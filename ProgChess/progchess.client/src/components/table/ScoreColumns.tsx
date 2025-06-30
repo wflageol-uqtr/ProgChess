@@ -1,11 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Score, Student } from "../../utils/type";
+import type { Score } from "../../utils/type";
 import { useNavigate } from "react-router";
 import api from "../../utils/api";
 import { toast } from "sonner";
 import ScoreAction from "./ScoreAction";
 import { Button } from "../ui/button";
 import { ArrowUpDown } from "lucide-react";
+import { handleApiError } from "../../utils/apiErrorHandler";
 
 export const ScoreColumns: ColumnDef<Score>[] = [
   {
@@ -55,7 +56,7 @@ export const ScoreColumns: ColumnDef<Score>[] = [
           });
           navigate(0);
         } catch (error) {
-          toast.error("Une erreur est survenue.");
+          handleApiError(error);
         }
       };
       return <ScoreAction id={row.getValue("id")} deleteFn={handleDelete} />;

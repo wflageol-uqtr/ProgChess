@@ -32,7 +32,9 @@ export type Score = {
 
 export type Student = {
   id: number,
-  permanentCode: string
+  permanentCode: string,
+  createdAt: string,
+  updatedAt: string
 }
 
 export type StudentExercice = {

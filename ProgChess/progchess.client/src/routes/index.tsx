@@ -13,6 +13,8 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import CreateScore from "../pages/score/CreateScore";
 import EditScore from "../pages/score/EditScore";
+import ListStudent from "../pages/student/ListStudent";
+import EditStudent from "../pages/student/EditStudent";
 
 export default function Routes() {
   // route public accessble par non-authentifié
@@ -78,6 +80,14 @@ export default function Routes() {
         {
           path: "score/edit/:id",
           element: <EditScore />,
+        },
+        {
+          path: "students",
+          element: <ListStudent />,
+        },
+        {
+          path: "student/edit/:id",
+          element: <EditStudent />,
         },
       ],
     },

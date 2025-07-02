@@ -24,6 +24,19 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
+builder.Services.AddHttpClient("VmApi", client =>
+    {
+        client.BaseAddress = new Uri("http://localhost:5001");
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            // ONLY for local dev and self-signed certs
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+    });
+
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityCore<User>(options =>
     {

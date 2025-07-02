@@ -12,7 +12,7 @@ public class ExecuteController(IExecuteService executeService, IScoreService sco
     [HttpPost]
     public async Task<IActionResult> Execute(ExecuteDto request)
     {
-        var results = executeService.RunExerciseTest(request.Code, request.UnitTest);
+        var results = await executeService.ExecuteOnVm(request.Code, request.UnitTest);
         return Ok(results);
     }
     

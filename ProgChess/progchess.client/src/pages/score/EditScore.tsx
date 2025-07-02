@@ -21,17 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { useForm, type UseFormWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input";
+import { toast } from "sonner";
 
 const validationSchema = z.object({
   studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
   answer: z.string(),
   isComplete: z.boolean().optional(),
+  scoreTests: z.array(
+    z.object({
+      name: z.string().min(1, { message: "Nom obligatoire" }),
+      isSuccess: z.boolean().optional(),
+      actual: z.string().optional().nullable(),
+      expected: z.string().optional().nullable(),
+    })
+  ),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
@@ -54,10 +63,16 @@ export default function EditScore() {
       exerciseId: 0,
       answer: "",
       isComplete: true,
+      scoreTests: [{ name: "", isSuccess: false, expected: "", actual: "" }],
     },
   });
 
   const [exerciseId, studentId] = form.watch(["exerciseId", "studentId"]);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "scoreTests",
+  });
 
   const getScore = async () => {
     try {
@@ -94,10 +109,13 @@ export default function EditScore() {
 
   useEffect(() => {
     if (score) {
+      console.log(score);
+
       form.reset({
         studentId: score?.student.id,
         exerciseId: score?.exercise.id,
         answer: score?.answer,
+        scoreTests: score?.scoreTests,
       });
       var currentExercise = exercises.find(
         (exercise) => exercise.id == score.exercise.id
@@ -259,6 +277,138 @@ export default function EditScore() {
                 )}
               />
             </div>
+            <div className="border-b border-gray-700" />
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold mb-2">Test du score</h3>
+              <Button
+                type="button"
+                className="bg-green-500 hover:bg-green-600 text-xl cursor-pointer"
+                onClick={() =>
+                  append({
+                    name: "",
+                    isSuccess: false,
+                    expected: "",
+                    actual: "",
+                  })
+                }
+              >
+                +
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className={`relative p-5 rounded-2xl shadow-md space-y-6 border border-zinc-700`}
+                >
+                  <div
+                    className="absolute size-6 -top-2 -right-1 text-gray-500 border border-gray-500 hover:text-red-600 hover:border-red-600 transition-colors duration-200 rounded-full text-center cursor-pointer"
+                    onClick={() => remove(index)}
+                  >
+                    X
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Nom du test
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Nom du test"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`scoreTests.${index}.isSuccess`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="flex items-center space-x-2 mt-1 sm:mt-6">
+                              <Checkbox
+                                id={`isSuccess-${index}`}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                              <Label
+                                htmlFor={`isSuccess-${index}`}
+                                className="text-sm font-medium text-zinc-300"
+                              >
+                                Réussie
+                              </Label>
+                            </div>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <hr className="border-zinc-700" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Actuel (optionnel)
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.actual`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Valeur actuelle"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Attendue (optionnel)
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.expected`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Valeur attendue"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="border-b border-gray-700" />
 
             <div>

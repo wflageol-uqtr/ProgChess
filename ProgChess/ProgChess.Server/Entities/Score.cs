@@ -16,6 +16,6 @@ public class Score: DateEntity
     
     public string Answer { get; set; } = string.Empty;
     
-    public ICollection<ScoreTest> ScoreTests { get; } = new List<ScoreTest>();
+    public ICollection<ScoreTest> ScoreTests { get; set; } = new List<ScoreTest>();
 
 }

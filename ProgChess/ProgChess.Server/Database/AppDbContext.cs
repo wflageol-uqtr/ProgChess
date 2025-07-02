@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
      public DbSet<Exercise> Exercises { get; set; }
      public DbSet<UnitTest> UnitTests { get; set; }
      public DbSet<Score> Scores { get; set; }
+     public DbSet<ScoreTest> ScoreTest { get; set; }
      public DbSet<Student> Students { get; set; }
      public DbSet<StudentExercise> StudentExercises { get; set; }
 

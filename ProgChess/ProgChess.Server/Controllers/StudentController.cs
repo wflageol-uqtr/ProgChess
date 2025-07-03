@@ -38,4 +38,12 @@ public class StudentController(IStudentService studentService): ControllerBase
         await studentService.Delete(id);
         return Ok();
     }
+    
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> DeleteAll(DeleteMultipleDto request)
+    {
+        await studentService.DeleteMultiple(request);
+        return Ok();
+    }
 }

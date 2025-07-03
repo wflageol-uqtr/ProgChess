@@ -28,6 +28,7 @@ export default function ListStudent() {
         <DataTable
           data={student}
           columns={StudentColumns}
+          apiRoute="/api/student"
           filter="permanentCode"
         />
       </div>

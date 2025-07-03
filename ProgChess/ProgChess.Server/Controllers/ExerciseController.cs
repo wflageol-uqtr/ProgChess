@@ -60,4 +60,12 @@ public class ExerciseController(IExerciseService exerciseService) : ControllerBa
         await exerciseService.Delete(id);
         return Ok("Exercice supprimé avec succès");
     }
+
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> DeleteAll(DeleteMultipleDto request)
+    {
+        await exerciseService.DeleteMultiple(request);
+        return Ok();
+    }
 }

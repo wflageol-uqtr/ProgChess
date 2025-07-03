@@ -15,4 +15,5 @@ public interface IScoreService
     Task<List<Score>> GetAllScores();
     Task<Score> Edit(int id, ScoreDto request);
     Task Delete(int id);
+    Task DeleteMultiple(DeleteMultipleDto request);
 }

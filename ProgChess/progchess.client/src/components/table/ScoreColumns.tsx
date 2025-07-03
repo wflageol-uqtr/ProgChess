@@ -7,8 +7,29 @@ import ScoreAction from "./ScoreAction";
 import { Button } from "../ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import { Checkbox } from "../ui/checkbox";
 
 export const ScoreColumns: ColumnDef<Score>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "id",
     header: "Id",

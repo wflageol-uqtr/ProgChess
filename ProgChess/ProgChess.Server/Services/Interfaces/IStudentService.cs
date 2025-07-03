@@ -10,4 +10,5 @@ public interface IStudentService
     Task<Student> GetStudentByIdAsync(int id);
     Task<Student> Edit(int id, StudentDto request);
     Task Delete(int id);
+    Task DeleteMultiple(DeleteMultipleDto request);
 }

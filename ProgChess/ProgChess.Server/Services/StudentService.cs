@@ -48,4 +48,17 @@ public class StudentService(AppDbContext dbContext): IStudentService
         dbContext.Students.Remove(student);
         await dbContext.SaveChangesAsync();
     }
+    
+    public async Task DeleteMultiple(DeleteMultipleDto request)
+    {
+        var itemsToDelete = await dbContext.Students
+            .Where(e => request.Ids.Contains(e.Id))
+            .ToListAsync();
+
+        if (itemsToDelete.Count == 0)
+            throw new NotFoundException("Aucun élément à supprimer trouvé.");
+
+        dbContext.Students.RemoveRange(itemsToDelete);
+        await dbContext.SaveChangesAsync();
+    }
 }

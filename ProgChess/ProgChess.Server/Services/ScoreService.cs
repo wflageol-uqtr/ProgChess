@@ -86,4 +86,17 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
         context.Scores.Remove(score);
         await context.SaveChangesAsync();
     }
+    
+    public async Task DeleteMultiple(DeleteMultipleDto request)
+    {
+        var itemsToDelete = await context.Scores
+            .Where(e => request.Ids.Contains(e.Id))
+            .ToListAsync();
+
+        if (itemsToDelete.Count == 0)
+            throw new NotFoundException("Aucun élément à supprimer trouvé.");
+
+        context.Scores.RemoveRange(itemsToDelete);
+        await context.SaveChangesAsync();
+    }
 }

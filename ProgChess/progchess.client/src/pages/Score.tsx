@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { handleApiError } from "../utils/apiErrorHandler";
+import CodeEditor from "../components/form/input/CodeEditor";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/ui/accordion";
 
 interface ScoreProps {
   exerciseId: string | undefined;
 }
 
 export default function Score({ exerciseId }: ScoreProps) {
-  const [result, setResult] = useState([]);
+  const [result, setResult] = useState();
 
   const getScore = async () => {
     try {
       const response = await api.get(`/api/score/${exerciseId}/student-result`);
+      console.log(response.data);
+
       setResult(response.data);
     } catch (error) {
       handleApiError(error);
@@ -23,33 +32,81 @@ export default function Score({ exerciseId }: ScoreProps) {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-6">
-      <div className="bg-zinc-800 p-8 rounded-2xl shadow-lg w-full max-w-lg text-center">
-        <h1 className="text-3xl font-bold mb-4">
-          🎯 Résultat du test #{exerciseId}
-        </h1>
-        <p className="text-xl mb-6">
-          Score :{" "}
-          <span className="font-bold">
-            {result.scoreValue} / {result.scoreTests?.length}
-          </span>
-        </p>
+    <div className="min-h-screen bg-zinc-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-10">
+        <div className="text-center space-y-2">
+          <h2 className="text-4xl font-extrabold text-white">
+            🎯 Résultat du test #{exerciseId}
+          </h2>
+          <p className="text-zinc-300 text-lg">
+            Voici votre code et vos résultats aux tests
+          </p>
+        </div>
 
-        {result.scoreTests?.length > 0 && (
-          <ul className="space-y-2 text-left">
-            {result.scoreTests.map((test: any, index: number) => (
-              <li
-                key={index}
-                className={`p-3 rounded-lg flex items-center justify-between ${
-                  test.isSuccess ? "bg-green-600" : "bg-red-600"
-                }`}
-              >
-                <span>{test.name}</span>
-                <span>{test.isSuccess ? "✅ Réussi" : "❌ Échoué"}</span>
-              </li>
-            ))}
-          </ul>
+        {result?.scoreTests?.every((test) => test.isSuccess === true) && (
+          <div className="flex justify-center">
+            <span className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white text-sm font-semibold rounded-full shadow-lg animate-pulse">
+              🎉 Félicitations ! Score parfait
+            </span>
+          </div>
         )}
+
+        <div className="rounded-xl overflow-hidden border border-zinc-700 shadow-inner">
+          <CodeEditor
+            value={result?.answer ?? ""}
+            height={window.innerHeight / 2}
+            onChange={() => {}}
+            editable={false}
+          />
+        </div>
+
+        <div className="bg-zinc-800 shadow-lg rounded-2xl p-6 space-y-6 text-white">
+          <h2 className="text-xl font-bold border-b border-zinc-700 pb-2">
+            ✅ Résultats des tests unitaires
+          </h2>
+
+          {result?.scoreTests?.length ? (
+            <Accordion className="space-y-3" type="single" collapsible>
+              {result?.scoreTests.map((test, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="overflow-hidden border border-zinc-700 rounded-xl"
+                >
+                  <AccordionTrigger
+                    className={`flex items-center justify-between px-5 py-3 text-md font-medium transition-all ${
+                      test.isSuccess
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-red-600 hover:bg-red-700"
+                    } text-white rounded-t-xl`}
+                  >
+                    {test.name}
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className={`px-5 py-4 text-sm leading-relaxed ${
+                      test.isSuccess
+                        ? "bg-green-50 text-green-700"
+                        : "bg-red-50 text-red-700"
+                    } rounded-b-xl`}
+                  >
+                    <p>
+                      {test.actual
+                        ? `🔎 Résultat actuel : ${test.actual}`
+                        : "Aucune information disponible"}
+                    </p>
+                    {test.expected && (
+                      <p>🎯 Résultat attendu : {test.expected}</p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <div className="text-center text-zinc-400">
+              Aucun résultat de test disponible
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

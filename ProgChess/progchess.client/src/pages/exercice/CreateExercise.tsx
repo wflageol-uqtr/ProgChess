@@ -20,6 +20,7 @@ import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
 import type { TestResult } from "../../utils/type";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import FileUploader from "../../components/form/input/FileUploader";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -98,7 +99,7 @@ export default function CreateExercise() {
           .map((test) => test.code)
           .join("\n");
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          "http://localhost:5290/api/execute/test",
           {
             code,
             unitTest,
@@ -115,6 +116,13 @@ export default function CreateExercise() {
     });
   };
 
+  const handleChildUpload = (newValue: string) => {
+    form.setValue(
+      "situation",
+      form.getValues("situation") +
+        `![My Uploaded Image](http://localhost:5290/Image/${newValue})`
+    );
+  };
   return (
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
@@ -126,6 +134,7 @@ export default function CreateExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
+              <FileUploader onUpload={handleChildUpload} />
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}

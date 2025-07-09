@@ -224,9 +224,9 @@ export default function EditExercise() {
               </Button>
             </div>
             <div className="h-full">
-              {form.formState.errors.situation && (
+              {form.formState.errors.baseCode && (
                 <span className="text-red-500">
-                  {form.formState.errors.situation.message}
+                  {form.formState.errors.baseCode.message}
                 </span>
               )}
               <FormField

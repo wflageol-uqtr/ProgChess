@@ -7,19 +7,12 @@ namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExecuteController(ICodeExecuterService codeExecuterService, IScoreService scoreService, IExerciseService exerciseService, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService) : ControllerBase
+public class ExecuteController(ICodeExecuterService codeExecuterService, IScoreService scoreService, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Execute(ExecuteDto request)
     {
         var results = await codeExecuterService.ExecuteOnVm(request.Code, request.UnitTest);
-        return Ok(results);
-    }
-    
-    [HttpPost("test")]
-    public async Task<IActionResult> ExecuteTest(ExecuteDto request)
-    {
-        var results = await codeExecuterService.ExecuteTest(request.Code, request.UnitTest);
         return Ok(results);
     }
     

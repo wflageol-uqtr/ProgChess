@@ -99,7 +99,7 @@ export default function CreateExercise() {
           .map((test) => test.code)
           .join("\n");
         const response = await axios.post(
-          "http://localhost:5290/api/execute/test",
+          "http://localhost:5290/api/execute",
           {
             code,
             unitTest,
@@ -184,9 +184,9 @@ export default function CreateExercise() {
               </Button>
             </div>
             <div className="h-full">
-              {form.formState.errors.situation && (
+              {form.formState.errors.baseCode && (
                 <span className="text-red-500">
-                  {form.formState.errors.situation.message}
+                  {form.formState.errors.baseCode.message}
                 </span>
               )}
               <FormField

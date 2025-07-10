@@ -5,9 +5,9 @@ const BadgeContext = createContext();
 // En parler avec William
 export const BadgeProvider = ({ children }: any) => {
   const [badgeTabs, setBadgeTabs] = useState({
-    result: false,
-    tests: false,
-    errors: false,
+    0: false,
+    1: false,
+    2: false,
   });
 
   return (

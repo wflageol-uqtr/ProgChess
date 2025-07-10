@@ -51,7 +51,7 @@ export type Error = {
 }
 
 export type TabType = {
-  id: string,
+  id: number,
   name: string
   isActive: boolean,
   component: React.ReactElement

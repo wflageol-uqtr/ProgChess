@@ -28,7 +28,7 @@ export default function TestCaseCard({
 
   const tabs: TabType[] = [
     {
-      id: "result",
+      id: 0,
       name: "Résultat",
       isActive: true,
       component: (
@@ -36,7 +36,7 @@ export default function TestCaseCard({
       ),
     },
     {
-      id: "tests",
+      id: 1,
       name: "Test unitaire",
       isActive: false,
       component: (
@@ -48,7 +48,7 @@ export default function TestCaseCard({
       ),
     },
     {
-      id: "errors",
+      id: 2,
       name: "Erreur d'exécution",
       isActive: false,
       component: (

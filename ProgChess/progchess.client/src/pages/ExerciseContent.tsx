@@ -97,14 +97,14 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         setTestResult(response.data.value);
         setBadgeTabs((prev) => ({
           ...prev,
-          result: true,
+          0: true,
         }));
         toast.success("Test exécuté");
       } catch (error) {
         handleApiError(error, setExecutionError);
         setBadgeTabs((prev) => ({
           ...prev,
-          errors: true,
+          2: true,
         }));
       }
     });

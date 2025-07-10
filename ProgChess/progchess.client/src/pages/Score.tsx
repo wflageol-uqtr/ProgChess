@@ -74,7 +74,7 @@ export default function Score({ exerciseId }: ScoreProps) {
                   className="overflow-hidden border border-zinc-700 rounded-xl"
                 >
                   <AccordionTrigger
-                    className={`flex items-center justify-between px-5 py-3 text-md font-medium transition-all ${
+                    className={`flex items-center justify-between px-5 py-3 text-md font-medium transition-all cursor-pointer ${
                       test.isSuccess
                         ? "bg-green-600 hover:bg-green-700"
                         : "bg-red-600 hover:bg-red-700"

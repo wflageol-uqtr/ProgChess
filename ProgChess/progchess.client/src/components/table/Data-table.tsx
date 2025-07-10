@@ -33,12 +33,14 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   apiRoute: string;
   filter: string;
+  showFilter?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   apiRoute,
+  showFilter = true,
 }: DataTableProps<TData, TValue>) {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -84,17 +86,19 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filtrer."
-          value={globalFilter ?? ""}
-          onChange={(e) => {
-            setGlobalFilter(e.target.value);
-            table.setGlobalFilter(String(e.target.value));
-          }}
-          className="max-w-sm"
-        />
-      </div>
+      {showFilter && (
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filtrer."
+            value={globalFilter ?? ""}
+            onChange={(e) => {
+              setGlobalFilter(e.target.value);
+              table.setGlobalFilter(String(e.target.value));
+            }}
+            className="max-w-sm"
+          />
+        </div>
+      )}
       <div
         className={clsx(
           "transition-all duration-300 ease-in-out overflow-hidden",

@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 
-import { NotebookPen, SquareTerminal, Users } from "lucide-react";
+import { FileImage, NotebookPen, SquareTerminal, Users } from "lucide-react";
 
 export default function AppSidebar() {
   const items = [
@@ -30,6 +30,11 @@ export default function AppSidebar() {
       title: "Étudiant",
       url: "/admin/students",
       icon: Users,
+    },
+    {
+      title: "Image",
+      url: "/admin/image",
+      icon: FileImage,
     },
   ];
 

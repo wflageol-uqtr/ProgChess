@@ -40,6 +40,7 @@ export default function ScoreAction({ id, deleteFn }: ScoreActionProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              className="cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenMenu(false);

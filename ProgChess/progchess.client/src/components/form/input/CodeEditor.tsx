@@ -9,6 +9,7 @@ interface CodeEditorProps {
   height: number;
   onChange: (value: string) => void;
   error?: any;
+  editable?: boolean;
 }
 
 export default function CodeEditor({
@@ -17,6 +18,7 @@ export default function CodeEditor({
   height,
   onChange,
   error,
+  editable = true,
 }: CodeEditorProps) {
   return (
     <div className="h-full">
@@ -28,6 +30,7 @@ export default function CodeEditor({
         height={`${height}px`}
         extensions={[langs.typescript(), langs.javascript()]}
         onChange={onChange}
+        editable={editable}
       />
     </div>
   );

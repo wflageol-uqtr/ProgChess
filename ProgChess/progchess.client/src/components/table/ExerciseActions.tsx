@@ -40,6 +40,7 @@ export default function ExerciseAction({ id, deleteFn }: ExerciseActionProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              className="cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenMenu(false);

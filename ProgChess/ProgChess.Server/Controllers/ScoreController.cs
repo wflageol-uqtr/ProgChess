@@ -61,4 +61,12 @@ public class ScoreController(IScoreService scoreService) : ControllerBase
         await scoreService.Delete(id);
         return Ok("Score supprimé avec succès");
     }
+    
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> DeleteAll(DeleteMultipleDto request)
+    {
+        await scoreService.DeleteMultiple(request);
+        return Ok();
+    }
 }

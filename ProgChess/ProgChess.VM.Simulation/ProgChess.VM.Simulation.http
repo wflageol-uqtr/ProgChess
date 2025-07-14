@@ -1,0 +1,6 @@
+@ProgChess.VM.Simulation_HostAddress = http://localhost:5001
+
+GET {{ProgChess.VM.Simulation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

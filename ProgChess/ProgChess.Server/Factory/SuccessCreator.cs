@@ -1,5 +1,9 @@
 using System.Text.RegularExpressions;
+using ProChess.Server.Enums;
+using ProChess.Server.Exceptions;
+using ProChess.Server.ExecuteBuilder;
 using ProChess.Server.Response;
+using ProChess.Server.Utils.Interface;
 
 namespace ProChess.Server.Utils;
 
@@ -14,14 +18,20 @@ public class SuccessCreator : TestCreator
     
     public override List<TestResult> createTestResults()
     {
-        var result = new List<TestResult>();
-
-        var passedTest = outputLines.Where(l => l.StartsWith("✔") 
-                                                && Regex.IsMatch(l, @"\(.+?ms\)")).Distinct().ToList();
-        foreach (var test in passedTest)
+        return Language switch
         {
-            result.Add(new TestSuccess(test));
-        }
-        return result;
+            LanguageType.Javascript => new JsTestResult().CreateSuccessTest(outputLines),
+            _ => throw new ExecutionErrorException($"Language not supported")
+
+        };
+        // var result = new List<TestResult>();
+        //
+        // var passedTest = outputLines.Where(l => l.StartsWith("✔") 
+        //                                         && Regex.IsMatch(l, @"\(.+?ms\)")).Distinct().ToList();
+        // foreach (var test in passedTest)
+        // {
+        //     result.Add(new TestSuccess(test));
+        // }
+        // return result;
     }
 }

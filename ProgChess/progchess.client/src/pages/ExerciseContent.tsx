@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import HorizontalResizable from "../components/layout/HorizontalResizable";
 import VerticalResizable from "../components/layout/VerticalResizable";
-import ExerciseCard from "../components/card/ExerciseCard";
-import { Book, Braces, Check, MonitorDown, RefreshCcw } from "lucide-react";
+import ExecutableCard from "../components/card/ExecutableCard";
+import { Book, Braces, Check, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
 import type { Exercise, TestResult } from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -10,10 +10,11 @@ import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
-import { DeleteDialog } from "../components/dialog/DeleteDialog";
 import { useNavigate } from "react-router";
 import SubmitDialog from "../components/dialog/SubmitDialog";
 import { handleApiError } from "../utils/apiErrorHandler";
+import { useBadge } from "../providers/ShowBadgeProvider";
+import SituationCard from "../components/card/SituationCard";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -21,7 +22,6 @@ interface ExerciseContentProps {
 
 export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const navigate = useNavigate();
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
@@ -33,6 +33,8 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
   const [disabledSelect, setDisabledSelect] = useState(false);
+  const [executionError, setExecutionError] = useState("");
+  const { setBadgeTabs } = useBadge();
 
   useEffect(() => {
     codeRef.current = code;
@@ -47,14 +49,18 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   }, [height]);
 
   useEffect(() => {
-    const startedCode = localStorage.getItem(`code:${exercise?.id}`);
+    const startedCode = localStorage.getItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+    );
     if (startedCode) {
       setCode(startedCode);
     } else {
       setCode(exercise?.baseCode!);
     }
 
-    const startedUnitTest = localStorage.getItem(`unitTest:${exercise?.id}`);
+    const startedUnitTest = localStorage.getItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+    );
     if (startedUnitTest) {
       setTestCode(startedUnitTest);
     } else {
@@ -66,8 +72,14 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   }, [exercise]);
 
   const saveCode = () => {
-    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
-    localStorage.setItem(`unitTest:${exercise?.id}`, unitTestRef.current);
+    localStorage.setItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      codeRef.current
+    );
+    localStorage.setItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      unitTestRef.current
+    );
   };
 
   const executeCode = async () => {
@@ -83,9 +95,17 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         );
         saveCode();
         setTestResult(response.data.value);
+        setBadgeTabs((prev) => ({
+          ...prev,
+          0: true,
+        }));
         toast.success("Test exécuté");
       } catch (error) {
-        handleApiError(error);
+        handleApiError(error, setExecutionError);
+        setBadgeTabs((prev) => ({
+          ...prev,
+          2: true,
+        }));
       }
     });
   };
@@ -111,12 +131,21 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const deleteCode = () => {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
-    localStorage.setItem(`code:${exercise?.id}`, codeRef.current);
+    localStorage.setItem(
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      codeRef.current
+    );
+    toast.success("Exercice réinitialiser");
+  };
+
+  const deleteUnitTest = () => {
     unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
     setTestCode(exercise?.unitTests?.[0]?.code || "");
-    localStorage.setItem(`unitTest:${exercise?.id}`, codeRef.current);
-    setOpenDeleteDialog(false);
-    toast.success("Exercice réinitialiser");
+    localStorage.setItem(
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      unitTestRef.current
+    );
+    toast.success("Test réinitialiser");
   };
 
   return (
@@ -125,17 +154,6 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         <div className="flex py-2 px-4 items-center justify-between">
           <h2 className="text-2xl  text-green-500 font-semibold">ProgChess</h2>
           <div className="space-x-2">
-            <Button
-              className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenDeleteDialog(true);
-              }}
-            >
-              <RefreshCcw />
-              Réinitialiser
-            </Button>
             <Button
               className="bg-zinc-500 hover:bg-zinc-600 cursor-pointer"
               type="button"
@@ -167,11 +185,11 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         >
           <div className="grid grid-cols-[min-content_auto]">
             <HorizontalResizable setDisabledSelect={setDisabledSelect}>
-              <ExerciseCard title="Situation" icon={Book} canExecute={false}>
+              <SituationCard title="Situation" icon={Book}>
                 <div className="p-4">
                   <MarkdownComponent markdown={exercise?.situation!} />
                 </div>
-              </ExerciseCard>
+              </SituationCard>
             </HorizontalResizable>
             <div className="h-full grid grid-rows-[min-content_auto]">
               <VerticalResizable
@@ -179,19 +197,19 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 height={height}
                 setHeight={setHeight}
               >
-                <ExerciseCard
+                <ExecutableCard
                   isPending={isPending}
                   title="Code"
                   icon={Braces}
-                  canExecute={true}
                   actionFn={executeCode}
+                  reinitializeFn={deleteCode}
                 >
                   <CodeEditor
                     height={height}
                     value={code}
                     onChange={(e) => setCode(e)}
                   />
-                </ExerciseCard>
+                </ExecutableCard>
               </VerticalResizable>
 
               <TestCaseCard
@@ -199,17 +217,13 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 testResult={testResult}
                 unitTestCode={testCode}
                 setTestCode={setTestCode}
+                reinitializeFn={deleteUnitTest}
+                executionError={executionError}
               />
             </div>
           </div>
         </div>
       </div>
-      <DeleteDialog
-        open={openDeleteDialog}
-        message="Cette action est irréversible. Le code que vous avez jusqu'à présent sera perdu."
-        onOpenChange={setOpenDeleteDialog}
-        deleteFn={deleteCode}
-      />
       <SubmitDialog
         open={openSubmitDialog}
         onOpenChange={setOpenSubmitDialog}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
-import type { Exercise, Score } from "../../utils/type";
+import type { Exercise, Score, StudentExercice } from "../../utils/type";
 import api from "../../utils/api";
 import { handleApiError } from "../../utils/apiErrorHandler";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -14,7 +14,6 @@ import {
 } from "../../components/ui/form";
 import { Button } from "../../components/ui/button";
 import CodeEditor from "../../components/form/input/CodeEditor";
-import { Input } from "../../components/ui/input";
 import {
   Select,
   SelectContent,
@@ -22,15 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
 
 const validationSchema = z.object({
   studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
-  scoreValue: z.number({ message: "Un chiffre est requis" }),
   answer: z.string(),
+  isComplete: z.boolean().optional(),
+  scoreTests: z.array(
+    z.object({
+      name: z.string().min(1, { message: "Nom obligatoire" }),
+      isSuccess: z.boolean().optional(),
+      actual: z.string().optional().nullable(),
+      expected: z.string().optional().nullable(),
+    })
+  ),
 });
 
 type formSchema = z.infer<typeof validationSchema>;
@@ -40,6 +50,9 @@ export default function EditScore() {
   const [isPending, startTransition] = useTransition();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [score, setScore] = useState<Score>();
+  const [studentExercises, setStudentExercises] = useState<StudentExercice[]>(
+    []
+  );
   const [currentExercise, setCurrentExercise] = useState<Exercise>();
   const { id } = useParams();
 
@@ -48,9 +61,17 @@ export default function EditScore() {
     defaultValues: {
       studentId: 0,
       exerciseId: 0,
-      scoreValue: 0,
       answer: "",
+      isComplete: true,
+      scoreTests: [{ name: "", isSuccess: false, expected: "", actual: "" }],
     },
+  });
+
+  const [exerciseId, studentId] = form.watch(["exerciseId", "studentId"]);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "scoreTests",
   });
 
   const getScore = async () => {
@@ -71,18 +92,30 @@ export default function EditScore() {
     }
   };
 
+  const getAllStudentExercise = async () => {
+    try {
+      const response = await api.get("/api/studentexercise");
+      setStudentExercises(response.data);
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
   useEffect(() => {
     getAllExercise();
     getScore();
+    getAllStudentExercise();
   }, []);
 
   useEffect(() => {
     if (score) {
+      console.log(score);
+
       form.reset({
         studentId: score?.student.id,
         exerciseId: score?.exercise.id,
-        scoreValue: score?.scoreValue,
         answer: score?.answer,
+        scoreTests: score?.scoreTests,
       });
       var currentExercise = exercises.find(
         (exercise) => exercise.id == score.exercise.id
@@ -90,6 +123,17 @@ export default function EditScore() {
       setCurrentExercise(currentExercise);
     }
   }, [score, exercises]);
+
+  useEffect(() => {
+    if (score) {
+      var result = studentExercises.find(
+        (item) =>
+          item.exerciseId === Number(exerciseId) &&
+          item.studentId === Number(studentId)
+      );
+      form.setValue("isComplete", result?.isComplete);
+    }
+  }, [studentId, exerciseId]);
 
   const onSubmit = (values: formSchema) => {
     startTransition(async () => {
@@ -163,7 +207,6 @@ export default function EditScore() {
               </div>
 
               <div>
-                {/* Explorer ce qui se passe ici  */}
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
@@ -171,8 +214,13 @@ export default function EditScore() {
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={(id) => field.onChange(parseInt(id))}
-                        value={field.value.toString()}
+                        onValueChange={(id) => {
+                          const parsed = parseInt(id);
+                          if (!isNaN(parsed)) {
+                            field.onChange(parsed);
+                          }
+                        }}
+                        value={field.value?.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -210,33 +258,157 @@ export default function EditScore() {
               <h3 className="text-xl font-semibold mb-2">Score</h3>
               <FormField
                 control={form.control}
-                name="scoreValue"
+                name="isComplete"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p>L'étudiant a obtenu un score de :</p>
-                        <Input
-                          placeholder="0"
-                          type="text"
-                          className="w-16 text-center"
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ""
-                                ? ""
-                                : Number(e.target.value)
-                            )
-                          }
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="isComplete"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
-                        <p>/ X</p>
+                        <Label htmlFor="isComplete">
+                          L'étudiant a complété l'exercice
+                        </Label>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-red-600" />
                   </FormItem>
                 )}
               />
             </div>
+            <div className="border-b border-gray-700" />
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold mb-2">Test du score</h3>
+              <Button
+                type="button"
+                className="bg-green-500 hover:bg-green-600 text-xl cursor-pointer"
+                onClick={() =>
+                  append({
+                    name: "",
+                    isSuccess: false,
+                    expected: "",
+                    actual: "",
+                  })
+                }
+              >
+                +
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className={`relative p-5 rounded-2xl shadow-md space-y-6 border border-zinc-700`}
+                >
+                  <div
+                    className="absolute size-6 -top-2 -right-1 text-gray-500 border border-gray-500 hover:text-red-600 hover:border-red-600 transition-colors duration-200 rounded-full text-center cursor-pointer"
+                    onClick={() => remove(index)}
+                  >
+                    X
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Nom du test
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Nom du test"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`scoreTests.${index}.isSuccess`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="flex items-center space-x-2 mt-1 sm:mt-6">
+                              <Checkbox
+                                id={`isSuccess-${index}`}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                              <Label
+                                htmlFor={`isSuccess-${index}`}
+                                className="text-sm font-medium text-zinc-300"
+                              >
+                                Réussie
+                              </Label>
+                            </div>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <hr className="border-zinc-700" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Actuel (optionnel)
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.actual`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Valeur actuelle"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-zinc-300 mb-1 block">
+                        Attendue (optionnel)
+                      </label>
+                      <FormField
+                        control={form.control}
+                        name={`scoreTests.${index}.expected`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Valeur attendue"
+                                type="text"
+                                className="w-full"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="border-b border-gray-700" />
 
             <div>

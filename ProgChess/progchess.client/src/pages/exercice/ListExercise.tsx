@@ -37,7 +37,12 @@ export default function ListExercise() {
             </Button>
           </Link>
         </div>
-        <DataTable columns={ExerciseColumns} data={exercise} filter="id" />
+        <DataTable
+          columns={ExerciseColumns}
+          data={exercise}
+          apiRoute="/api/exercise"
+          filter="id"
+        />
       </div>
     </AdminLayout>
   );

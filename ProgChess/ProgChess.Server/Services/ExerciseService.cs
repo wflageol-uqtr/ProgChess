@@ -97,4 +97,17 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
          dbContext.Exercises.Remove(exercise);
          await dbContext.SaveChangesAsync();
     }
+
+    public async Task DeleteMultiple(DeleteMultipleDto request)
+    {
+        var itemsToDelete = await dbContext.Exercises
+            .Where(e => request.Ids.Contains(e.Id))
+            .ToListAsync();
+
+        if (itemsToDelete.Count == 0)
+            throw new NotFoundException("Aucun élément à supprimer trouvé.");
+
+        dbContext.Exercises.RemoveRange(itemsToDelete);
+        await dbContext.SaveChangesAsync();
+    }
 }

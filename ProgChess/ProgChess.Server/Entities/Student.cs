@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProChess.Server.Entities;
 
-public class Student
+public class Student: DateEntity
 {
     [Key]
     public int Id { get; set; }

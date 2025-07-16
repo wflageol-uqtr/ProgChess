@@ -4,8 +4,29 @@ import api from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { Exercise } from "../../utils/type";
+import { Checkbox } from "../ui/checkbox";
 
 export const ExerciseColumns: ColumnDef<Exercise>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "id",
     header: "Id",

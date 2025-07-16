@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace ProChess.Server.Entities;
 
-public class Exercise
+public class Exercise: DateEntity
 {
     public int Id { get; set; }
     

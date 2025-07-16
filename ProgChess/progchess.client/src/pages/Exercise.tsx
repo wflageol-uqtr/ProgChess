@@ -7,6 +7,7 @@ import type { Exercise, Error } from "../utils/type";
 import ErrorPage from "./error/ErrorPage";
 import { handleApiError } from "../utils/apiErrorHandler";
 import Score from "./Score";
+import { BadgeProvider } from "../providers/ShowBadgeProvider";
 
 export default function Exercice() {
   const [exercise, setExercise] = useState<Exercise>();
@@ -48,7 +49,9 @@ export default function Exercice() {
         exercise?.studentExercises[0].isComplete ? (
           <Score exerciseId={id} />
         ) : (
-          <ExerciseContent exercise={exercise} />
+          <BadgeProvider>
+            <ExerciseContent exercise={exercise} />
+          </BadgeProvider>
         )
       ) : (
         <ErrorPage status={error.status} message={error.message} />

@@ -30,7 +30,7 @@ public class ScoreServiceTest
     public async Task Create_Score_Success()
     {
         var scoreDto = _fixture.Create<ScoreDto>();
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var score = await _scoreService.Create(scoreDto);
         
         Assert.IsNotNull(score);
@@ -53,7 +53,7 @@ public class ScoreServiceTest
             .With(x => x.ExerciseId, exercise.Id)
             .Create();
         
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var createdScore = await _scoreService.Create(scoreDto);
         
         var score = await _scoreService.GetScoreByIdAsync(createdScore.Id);
@@ -76,7 +76,7 @@ public class ScoreServiceTest
             .With(x => x.ExerciseId, exercise.Id)
             .Create();
         
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var score = await _scoreService.Create(scoreDto);
         
         await Assert.ThrowsExceptionAsync<NotFoundException>(async () =>
@@ -102,15 +102,13 @@ public class ScoreServiceTest
             .With(x => x.ExerciseId, exercise.Id)
             .Create();
         
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var createdScore = await _scoreService.Create(scoreDto);
         
-        scoreDto.ScoreValue = 99;
         scoreDto.Answer = "Updated Answer";
         
         var updatedScore = await _scoreService.Edit(createdScore.Id, scoreDto);
         Assert.IsNotNull(updatedScore);
-        Assert.AreEqual(99, updatedScore.ScoreValue);
         Assert.AreEqual("Updated Answer", updatedScore.Answer);
     }
 
@@ -128,10 +126,9 @@ public class ScoreServiceTest
             .With(x => x.ExerciseId, exercise.Id)
             .Create();
         
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var createdScore = await _scoreService.Create(scoreDto);
         
-        scoreDto.ScoreValue = 99;
         scoreDto.Answer = "Updated Answer";
         await Assert.ThrowsExceptionAsync<NotFoundException>(async () =>
         {
@@ -144,7 +141,7 @@ public class ScoreServiceTest
     public async Task Delete_Score_Success()
     {
         var scoreDto = _fixture.Create<ScoreDto>();
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var score = await _scoreService.Create(scoreDto);
         await _scoreService.Delete(score.Id);
         
@@ -159,7 +156,7 @@ public class ScoreServiceTest
     public async Task Delete_Score_NotFound()
     {
         var scoreDto = _fixture.Create<ScoreDto>();
-        _scoreService = new ScoreService(dbContext, new StudentService(dbContext)); 
+        _scoreService = new ScoreService(dbContext, new StudentService(dbContext), new StudentExerciseService(dbContext, new StudentService(dbContext)), new ScoreTestService(dbContext)); 
         var result = await _scoreService.Create(scoreDto);
         
         await Assert.ThrowsExceptionAsync<NotFoundException>(async () =>

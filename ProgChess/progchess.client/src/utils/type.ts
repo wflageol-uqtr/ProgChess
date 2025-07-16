@@ -32,7 +32,9 @@ export type Score = {
 
 export type Student = {
   id: number,
-  permanentCode: string
+  permanentCode: string,
+  createdAt: string,
+  updatedAt: string
 }
 
 export type StudentExercice = {
@@ -49,7 +51,7 @@ export type Error = {
 }
 
 export type TabType = {
-  id: string,
+  id: number,
   name: string
   isActive: boolean,
   component: React.ReactElement

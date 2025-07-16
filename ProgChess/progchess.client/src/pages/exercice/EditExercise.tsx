@@ -20,6 +20,7 @@ import { Checkbox } from "../../components/ui/checkbox";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import FileUploader from "../../components/form/input/FileUploader";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -147,6 +148,13 @@ export default function EditExercise() {
       }
     });
   };
+  const handleChildUpload = (newValue: string) => {
+    form.setValue(
+      "situation",
+      form.getValues("situation") +
+        `![My Uploaded Image](http://localhost:5290/Image/${newValue})`
+    );
+  };
 
   return (
     <AdminLayout>
@@ -161,6 +169,7 @@ export default function EditExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
+              <FileUploader onUpload={handleChildUpload} />
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}
@@ -215,9 +224,9 @@ export default function EditExercise() {
               </Button>
             </div>
             <div className="h-full">
-              {form.formState.errors.situation && (
+              {form.formState.errors.baseCode && (
                 <span className="text-red-500">
-                  {form.formState.errors.situation.message}
+                  {form.formState.errors.baseCode.message}
                 </span>
               )}
               <FormField

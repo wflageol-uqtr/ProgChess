@@ -37,7 +37,12 @@ export default function ListScore() {
             </Button>
           </Link>
         </div>
-        <DataTable columns={ScoreColumns} data={score} filter="permanentCode" />
+        <DataTable
+          columns={ScoreColumns}
+          data={score}
+          apiRoute="/api/score"
+          filter="permanentCode"
+        />
       </div>
     </AdminLayout>
   );

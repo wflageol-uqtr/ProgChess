@@ -166,9 +166,15 @@ namespace ProChess.Server.Migrations
                     b.Property<string>("BaseCode")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Situation")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -187,14 +193,17 @@ namespace ProChess.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ExerciseId")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ScoreValue")
+                    b.Property<int>("ExerciseId")
                         .HasColumnType("integer");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -216,6 +225,9 @@ namespace ProChess.Server.Migrations
                     b.Property<string>("Actual")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Expected")
                         .HasColumnType("text");
 
@@ -228,6 +240,9 @@ namespace ProChess.Server.Migrations
 
                     b.Property<int>("ScoreId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -244,9 +259,15 @@ namespace ProChess.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("PermanentCode")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -285,11 +306,17 @@ namespace ProChess.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -372,15 +399,15 @@ namespace ProChess.Server.Migrations
                         {
                             Id = "test",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8a7dad2a-7e4f-4e73-9e4c-5801a26cf5c4",
+                            ConcurrencyStamp = "56621d27-acc3-4ba9-8c3b-6a0d090a987b",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAELk1097vL/VZivGs+NfX8frnSRFVuH1Ey6YjcZbvf2bYUPzLoh02qe5sML/c+/MYEw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGXdvx8azfoY6C5mSDzUjtOK3X3ONTwBgyScugPvzfGFmN6v/L2FWIx0R5p2c+vdHg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4472c57e-802e-4ca9-a1da-7e6614663d52",
+                            SecurityStamp = "da89c465-bc41-4387-8bc5-d2a37cd048d6",
                             TwoFactorEnabled = false,
                             UserName = "math"
                         });

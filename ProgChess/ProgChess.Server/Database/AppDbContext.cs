@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
      public DbSet<Exercise> Exercises { get; set; }
      public DbSet<UnitTest> UnitTests { get; set; }
      public DbSet<Score> Scores { get; set; }
+     public DbSet<ScoreTest> ScoreTest { get; set; }
      public DbSet<Student> Students { get; set; }
      public DbSet<StudentExercise> StudentExercises { get; set; }
 
@@ -43,6 +44,24 @@ using Microsoft.AspNetCore.Identity;
          modelBuilder.Entity<StudentExercise>()
              .Property(se => se.IsComplete)
              .HasDefaultValue(false);
+     }
+
+     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
+     {
+         var entries = ChangeTracker
+             .Entries()
+             .Where(e => e.Entity is DateEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+         foreach (var entityEntry in entries)
+         {
+             ((DateEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+             if (entityEntry.State == EntityState.Added)
+             {
+                 ((DateEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+
+             }
+         }
+         return base.SaveChangesAsync(cancellationToken);
      }
 
      private void SeedUsers(ModelBuilder builder)

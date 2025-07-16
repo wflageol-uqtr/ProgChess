@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Identity;
  using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
  using Microsoft.EntityFrameworkCore;
  using ProChess.Server.Entities;
- 
+ using ProChess.Server.Entities.Interface;
+
  namespace ProgChess.Server.Database;
  
  public class AppDbContext: IdentityDbContext<User>
@@ -44,10 +45,29 @@ using Microsoft.AspNetCore.Identity;
          modelBuilder.Entity<StudentExercise>()
              .Property(se => se.IsComplete)
              .HasDefaultValue(false);
+         
+         // Soft delete not in query
+         modelBuilder.Entity<Exercise>().HasQueryFilter(p => !p.IsDeleted);
+         modelBuilder.Entity<Score>().HasQueryFilter(p => !p.IsDeleted);
+         modelBuilder.Entity<ScoreTest>().HasQueryFilter(p => !p.IsDeleted);
+         modelBuilder.Entity<Student>().HasQueryFilter(p => !p.IsDeleted);
+         modelBuilder.Entity<UnitTest>().HasQueryFilter(p => !p.IsDeleted);
      }
 
      public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new ())
      {
+         // Soft Delete
+         var softDeleteEntries = ChangeTracker.Entries<ISoftDeletable>()
+             .Where(e => e.State == EntityState.Deleted);
+
+         foreach (var entry in softDeleteEntries)
+         {
+             entry.State = EntityState.Modified;
+             entry.Property(nameof(ISoftDeletable.IsDeleted)).CurrentValue = true;
+             entry.Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = DateTime.UtcNow;
+
+         }
+         // Add CreateAt and ModifiedAt
          var entries = ChangeTracker
              .Entries()
              .Where(e => e.Entity is DateEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));

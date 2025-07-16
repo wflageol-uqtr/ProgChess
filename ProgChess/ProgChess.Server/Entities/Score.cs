@@ -1,8 +1,9 @@
+using ProChess.Server.Entities.Interface;
 using ProChess.Server.Response;
 
 namespace ProChess.Server.Entities;
 
-public class Score: DateEntity
+public class Score: DateEntity, ISoftDeletable
 {
     public int Id { get; set; }
     
@@ -18,4 +19,7 @@ public class Score: DateEntity
     
     public ICollection<ScoreTest> ScoreTests { get; set; } = new List<ScoreTest>();
 
+    public bool IsDeleted { get; set; }
+    
+    public DateTime? DeletedAt { get; set; }
 }

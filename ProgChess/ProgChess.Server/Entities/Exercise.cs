@@ -1,8 +1,9 @@
 using System.Collections;
+using ProChess.Server.Entities.Interface;
 
 namespace ProChess.Server.Entities;
 
-public class Exercise: DateEntity
+public class Exercise: DateEntity, ISoftDeletable
 {
     public int Id { get; set; }
     
@@ -13,4 +14,8 @@ public class Exercise: DateEntity
     public ICollection<StudentExercise> StudentExercises { get; set; } = new List<StudentExercise>();
     
     public ICollection<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
+    
+    public bool IsDeleted { get; set; }
+    
+    public DateTime? DeletedAt { get; set; }
 }

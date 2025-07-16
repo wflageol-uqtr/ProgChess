@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ProChess.Server.Authorization;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -8,6 +9,7 @@ namespace ProgChess.Server.Controllers;
 
 [Route("/api/[controller]")]
 [ApiController]
+[EnableRateLimiting("loginLimiter")]
 public class AuthController(IAuthService _authService): ControllerBase
 {
     [HttpPost("login")]

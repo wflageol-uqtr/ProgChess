@@ -23,7 +23,9 @@ import { handleApiError } from "../../utils/apiErrorHandler";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
-  password: z.string().min(2, { message: "Mot de passe invalide" }),
+  password: z
+    .string()
+    .min(6, { message: "Mot de passe doit être 6 caractères" }),
 });
 
 function AdminLogin() {

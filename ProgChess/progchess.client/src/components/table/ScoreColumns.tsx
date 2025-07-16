@@ -40,10 +40,6 @@ export const ScoreColumns: ColumnDef<Score>[] = [
     header: "Code permanent",
   },
   {
-    accessorKey: "scoreValue",
-    header: "Score",
-  },
-  {
     accessorKey: "exercise",
     header: ({ column }) => {
       return (

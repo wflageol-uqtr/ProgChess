@@ -1,7 +1,9 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.FileProviders;
@@ -111,6 +113,19 @@ builder.Services.AddExceptionHandler<ExecutionErrorExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("loginLimiter", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
 app.UseStaticFiles(new StaticFileOptions
@@ -133,6 +148,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapIdentityApi<User>();
+app.UseRateLimiter();
 app.Run();
 
 public partial class Program

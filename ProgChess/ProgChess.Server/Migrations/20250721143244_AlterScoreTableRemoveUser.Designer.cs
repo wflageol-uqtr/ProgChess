@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProgChess.Server.Database;
@@ -11,9 +12,11 @@ using ProgChess.Server.Database;
 namespace ProChess.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250721143244_AlterScoreTableRemoveUser")]
+    partial class AlterScoreTableRemoveUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -433,35 +436,19 @@ namespace ProChess.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d314cde8-f82c-46f5-b300-db1d54ec0c73",
+                            Id = "test",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "77aef83d-c958-495b-b307-409d91bd66ce",
+                            ConcurrencyStamp = "feeb02e1-2151-4997-bbff-e22be4a88f65",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGHfzIHKlc/K7OlJn2hJHE7z9mxWAnL6Jbjh9Rd0u8M1ekJXsZvSFq6c+CgZfdIoJQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFjs1VJu1OK2X8U+Pf8WRNuGUaaZhSwqoxSrS9dOE8NhW7IDuQ4a7HEffRKj7WU7wQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fb4b6b98-2b1e-4c27-8162-8005a2bc27d8",
+                            SecurityStamp = "0f1129de-a405-4d81-a77d-7dc0b37475ef",
                             TwoFactorEnabled = false,
                             UserName = "math"
-                        },
-                        new
-                        {
-                            Id = "531a1de9-d56c-48c7-b82d-ec7f9a2c03ae",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "426fc240-12b5-49b6-a333-18da73aa6e67",
-                            Email = "test@gmail.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "test@gmail.com",
-                            NormalizedUserName = "test",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK0ZKCs9VO/jZusHygJkFsCzirALsYuR81wvDwDkL3c13kKA1dhafsTw6Q8l08Fwtw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "eb9275e7-9c6e-4c39-ba75-a1c3c59487d1",
-                            TwoFactorEnabled = false,
-                            UserName = "test"
                         });
                 });
 

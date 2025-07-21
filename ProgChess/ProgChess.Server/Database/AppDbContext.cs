@@ -46,6 +46,11 @@ using Microsoft.AspNetCore.Identity;
              .Property(se => se.IsComplete)
              .HasDefaultValue(false);
          
+         modelBuilder.Entity<Exercise>()
+             .HasOne(e => e.User)
+             .WithMany(u => u.Exercises)
+             .HasForeignKey(e => e.UserId);
+         
          // Soft delete not in query
          modelBuilder.Entity<Exercise>().HasQueryFilter(p => !p.IsDeleted);
          modelBuilder.Entity<Score>().HasQueryFilter(p => !p.IsDeleted);
@@ -88,9 +93,9 @@ using Microsoft.AspNetCore.Identity;
      {
          var hasher = new PasswordHasher<User>();
 
-         var user = new User
+         var user1 = new User
          {
-             Id = "test",
+             Id = Guid.NewGuid().ToString(),
              UserName = "math",
              NormalizedUserName = "math",
              Email = "mathy@gmail.com",
@@ -99,9 +104,21 @@ using Microsoft.AspNetCore.Identity;
              SecurityStamp = Guid.NewGuid().ToString("D"),
              ConcurrencyStamp = Guid.NewGuid().ToString("D"),
          };
+         user1.PasswordHash = hasher.HashPassword(user1, "test123");
          
-         user.PasswordHash = hasher.HashPassword(user, "test123");
+         var user2 = new User
+         {
+             Id = Guid.NewGuid().ToString(),
+             UserName = "test",
+             NormalizedUserName = "test",
+             Email = "test@gmail.com",
+             NormalizedEmail = "test@gmail.com",
+             EmailConfirmed = true,
+             SecurityStamp = Guid.NewGuid().ToString("D"),
+             ConcurrencyStamp = Guid.NewGuid().ToString("D"),
+         };
+         user2.PasswordHash = hasher.HashPassword(user2, "testtest");
 
-         builder.Entity<User>().HasData(user);
+         builder.Entity<User>().HasData(user1, user2);
      }
  }

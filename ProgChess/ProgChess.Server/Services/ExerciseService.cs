@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProChess.Server.Context;
 using ProChess.Server.Entities;
 using ProChess.Server.Exceptions;
 using ProChess.Server.Utils;
@@ -7,16 +8,20 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService): IExerciseService
+public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService, IUserContext userContext): IExerciseService
 {
     private IExerciseService _exerciseServiceImplementation;
 
     public async Task<int> Create(ExerciseDto request)
     {
+        if (userContext.UserId is null)
+            throw new UnauthorizedException("User is not authenticated");
+        
         var exercise = new Exercise
         {
             Situation = request.Situation,
             BaseCode = request.BaseCode,
+            UserId = userContext.UserId,
             UnitTests = request.UnitTest.Select(ut => new UnitTest
             {
                 Code = ut.Code,
@@ -31,7 +36,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<List<Exercise>?> GetAllExercice()
     {
-        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).ThenInclude(se => se.Student).ToListAsync();
+        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).ThenInclude(se => se.Student).Where(x => x.UserId == userContext.UserId).ToListAsync();
     }
 
     public async Task<Exercise?> GetById(int id)
@@ -63,13 +68,16 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<int> Edit(int id, ExerciseDto request)
     {
-        // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
+        if (userContext.UserId is null)
+            throw new UnauthorizedException("User is not authenticated");
+        
         var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests)
             .Include(e => e.StudentExercises).ThenInclude(se => se.Student)
             .FirstAsync();
         dbContext.Entry(exercise).State = EntityState.Detached;
         exercise.Situation = request.Situation;
         exercise.BaseCode = request.BaseCode;
+        exercise.UserId = userContext.UserId;
         dbContext.RemoveRange(exercise.UnitTests);
         dbContext.Exercises.Update(exercise);
         

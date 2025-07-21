@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProChess.Server.Context;
 using ProChess.Server.Entities;
 using ProChess.Server.Exceptions;
 using ProChess.Server.Response;
@@ -7,7 +8,7 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ScoreService(AppDbContext context, IStudentService studentService, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService): IScoreService
+public class ScoreService(AppDbContext context, IStudentService studentService, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService, IUserContext userContext): IScoreService
 {
     public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
     {
@@ -58,7 +59,8 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
 
     public async Task<List<Score>> GetAllScores()
     {
-        return await context.Scores.Include(e => e.Exercise).Include(s => s.Student).ToListAsync();
+        return await context.Scores.Include(e => e.Exercise).Where(s => s.Exercise.UserId == userContext.UserId)
+            .Include(s => s.Student).ToListAsync();
     }
 
     public async Task<Score> Edit(int id, ScoreDto request)

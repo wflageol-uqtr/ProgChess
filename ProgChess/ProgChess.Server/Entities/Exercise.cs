@@ -11,6 +11,10 @@ public class Exercise: DateEntity, ISoftDeletable
     
     public string? BaseCode { get; set; } = string.Empty;
     
+    public string UserId { get; set; }
+    
+    public User User { get; set; } = null!;
+    
     public ICollection<StudentExercise> StudentExercises { get; set; } = new List<StudentExercise>();
     
     public ICollection<UnitTest> UnitTests { get; set; } = new List<UnitTest>();

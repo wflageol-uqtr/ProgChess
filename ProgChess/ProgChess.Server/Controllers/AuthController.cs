@@ -9,10 +9,10 @@ namespace ProgChess.Server.Controllers;
 
 [Route("/api/[controller]")]
 [ApiController]
-[EnableRateLimiting("loginLimiter")]
 public class AuthController(IAuthService _authService): ControllerBase
 {
     [HttpPost("login")]
+    [EnableRateLimiting("loginLimiter")]
     public async Task<ActionResult<TokenDto>> Login(UserDto request)
     {
         var result = await _authService.LoginAsync(request);

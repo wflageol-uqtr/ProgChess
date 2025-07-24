@@ -29,7 +29,9 @@ import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 
 const validationSchema = z.object({
-  studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
+  studentExerciseId: z
+    .number()
+    .min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
   answer: z.string(),
   isComplete: z.boolean().optional(),
@@ -54,7 +56,7 @@ export default function CreateScore() {
   const form = useForm<formSchema>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
-      studentId: 0,
+      studentExerciseId: 0,
       exerciseId: 0,
       answer: "",
       isComplete: true,
@@ -155,7 +157,7 @@ export default function CreateScore() {
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
-                  name="studentId"
+                  name="studentExerciseId"
                   render={({ field }) => (
                     <FormItem>
                       <Select
@@ -173,9 +175,9 @@ export default function CreateScore() {
                               (item, index) => (
                                 <SelectItem
                                   key={index}
-                                  value={item.studentId.toString()}
+                                  value={item.id.toString()}
                                 >
-                                  {item.student.permanentCode}
+                                  {item.studentPermanentCode}
                                 </SelectItem>
                               )
                             )

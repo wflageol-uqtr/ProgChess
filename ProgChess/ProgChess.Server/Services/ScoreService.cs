@@ -8,14 +8,14 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ScoreService(AppDbContext context, IStudentService studentService, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService, IUserContext userContext): IScoreService
+public class ScoreService(AppDbContext context, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService, IUserContext userContext): IScoreService
 {
     public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
     {
-        var student = await studentService.GetStudentByPermanentCodeAsync(permanentCode);
+        var student = await studentExerciseService.GetStudentExerciseByExerciseAndStudent(exerciseId, permanentCode);
         var score = new Score
         {
-            StudentId = student.Id,
+            StudentExerciseId = student.Id,
             ExerciseId = exerciseId,
             Answer = answer,
         };
@@ -28,20 +28,20 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
     {
         var score = new Score
         {
-            StudentId = request.StudentId,
+            StudentExerciseId = request.StudentExerciseId,
             ExerciseId = request.ExerciseId,
             Answer = request.Answer,
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
-        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentId));
+        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentExerciseId));
         await scoreTestService.CreateFromAdmin(score.Id, request.ScoreTests);
         return score; 
     }
 
     public async Task<Score> GetScoreByIdAsync(int id)
     {
-        var result = await context.Scores.Include(s => s.Exercise).ThenInclude(s => s.StudentExercises).Include(s => s.Student).Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
+        var result = await context.Scores.Include(s => s.Exercise).ThenInclude(s => s.StudentExercises).Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (result == null)
             throw new NotFoundException("Aucun score trouvé");
         return result;
@@ -50,7 +50,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
     public async Task<Score> GetScoreByExerciseIdAndStudent(int id, string studentCode)
     {
         var result = await context.Scores.Include(s => s.ScoreTests)
-            .Where(s => s.Student.PermanentCode == studentCode && s.ExerciseId == id)
+            .Where(s => s.StudentExercise.StudentPermanentCode == studentCode && s.ExerciseId == id)
             .FirstOrDefaultAsync();
         if (result == null)
             throw new NotFoundException("Aucun score trouvé");
@@ -60,7 +60,7 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
     public async Task<List<Score>> GetAllScores()
     {
         return await context.Scores.Include(e => e.Exercise).Where(s => s.Exercise.UserId == userContext.UserId)
-            .Include(s => s.Student).ToListAsync();
+            .Include(s => s.StudentExercise).ToListAsync();
     }
 
     public async Task<Score> Edit(int id, ScoreDto request)
@@ -70,12 +70,12 @@ public class ScoreService(AppDbContext context, IStudentService studentService, 
             throw new NotFoundException("Aucun score trouvé");
         
         context.Entry(score).State = EntityState.Detached;
-        score.StudentId = request.StudentId;
+        score.StudentExerciseId = request.StudentExerciseId;
         score.ExerciseId = request.ExerciseId;
         score.Answer = request.Answer;
         context.Scores.Update(score);
         await context.SaveChangesAsync();
-        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentId), request.IsComplete);
+        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentExerciseId), request.IsComplete);
         await scoreTestService.Edit(score, request.ScoreTests);
         return score;
     }

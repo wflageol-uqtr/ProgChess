@@ -7,9 +7,9 @@ public class Score: DateEntity, ISoftDeletable
 {
     public int Id { get; set; }
     
-    public int StudentId { get; set; }
+    public int StudentExerciseId { get; set; }
     
-    public Student Student { get; set; }
+    public StudentExercise StudentExercise { get; set; }
     
     public int ExerciseId { get; set; }
     

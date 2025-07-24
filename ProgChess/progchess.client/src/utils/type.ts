@@ -25,7 +25,7 @@ export type Score = {
   id: number,
   permanentCode: string,
   exercise: Exercise,
-  student: Student,
+  studentExercise: StudentExercice,
   scoreValue: number,
   answer: string
 }
@@ -38,11 +38,21 @@ export type Student = {
 }
 
 export type StudentExercice = {
+  id: number,
   exerciseId: number,
   exercise?: Exercise,
-  studentId: 1,
-  student: Student,
+  studentPermanentCode: string,
   isComplete: boolean,
+  createdAt: string,
+  updatedAt: string
+}
+
+export type StudentExerciseGroup = {
+  id: number,
+  exercises: Exercise[],
+  studentPermanentCode: string,
+  createdAt: string,
+  updatedAt: string
 }
 
 export type Error = {

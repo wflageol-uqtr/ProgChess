@@ -64,7 +64,7 @@ builder.Services.AddScoped<ICodeExecuterService, ExecuteService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IStudentExerciseService, StudentExerciseService>();
-builder.Services.AddScoped<IStudentService, StudentService>();
+// builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IScoreTestService, ScoreTestService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 

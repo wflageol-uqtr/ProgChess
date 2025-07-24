@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProgChess.Server.Database;
@@ -11,9 +12,11 @@ using ProgChess.Server.Database;
 namespace ProChess.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723180357_RemoveTableStudent")]
+    partial class RemoveTableStudent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,36 +196,6 @@ namespace ProChess.Server.Migrations
                     b.ToTable("Exercises", "progchess");
                 });
 
-            modelBuilder.Entity("ProChess.Server.Entities.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId1")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("Images", "progchess");
-                });
-
             modelBuilder.Entity("ProChess.Server.Entities.Score", b =>
                 {
                     b.Property<int>("Id")
@@ -313,12 +286,6 @@ namespace ProChess.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("ExerciseId")
                         .HasColumnType("integer");
 
@@ -327,15 +294,9 @@ namespace ProChess.Server.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("StudentPermanentCode")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -462,35 +423,35 @@ namespace ProChess.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "6e489a30-5579-48b2-9433-9d1235fbbee6",
+                            Id = "139b64bf-2d4e-4c35-8db3-bc1232374530",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2e78f55a-0337-439d-8124-091d47dc24ee",
+                            ConcurrencyStamp = "c77402b3-6d8d-48c5-851a-add8e1de6b24",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
                             IsDeleted = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO+lwTFmMXT7CaGyauyK9YnbFDnjZFD2244UjFbsMSCBgtqR6m/i45jYjkyihEKjBA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDt/M9EUsWY14fi1hWuwIT3/qlZwWtT3Ihq1MjwdB6S1OR9lmVFkF5xvdkV9gyyPQQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "52a67f75-4d6f-43f9-bcd1-1d7b19c3b565",
+                            SecurityStamp = "4ed81812-8915-4c5a-a2c4-7d60653625c8",
                             TwoFactorEnabled = false,
                             UserName = "math"
                         },
                         new
                         {
-                            Id = "d7bec259-dde7-499e-bf07-4c7a14b51563",
+                            Id = "76573c4d-1c95-4803-9478-9a6cfbca866b",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a0c3333d-90e9-498a-874b-78fe3c6575d5",
+                            ConcurrencyStamp = "f0213fc7-635c-407e-9667-2638cd1ba621",
                             Email = "test@gmail.com",
                             EmailConfirmed = true,
                             IsDeleted = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "test@gmail.com",
                             NormalizedUserName = "test",
-                            PasswordHash = "AQAAAAIAAYagAAAAELAJNPre3hChjgWc7wPpzK5qkYsZHcbCHpYTas/xgEYCPO8bwM+v5/N7R1y8CwweCA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKa+YWJcYCb9vyTe03FgJktA5PpTylRfDNl3zVE6WWa1qmMyOea37JN890b2yxUuDg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f4aa4232-7734-48d8-b6d8-a223fabd034c",
+                            SecurityStamp = "2c72e50b-7434-4c3b-84bb-a7938d82941f",
                             TwoFactorEnabled = false,
                             UserName = "test"
                         });
@@ -552,17 +513,6 @@ namespace ProChess.Server.Migrations
                     b.HasOne("ProChess.Server.Entities.User", "User")
                         .WithMany("Exercises")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ProChess.Server.Entities.Image", b =>
-                {
-                    b.HasOne("ProChess.Server.Entities.User", "User")
-                        .WithMany("Images")
-                        .HasForeignKey("UserId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -635,8 +585,6 @@ namespace ProChess.Server.Migrations
             modelBuilder.Entity("ProChess.Server.Entities.User", b =>
                 {
                     b.Navigation("Exercises");
-
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

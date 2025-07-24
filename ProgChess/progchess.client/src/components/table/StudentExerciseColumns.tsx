@@ -1,13 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Student } from "../../utils/type";
 import { useNavigate } from "react-router";
 import api from "../../utils/api";
 import { toast } from "sonner";
 import { handleApiError } from "../../utils/apiErrorHandler";
-import StudentAction from "./StudentAction";
+import StudentExerciseAction from "./StudentExerciseAction";
 import { Checkbox } from "../ui/checkbox";
+import type { Exercise, StudentExerciseGroup } from "../../utils/type";
 
-export const StudentColumns: ColumnDef<Student>[] = [
+export const StudentExerciseColumns: ColumnDef<StudentExerciseGroup>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -33,9 +33,19 @@ export const StudentColumns: ColumnDef<Student>[] = [
     header: "Id",
   },
   {
-    accessorKey: "permanentCode",
+    accessorKey: "studentPermanentCode",
     header: "Code permanent",
   },
+  {
+    accessorKey: "exercises",
+    header: "Exercice inscrit",
+    cell: ({ row }) => {
+      const exercises = row.getValue<[]>("exercises");
+      const ids = exercises?.map((e: Exercise) => e.id).join(", ") || "";
+      return <span>{ids}</span>;
+    },
+  },
+
   {
     accessorKey: "createdAt",
     header: "Date de création",
@@ -52,8 +62,12 @@ export const StudentColumns: ColumnDef<Student>[] = [
 
       const handleDelete = async () => {
         try {
+          console.log(row.getValue("studentPermanentCode"));
+
           const response = await api.delete(
-            `/api/student/delete/${row.getValue("id")}`
+            `/api/studentexercise/delete/${row.getValue(
+              "studentPermanentCode"
+            )}`
           );
           toast.success(response.data, {
             className: "bg-green-100",
@@ -63,7 +77,12 @@ export const StudentColumns: ColumnDef<Student>[] = [
           handleApiError(error);
         }
       };
-      return <StudentAction id={row.getValue("id")} deleteFn={handleDelete} />;
+      return (
+        <StudentExerciseAction
+          id={row.getValue("id")}
+          deleteFn={handleDelete}
+        />
+      );
     },
   },
 ];

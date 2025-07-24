@@ -119,7 +119,7 @@ export default function EditExercise() {
 
   const buildStudentCodeString = (studentExercises: StudentExercice[]) => {
     return studentExercises
-      .map((studentExercise) => studentExercise.student.permanentCode)
+      .map((studentExercise) => studentExercise.studentPermanentCode)
       .join("\n");
   };
 

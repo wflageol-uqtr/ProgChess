@@ -29,7 +29,9 @@ import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
 
 const validationSchema = z.object({
-  studentId: z.number().min(1, { message: "Numéro de l'étudiant invalide" }),
+  studentExerciseId: z
+    .number()
+    .min(1, { message: "Numéro de l'étudiant invalide" }),
   exerciseId: z.number().min(1, { message: "Numéro d'exercice invalide" }),
   answer: z.string(),
   isComplete: z.boolean().optional(),
@@ -59,7 +61,7 @@ export default function EditScore() {
   const form = useForm<formSchema>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
-      studentId: 0,
+      studentExerciseId: 0,
       exerciseId: 0,
       answer: "",
       isComplete: true,
@@ -67,7 +69,10 @@ export default function EditScore() {
     },
   });
 
-  const [exerciseId, studentId] = form.watch(["exerciseId", "studentId"]);
+  const [exerciseId, studentId] = form.watch([
+    "exerciseId",
+    "studentExerciseId",
+  ]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -109,10 +114,8 @@ export default function EditScore() {
 
   useEffect(() => {
     if (score) {
-      console.log(score);
-
       form.reset({
-        studentId: score?.student.id,
+        studentExerciseId: score?.studentExercise.id,
         exerciseId: score?.exercise.id,
         answer: score?.answer,
         scoreTests: score?.scoreTests,
@@ -129,7 +132,7 @@ export default function EditScore() {
       var result = studentExercises.find(
         (item) =>
           item.exerciseId === Number(exerciseId) &&
-          item.studentId === Number(studentId)
+          item.id === Number(studentId)
       );
       form.setValue("isComplete", result?.isComplete);
     }
@@ -210,7 +213,7 @@ export default function EditScore() {
                 <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
                 <FormField
                   control={form.control}
-                  name="studentId"
+                  name="studentExerciseId"
                   render={({ field }) => (
                     <FormItem>
                       <Select
@@ -233,9 +236,9 @@ export default function EditScore() {
                               (item, index) => (
                                 <SelectItem
                                   key={index}
-                                  value={item.studentId.toString()}
+                                  value={item.id.toString()}
                                 >
-                                  {item.student.permanentCode}
+                                  {item.studentPermanentCode}
                                 </SelectItem>
                               )
                             )

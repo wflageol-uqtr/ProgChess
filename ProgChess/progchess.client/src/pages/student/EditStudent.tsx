@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import api from "../../utils/api";
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState, useTransition } from "react";
-import type { Student } from "../../utils/type";
+import type { StudentExercice } from "../../utils/type";
 import { handleApiError } from "../../utils/apiErrorHandler";
 import {
   Form,
@@ -33,7 +33,8 @@ type formSchema = z.infer<typeof validationSchema>;
 
 export default function EditStudent() {
   const [isPending, startTransition] = useTransition();
-  const [student, setStudent] = useState<Student>();
+  const [studentExercise, setStudentExercise] = useState<StudentExercice>();
+  const [oldPermanentCode, setOldPermanentCode] = useState<string>("");
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -46,8 +47,8 @@ export default function EditStudent() {
 
   const getStudent = async () => {
     try {
-      const response = await api.get(`/api/student/${id}`);
-      setStudent(response.data);
+      const response = await api.get(`/api/studentexercise/${id}`);
+      setStudentExercise(response.data);
     } catch (error) {
       handleApiError(error);
     }
@@ -58,17 +59,18 @@ export default function EditStudent() {
   }, []);
 
   useEffect(() => {
-    if (student) {
+    if (studentExercise) {
       form.reset({
-        permanentCode: student.permanentCode,
+        permanentCode: studentExercise.studentPermanentCode,
       });
+      setOldPermanentCode(studentExercise.studentPermanentCode);
     }
-  }, [student]);
+  }, [studentExercise]);
 
   const onSubmit = async (values: formSchema) => {
     startTransition(async () => {
       try {
-        await api.put(`/api/student/edit/${id}`, values);
+        await api.put(`/api/studentexercise/edit/${id}`, values);
         toast.success("Étudiant modifié avec succès !");
         navigate("/admin/students");
       } catch (error) {

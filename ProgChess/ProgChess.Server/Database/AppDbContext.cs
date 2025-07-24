@@ -16,8 +16,8 @@ using Microsoft.AspNetCore.Identity;
      public DbSet<UnitTest> UnitTests { get; set; }
      public DbSet<Score> Scores { get; set; }
      public DbSet<ScoreTest> ScoreTest { get; set; }
-     public DbSet<Student> Students { get; set; }
      public DbSet<StudentExercise> StudentExercises { get; set; }
+     public DbSet<Image> Images { get; set; }
 
      protected override void OnModelCreating(ModelBuilder modelBuilder)
      {
@@ -30,17 +30,18 @@ using Microsoft.AspNetCore.Identity;
 
          // Defining the many-to-many relationship
          modelBuilder.Entity<StudentExercise>()
-             .HasKey(se => new { se.StudentId, se.ExerciseId });
+             .HasIndex(se => new { se.StudentPermanentCode, se.ExerciseId })
+             .IsUnique();
          
          modelBuilder.Entity<Exercise>()
              .HasMany(e => e.StudentExercises)
              .WithOne(s => s.Exercise)
              .IsRequired();
          
-         modelBuilder.Entity<Student>()
-             .HasMany(s => s.StudentExercises)
-             .WithOne(s => s.Student)
-             .IsRequired();
+         // modelBuilder.Entity<Student>()
+         //     .HasMany(s => s.StudentExercises)
+         //     .WithOne(s => s.Student)
+         //     .IsRequired();
          
          modelBuilder.Entity<StudentExercise>()
              .Property(se => se.IsComplete)
@@ -51,11 +52,16 @@ using Microsoft.AspNetCore.Identity;
              .WithMany(u => u.Exercises)
              .HasForeignKey(e => e.UserId);
          
+         modelBuilder.Entity<Image>()
+             .HasOne(i => i.User)
+             .WithMany(u => u.Images)
+             .IsRequired();
+         
          // Soft delete not in query
          modelBuilder.Entity<Exercise>().HasQueryFilter(p => !p.IsDeleted);
          modelBuilder.Entity<Score>().HasQueryFilter(p => !p.IsDeleted);
          modelBuilder.Entity<ScoreTest>().HasQueryFilter(p => !p.IsDeleted);
-         modelBuilder.Entity<Student>().HasQueryFilter(p => !p.IsDeleted);
+         modelBuilder.Entity<StudentExercise>().HasQueryFilter(p => !p.IsDeleted);
          modelBuilder.Entity<UnitTest>().HasQueryFilter(p => !p.IsDeleted);
      }
 
@@ -70,7 +76,6 @@ using Microsoft.AspNetCore.Identity;
              entry.State = EntityState.Modified;
              entry.Property(nameof(ISoftDeletable.IsDeleted)).CurrentValue = true;
              entry.Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = DateTime.UtcNow;
-
          }
          // Add CreateAt and ModifiedAt
          var entries = ChangeTracker

@@ -6,4 +6,6 @@ public class StudentDto
 {
     [Required]
     public string PermanentCode { get; set; }
+    [Required]
+    public string OldPermanentCode { get; set; }
 }

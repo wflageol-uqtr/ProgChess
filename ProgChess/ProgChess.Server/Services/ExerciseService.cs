@@ -36,13 +36,12 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<List<Exercise>?> GetAllExercice()
     {
-        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).ThenInclude(se => se.Student).Where(x => x.UserId == userContext.UserId).ToListAsync();
+        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).Where(x => x.UserId == userContext.UserId).ToListAsync();
     }
 
     public async Task<Exercise?> GetById(int id)
     {
-        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises)
-            .ThenInclude(se => se.Student).FirstOrDefaultAsync(e => e.Id == id);
+        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
         return exercise;
@@ -51,7 +50,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
     public async Task<Exercise?> GetByIdWithActiveTest(int id, string studentCode)
     {
         var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive))
-            .Include(e => e.StudentExercises.Where(se => se.Student.PermanentCode == studentCode))
+            .Include(e => e.StudentExercises.Where(se => se.StudentPermanentCode == studentCode))
             .FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
@@ -72,7 +71,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
             throw new UnauthorizedException("User is not authenticated");
         
         var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests)
-            .Include(e => e.StudentExercises).ThenInclude(se => se.Student)
+            .Include(e => e.StudentExercises)
             .FirstAsync();
         dbContext.Entry(exercise).State = EntityState.Detached;
         exercise.Situation = request.Situation;

@@ -17,6 +17,7 @@ import { Button } from "../../components/ui/button";
 import { useState, useTransition } from "react";
 import axios from "axios";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import { apiUrl } from "../../utils/api";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
@@ -36,10 +37,7 @@ export default function ForgotPassword() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        await axios.post(
-          "http://localhost:5290/api/auth/forgot-password",
-          values
-        );
+        await axios.post(`${apiUrl}/api/auth/forgot-password`, values);
         setEmailSent(true);
       } catch (error) {
         handleApiError(error, setError);

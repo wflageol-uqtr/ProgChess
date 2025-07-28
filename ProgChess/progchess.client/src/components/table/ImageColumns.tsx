@@ -1,18 +1,20 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router";
-import api from "../../utils/api";
+import api, { apiUrl } from "../../utils/api";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import type { Image } from "../../utils/type";
 
-export const ImageColumns: ColumnDef<string>[] = [
+export const ImageColumns: ColumnDef<Image>[] = [
   {
     header: "Image",
+    accessorKey: "path",
     cell: ({ row }) => {
       return (
         <img
           className="w-56 rounded shadow-md object-contain"
-          src={`http://localhost:5290/Image/${row.original}`}
-          alt={`Image - ${row.original}`}
+          src={`${apiUrl}/${row.getValue("path")}`}
+          alt={`Image - ${row.getValue("name")}`}
           loading="lazy"
         />
       );
@@ -22,18 +24,18 @@ export const ImageColumns: ColumnDef<string>[] = [
     header: "Nom",
     accessorKey: "name",
     cell: ({ row }) => {
-      return <div className="font-medium">{row.original}</div>;
+      return <div className="font-medium">{row.getValue("name")}</div>;
     },
   },
   {
     header: "Actions",
     id: "actions",
     cell: ({ row }) => {
+      const rowData = row.original;
       const navigate = useNavigate();
-
       const handleDelete = async () => {
         try {
-          const response = await api.delete(`/api/upload/${row.original}`);
+          const response = await api.delete(`/api/upload/${rowData.id}`);
           toast.success(response.data, {
             className: "bg-green-100",
           });

@@ -83,7 +83,6 @@ export const ExerciseColumns: ColumnDef<Exercise>[] = [
     id: "actions",
     cell: ({ row }) => {
       const navigate = useNavigate();
-
       const handleDelete = async () => {
         try {
           const response = await api.delete(

@@ -2,8 +2,13 @@ import { z } from "zod";
 import { useEffect, useState, useTransition } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import api from "../../utils/api";
-import type { Exercise, StudentExercice, TestResult } from "../../utils/type";
+import api, { apiUrl } from "../../utils/api";
+import type {
+  Exercise,
+  StudentExercice,
+  TestResult,
+  Image,
+} from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "../../components/layout/AdminLayout";
@@ -20,7 +25,7 @@ import { Checkbox } from "../../components/ui/checkbox";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
 import { handleApiError } from "../../utils/apiErrorHandler";
-import FileUploader from "../../components/form/input/FileUploader";
+import ImageSelector from "../../components/form/select/ImageSelector";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -132,7 +137,7 @@ export default function EditExercise() {
           .map((test) => test.code)
           .join("\n");
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          `${apiUrl}/api/execute`,
           {
             code,
             unitTest,
@@ -148,12 +153,15 @@ export default function EditExercise() {
       }
     });
   };
-  const handleChildUpload = (newValue: string) => {
-    form.setValue(
-      "situation",
-      form.getValues("situation") +
-        `![My Uploaded Image](http://localhost:5290/Image/${newValue})`
-    );
+
+  const handleSelectedImage = (image?: Image) => {
+    if (image) {
+      form.setValue(
+        "situation",
+        form.getValues("situation") +
+          `![${image.name}](${apiUrl}/${image.path})`
+      );
+    }
   };
 
   return (
@@ -169,7 +177,7 @@ export default function EditExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
-              <FileUploader onUpload={handleChildUpload} />
+              <ImageSelector onSelectedImage={handleSelectedImage} />
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}

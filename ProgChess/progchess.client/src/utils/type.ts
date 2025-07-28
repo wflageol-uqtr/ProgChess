@@ -30,13 +30,6 @@ export type Score = {
   answer: string
 }
 
-export type Student = {
-  id: number,
-  permanentCode: string,
-  createdAt: string,
-  updatedAt: string
-}
-
 export type StudentExercice = {
   id: number,
   exerciseId: number,
@@ -65,4 +58,11 @@ export type TabType = {
   name: string
   isActive: boolean,
   component: React.ReactElement
+}
+
+export type Image = {
+  id: number,
+  userId: number,
+  name: string,
+  path: string
 }

@@ -15,6 +15,7 @@ import SubmitDialog from "../components/dialog/SubmitDialog";
 import { handleApiError } from "../utils/apiErrorHandler";
 import { useBadge } from "../providers/ShowBadgeProvider";
 import SituationCard from "../components/card/SituationCard";
+import { apiUrl } from "../utils/api";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -22,6 +23,7 @@ interface ExerciseContentProps {
 
 export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const navigate = useNavigate();
+
   const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
@@ -50,7 +52,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   useEffect(() => {
     const startedCode = localStorage.getItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`
     );
     if (startedCode) {
       setCode(startedCode);
@@ -59,7 +61,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     }
 
     const startedUnitTest = localStorage.getItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`
     );
     if (startedUnitTest) {
       setTestCode(startedUnitTest);
@@ -73,11 +75,11 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   const saveCode = () => {
     localStorage.setItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       codeRef.current
     );
     localStorage.setItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       unitTestRef.current
     );
   };
@@ -86,7 +88,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     startTransition(async () => {
       try {
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          `${apiUrl}/api/execute`,
           {
             code,
             unitTest: testCode,
@@ -114,7 +116,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     startTransition(async () => {
       try {
         await axios.post(
-          "http://localhost:5290/api/execute/submit",
+          `${apiUrl}/api/execute/submit`,
           {
             exerciseId: exercise?.id,
             code,
@@ -132,7 +134,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
     localStorage.setItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       codeRef.current
     );
     toast.success("Exercice réinitialiser");
@@ -142,7 +144,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
     setTestCode(exercise?.unitTests?.[0]?.code || "");
     localStorage.setItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       unitTestRef.current
     );
     toast.success("Test réinitialiser");

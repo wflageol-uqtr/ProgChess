@@ -19,6 +19,7 @@ import axios from "axios";
 
 import { useNavigate, useParams } from "react-router";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import { apiUrl } from "../../utils/api";
 
 const formSchema = z.object({
   code: z
@@ -45,7 +46,7 @@ function StudentLogin() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        await axios.post("http://localhost:5290/api/auth/login-code", values, {
+        await axios.post(`${apiUrl}/api/auth/login-code`, values, {
           withCredentials: true,
         });
         navigate(`/exercise/${id}`);

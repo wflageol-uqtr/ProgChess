@@ -13,14 +13,14 @@ import {
   FormField,
   FormItem,
 } from "../../components/ui/form";
-import api from "../../utils/api";
+import api, { apiUrl } from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
-import type { TestResult } from "../../utils/type";
+import type { TestResult, Image } from "../../utils/type";
 import { handleApiError } from "../../utils/apiErrorHandler";
-import FileUploader from "../../components/form/input/FileUploader";
+import ImageSelector from "../../components/form/select/ImageSelector";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -99,7 +99,7 @@ export default function CreateExercise() {
           .map((test) => test.code)
           .join("\n");
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          `${apiUrl}/api/execute`,
           {
             code,
             unitTest,
@@ -116,13 +116,16 @@ export default function CreateExercise() {
     });
   };
 
-  const handleChildUpload = (newValue: string) => {
-    form.setValue(
-      "situation",
-      form.getValues("situation") +
-        `![My Uploaded Image](http://localhost:5290/Image/${newValue})`
-    );
+  const handleSelectedImage = (image?: Image) => {
+    if (image) {
+      form.setValue(
+        "situation",
+        form.getValues("situation") +
+          `![${image.name}](${apiUrl}/${image.path})`
+      );
+    }
   };
+
   return (
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
@@ -134,7 +137,12 @@ export default function CreateExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
-              <FileUploader onUpload={handleChildUpload} />
+              <div className="flex items-center justify-end gap-4 my-1">
+                <p className="font-semibold mb-4 text-gray-100">
+                  Mettre vos images :
+                </p>
+                <ImageSelector onSelectedImage={handleSelectedImage} />
+              </div>
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}

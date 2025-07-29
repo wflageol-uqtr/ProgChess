@@ -14,8 +14,6 @@ export default function ListStudent() {
   const gellAllStudent = async () => {
     try {
       const response = await api.get("/api/studentexercise/group/student");
-      console.log(response.data);
-
       setStudentExercise(response.data);
     } catch (error) {
       handleApiError(error);

@@ -39,7 +39,7 @@ public class StudentExerciseController(IStudentExerciseService studentExerciseSe
         return Ok();
     }
     
-    // Delete only the current user exercise sutdent at the code
+    // Delete only the current user exercise student at the code
     [HttpDelete("delete/{permanentCode}")]
     public async Task<IActionResult> Delete(string permanentCode)
     {

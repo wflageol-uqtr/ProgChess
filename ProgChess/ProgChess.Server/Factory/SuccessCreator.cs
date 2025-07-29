@@ -24,14 +24,5 @@ public class SuccessCreator : TestCreator
             _ => throw new ExecutionErrorException($"Language not supported")
 
         };
-        // var result = new List<TestResult>();
-        //
-        // var passedTest = outputLines.Where(l => l.StartsWith("✔") 
-        //                                         && Regex.IsMatch(l, @"\(.+?ms\)")).Distinct().ToList();
-        // foreach (var test in passedTest)
-        // {
-        //     result.Add(new TestSuccess(test));
-        // }
-        // return result;
     }
 }

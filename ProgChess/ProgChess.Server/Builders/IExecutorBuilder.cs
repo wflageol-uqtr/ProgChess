@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using ProChess.Server.Enums;
+using ProChess.Server.Record;
 using ProChess.Server.Response;
 using ProChess.Server.Utils;
 using ProgChess.Server.Dto;
@@ -24,9 +25,14 @@ public class IExecutorBuilder
             switch (codeExecutor.Type)
             {
                 case LanguageType.Javascript:
-                    codeExecutor.code = "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n"
-                    + code + "\n"
-                    + unitTest + "\n"; 
+                    var importSection = "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n";
+                    
+                    int importLines = importSection.Count(c => c == '\n');
+                    int codeLines = code.Count(c => c == '\n');
+                    int testStartLine = unitTest.Count(c => c == '\n');
+                    
+                    var fullCode = importSection + code + "\n" + unitTest + "\n";
+                    codeExecutor.mapper = new ErrorLineMapper(fullCode, importLines, testStartLine + 1, importLines + codeLines + 1);
                  break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -36,7 +42,7 @@ public class IExecutorBuilder
         
         public async Task<IGenerateResult> Execute(HttpClient httpClient)
         {
-            var json = JsonSerializer.Serialize(codeExecutor.code);
+            var json = JsonSerializer.Serialize(codeExecutor.mapper.FullCode);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync("/vm/execute", content);
         
@@ -49,7 +55,8 @@ public class IExecutorBuilder
         {
             if (!codeExecutor.vmExecuteDto.IsSuccess)
             {
-                return ExecuteResult<List<TestResult>>.Failure(codeExecutor.vmExecuteDto.Error);
+                var line = codeExecutor.mapper.GetExecutionErrorLine(codeExecutor.vmExecuteDto.Error);
+                return ExecuteResult<List<TestResult>>.Failure(codeExecutor.mapper.CleanError, line.ToString());
             }
             return GenerateResult(Formatter.SplitByLine(codeExecutor.vmExecuteDto.Output));
         }

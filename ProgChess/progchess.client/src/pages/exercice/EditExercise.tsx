@@ -177,7 +177,12 @@ export default function EditExercise() {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
               <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
-              <ImageSelector onSelectedImage={handleSelectedImage} />
+              <div className="flex items-center justify-end gap-4 my-1">
+                <p className="font-semibold mb-4 text-gray-100">
+                  Mettre vos images :
+                </p>
+                <ImageSelector onSelectedImage={handleSelectedImage} />
+              </div>
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}
@@ -249,6 +254,7 @@ export default function EditExercise() {
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
                         error={form.formState.errors.baseCode}
+                        executionError={error}
                       />
                     </FormControl>
                   </FormItem>

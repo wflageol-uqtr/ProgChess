@@ -26,7 +26,7 @@ public class ExecuteService: ICodeExecuterService
             .GenerateExecuteResult();
        
         if (result.IsFailure) {
-            throw new ExecutionErrorException(result.Error);
+            throw new ExecutionErrorException( $"Error:{result.LineError}" + result.Error);
         }
         return result;
     }

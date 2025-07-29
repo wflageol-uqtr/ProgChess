@@ -87,6 +87,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const executeCode = async () => {
     startTransition(async () => {
       try {
+        setExecutionError("");
         const response = await axios.post(
           `${apiUrl}/api/execute`,
           {
@@ -210,6 +211,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                     height={height}
                     value={code}
                     onChange={(e) => setCode(e)}
+                    executionError={executionError}
                   />
                 </ExecutableCard>
               </VerticalResizable>

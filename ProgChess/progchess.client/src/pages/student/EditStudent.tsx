@@ -70,7 +70,10 @@ export default function EditStudent() {
   const onSubmit = async (values: formSchema) => {
     startTransition(async () => {
       try {
-        await api.put(`/api/studentexercise/edit/${id}`, values);
+        await api.put(`/api/studentexercise/edit/${id}`, {
+          permanentCode: values.permanentCode,
+          oldPermanentCode: oldPermanentCode,
+        });
         toast.success("Étudiant modifié avec succès !");
         navigate("/admin/students");
       } catch (error) {

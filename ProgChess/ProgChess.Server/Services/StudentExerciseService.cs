@@ -61,12 +61,10 @@ public class StudentExerciseService(AppDbContext dbContext, IUserContext userCon
 
     public async Task EditPermanentCode(int id, StudentDto request)
     {
-        var studentExercises = await dbContext.StudentExercises.Where(se => se.StudentPermanentCode == request.OldPermanentCode).ToListAsync();
+        var studentExercises = await dbContext.StudentExercises.Where(se => se.StudentPermanentCode == request.OldPermanentCode && se.Exercise.UserId == userContext.UserId).ToListAsync();
         if (studentExercises == null || studentExercises.Count == 0)
             throw new NotFoundException("Aucune donnée trouvée pour l'exercise");
 
-        
-        // Update each one
         foreach (var se in studentExercises)
         {
             se.StudentPermanentCode = request.PermanentCode;

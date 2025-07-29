@@ -209,6 +209,7 @@ export default function CreateExercise() {
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
                         error={form.formState.errors.baseCode}
+                        executionError={error}
                       />
                     </FormControl>
                   </FormItem>

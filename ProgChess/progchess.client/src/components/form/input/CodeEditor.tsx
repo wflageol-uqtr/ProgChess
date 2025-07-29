@@ -1,7 +1,9 @@
-import CodeMirror from "@uiw/react-codemirror";
+import CodeMirror, { type Extension } from "@uiw/react-codemirror";
 import "@uiw/codemirror-theme-dracula";
 import { dracula } from "@uiw/codemirror-theme-dracula";
 import { langs } from "@uiw/codemirror-extensions-langs";
+import { linter, type Diagnostic } from "@codemirror/lint";
+import { lintGutter } from "@codemirror/lint";
 
 interface CodeEditorProps {
   placeholder?: string;
@@ -10,6 +12,7 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   error?: any;
   editable?: boolean;
+  executionError?: string;
 }
 
 export default function CodeEditor({
@@ -19,7 +22,39 @@ export default function CodeEditor({
   onChange,
   error,
   editable = true,
+  executionError,
 }: CodeEditorProps) {
+  const linterExtension = errorLineLinter(executionError);
+
+  function errorLineLinter(error?: string): Extension {
+    const match = error?.match(/Error:(\d+)/);
+    const lineNumber = match ? parseInt(match[1], 10) : null;
+
+    return linter((view) => {
+      const diagnostics: Diagnostic[] = [];
+
+      if (lineNumber !== null) {
+        const line = view.state.doc.line(lineNumber);
+        diagnostics.push({
+          from: line.from,
+          to: line.to,
+          severity: "error",
+          message: error ?? "Erreur est survenue",
+          actions: [
+            {
+              name: "Explain",
+              apply(view, from, to) {
+                alert(error ?? "Erreur est survenue");
+              },
+            },
+          ],
+        });
+      }
+
+      return diagnostics;
+    });
+  }
+
   return (
     <div className="h-full">
       <CodeMirror
@@ -28,7 +63,12 @@ export default function CodeEditor({
         value={value}
         theme={dracula}
         height={`${height}px`}
-        extensions={[langs.typescript(), langs.javascript()]}
+        extensions={[
+          langs.typescript(),
+          langs.javascript(),
+          linterExtension,
+          lintGutter(),
+        ]}
         onChange={onChange}
         editable={editable}
       />

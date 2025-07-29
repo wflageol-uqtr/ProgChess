@@ -98,23 +98,32 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task Delete(int id)
     {
-         var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+         var exercise = await dbContext.Exercises.Include(e => e.UnitTests)
+             .Include(e => e.StudentExercises).
+             FirstOrDefaultAsync(e => e.Id == id);
          if (exercise == null)
              throw new NotFoundException("Exercice introuvable");
          dbContext.Exercises.Remove(exercise);
+         dbContext.UnitTests.RemoveRange(exercise.UnitTests);
+         dbContext.StudentExercises.RemoveRange(exercise.StudentExercises);
+         // score
          await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteMultiple(DeleteMultipleDto request)
     {
-        var itemsToDelete = await dbContext.Exercises
+        var exercises = await dbContext.Exercises
+            .Include(e => e.UnitTests)
+            .Include(e => e.StudentExercises)
             .Where(e => request.Ids.Contains(e.Id))
             .ToListAsync();
 
-        if (itemsToDelete.Count == 0)
+        if (exercises.Count == 0)
             throw new NotFoundException("Aucun élément à supprimer trouvé.");
 
-        dbContext.Exercises.RemoveRange(itemsToDelete);
+        dbContext.UnitTests.RemoveRange(exercises.SelectMany(e => e.UnitTests).ToList());
+        dbContext.StudentExercises.RemoveRange(exercises.SelectMany(e => e.StudentExercises).ToList());
+        dbContext.Exercises.RemoveRange(exercises);
         await dbContext.SaveChangesAsync();
     }
 }

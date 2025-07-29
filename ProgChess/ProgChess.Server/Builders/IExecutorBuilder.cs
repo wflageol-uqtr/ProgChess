@@ -32,7 +32,7 @@ public class IExecutorBuilder
                     int testStartLine = unitTest.Count(c => c == '\n');
                     
                     var fullCode = importSection + code + "\n" + unitTest + "\n";
-                    codeExecutor.mapper = new ErrorLineMapper(fullCode, importLines, testStartLine + 1, importLines + codeLines + 1);
+                    codeExecutor.mapper = new NodeErrorLineMapper(fullCode, importLines, testStartLine + 1, importLines + codeLines + 1);
                  break;
                 default:
                     throw new ArgumentOutOfRangeException();

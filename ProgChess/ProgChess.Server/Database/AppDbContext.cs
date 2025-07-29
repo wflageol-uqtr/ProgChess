@@ -38,11 +38,6 @@ using Microsoft.AspNetCore.Identity;
              .WithOne(s => s.Exercise)
              .IsRequired();
          
-         // modelBuilder.Entity<Student>()
-         //     .HasMany(s => s.StudentExercises)
-         //     .WithOne(s => s.Student)
-         //     .IsRequired();
-         
          modelBuilder.Entity<StudentExercise>()
              .Property(se => se.IsComplete)
              .HasDefaultValue(false);

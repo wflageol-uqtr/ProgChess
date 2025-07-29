@@ -2,7 +2,8 @@ using ProChess.Server.Utils;
 
 namespace ProChess.Server.Record;
 
-public class ErrorLineMapper
+// Rename to Node js
+public class NodeErrorLineMapper
 {
     public string FullCode { get; set; }
     public int ImportLength { get; set; }
@@ -10,7 +11,7 @@ public class ErrorLineMapper
     public int TestLength { get; set; }
     public string CleanError { get; set; }
 
-    public ErrorLineMapper(string fullCode, int importLength, int testLength, int codeSection)
+    public NodeErrorLineMapper(string fullCode, int importLength, int testLength, int codeSection)
     {
         FullCode = fullCode;
         ImportLength = importLength;

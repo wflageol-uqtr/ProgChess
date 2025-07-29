@@ -9,7 +9,7 @@ public class CodeExecutor
 {
     public LanguageType Type;
     public VMExecuteDto vmExecuteDto;
-    public ErrorLineMapper mapper;
+    public NodeErrorLineMapper mapper;
 }
 
 public interface ISpecifyLanguage

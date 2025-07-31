@@ -21,7 +21,7 @@ COPY package*.json ./
 # Run npm install
 RUN npm install
 
-USER ${USERNAME}
+# USER ${USERNAME}
 
 COPY . .
 

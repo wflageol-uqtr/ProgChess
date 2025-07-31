@@ -4,6 +4,7 @@ import { dracula } from "@uiw/codemirror-theme-dracula";
 import { langs } from "@uiw/codemirror-extensions-langs";
 import { linter, type Diagnostic } from "@codemirror/lint";
 import { lintGutter } from "@codemirror/lint";
+import type { EditorError } from "../../../utils/type";
 
 interface CodeEditorProps {
   placeholder?: string;
@@ -12,7 +13,7 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   error?: any;
   editable?: boolean;
-  executionError?: string;
+  executionError?: EditorError;
 }
 
 export default function CodeEditor({
@@ -24,17 +25,14 @@ export default function CodeEditor({
   editable = true,
   executionError,
 }: CodeEditorProps) {
-  const linterExtension = errorLineLinter(executionError);
+  const linterExtension = errorLineLinter(executionError?.error ?? "");
 
   function errorLineLinter(error?: string): Extension {
-    const match = error?.match(/Error:(\d+)/);
-    const lineNumber = match ? parseInt(match[1], 10) : null;
-
     return linter((view) => {
       const diagnostics: Diagnostic[] = [];
 
-      if (lineNumber !== null) {
-        const line = view.state.doc.line(lineNumber);
+      if (executionError?.line) {
+        const line = view.state.doc.line(executionError?.line);
         diagnostics.push({
           from: line.from,
           to: line.to,

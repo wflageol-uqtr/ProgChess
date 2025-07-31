@@ -40,6 +40,18 @@ builder.Services.AddHttpClient("VmApi", client =>
         };
     });
 
+builder.Services.AddHttpClient("dockerApi", client =>
+    {
+        client.BaseAddress = new Uri("http://localhost:3000");
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+    });
+
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityCore<User>(options =>
     {

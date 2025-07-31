@@ -66,3 +66,14 @@ export type Image = {
   name: string,
   path: string
 }
+
+export type EditorInfo = {
+  name: string,
+  size: number
+}
+
+export type EditorError = {
+  id: string,
+  line: number,
+  error: string | null
+}

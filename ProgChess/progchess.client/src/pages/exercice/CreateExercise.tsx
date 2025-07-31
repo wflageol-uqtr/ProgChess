@@ -18,8 +18,16 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
-import type { TestResult, Image } from "../../utils/type";
-import { handleApiError } from "../../utils/apiErrorHandler";
+import type {
+  TestResult,
+  Image,
+  EditorInfo,
+  EditorError,
+} from "../../utils/type";
+import {
+  handleApiError,
+  handleExecutionError,
+} from "../../utils/apiErrorHandler";
 import ImageSelector from "../../components/form/select/ImageSelector";
 
 const validationSchema = z.object({
@@ -52,8 +60,9 @@ export default function CreateExercise() {
   const [isPending, startTransition] = useTransition();
   const [situation, setSituation] = useState<string>("");
   const [openSheet, setOpenSheet] = useState(false);
-  const [error, setError] = useState<string>("");
   const [testResult, setTestResult] = useState<TestResult[]>();
+  const [errorEditor, setErrorEditor] = useState<EditorError>();
+  const editorInfo: EditorInfo[] = [];
 
   const updateSituation = (e: any) => {
     setSituation(e.target.value);
@@ -92,11 +101,23 @@ export default function CreateExercise() {
 
   const executeCode = () => {
     startTransition(async () => {
+      setErrorEditor(undefined);
       try {
         const code = form.watch("baseCode");
+        editorInfo.push({
+          name: "code",
+          size: countLines(code),
+        });
+
         const unitTest = form
           .watch("unitTest")
-          .map((test) => test.code)
+          .map((test, index) => {
+            editorInfo.push({
+              name: `test${index}`,
+              size: countLines(test.code),
+            });
+            return test.code;
+          })
           .join("\n");
         const response = await axios.post(
           `${apiUrl}/api/execute`,
@@ -108,10 +129,17 @@ export default function CreateExercise() {
         );
         setOpenSheet(true);
         setTestResult(response.data.value);
-        setError("");
-      } catch (error) {
-        setOpenSheet(true);
-        handleApiError(error, setError);
+      } catch (error: any) {
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          toast.error("Une erreur d'exécution est survenue");
+          return;
+        }
+        handleApiError(error);
       }
     });
   };
@@ -124,6 +152,11 @@ export default function CreateExercise() {
           `![${image.name}](${apiUrl}/${image.path})`
       );
     }
+  };
+
+  const countLines = (str: string) => {
+    if (str.trim() === "") return 0;
+    return str.split("\n").length;
   };
 
   return (
@@ -209,7 +242,9 @@ export default function CreateExercise() {
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
                         error={form.formState.errors.baseCode}
-                        executionError={error}
+                        executionError={
+                          errorEditor?.id === "code" ? errorEditor : undefined
+                        }
                       />
                     </FormControl>
                   </FormItem>
@@ -274,6 +309,11 @@ export default function CreateExercise() {
                                 error={
                                   form.formState.errors.unitTest?.[index]?.code
                                 }
+                                executionError={
+                                  errorEditor?.id === `test${index}`
+                                    ? errorEditor
+                                    : undefined
+                                }
                               />
                             </FormControl>
                           </FormItem>
@@ -337,7 +377,6 @@ export default function CreateExercise() {
       <ExecutionSheet
         open={openSheet}
         onOpenChange={setOpenSheet}
-        error={error}
         testResult={testResult}
       />
     </AdminLayout>

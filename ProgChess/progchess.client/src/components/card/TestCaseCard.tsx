@@ -1,5 +1,5 @@
 import { PanelRightClose, RefreshCcw } from "lucide-react";
-import type { TabType, TestResult } from "../../utils/type";
+import type { EditorError, TabType, TestResult } from "../../utils/type";
 import { Tabs } from "../tabs/Tabs";
 import TestResultPanel from "../panel/TestResultPanel";
 import CodeEditor from "../form/input/CodeEditor";
@@ -13,7 +13,7 @@ interface TestCaseCardProps {
   unitTestCode: string;
   setTestCode: React.Dispatch<React.SetStateAction<string>>;
   reinitializeFn: () => void;
-  executionError?: string;
+  executionError?: EditorError;
 }
 
 export default function TestCaseCard({
@@ -44,6 +44,9 @@ export default function TestCaseCard({
           value={unitTestCode}
           height={400}
           onChange={(e) => setTestCode(e)}
+          executionError={
+            executionError?.id === "test0" ? executionError : undefined
+          }
         />
       ),
     },
@@ -59,7 +62,7 @@ export default function TestCaseCard({
                 Erreur lors de l'exécution
               </h3>
               <p className="text-sm text-red-600 leading-relaxed">
-                {executionError}
+                {executionError?.error ?? ""}
               </p>
             </>
           ) : (

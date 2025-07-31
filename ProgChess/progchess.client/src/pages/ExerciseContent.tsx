@@ -4,7 +4,12 @@ import VerticalResizable from "../components/layout/VerticalResizable";
 import ExecutableCard from "../components/card/ExecutableCard";
 import { Book, Braces, Check, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
-import type { Exercise, TestResult } from "../utils/type";
+import type {
+  EditorError,
+  EditorInfo,
+  Exercise,
+  TestResult,
+} from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
@@ -12,7 +17,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import SubmitDialog from "../components/dialog/SubmitDialog";
-import { handleApiError } from "../utils/apiErrorHandler";
+import { handleApiError, handleExecutionError } from "../utils/apiErrorHandler";
 import { useBadge } from "../providers/ShowBadgeProvider";
 import SituationCard from "../components/card/SituationCard";
 import { apiUrl } from "../utils/api";
@@ -23,7 +28,6 @@ interface ExerciseContentProps {
 
 export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const navigate = useNavigate();
-
   const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
@@ -36,6 +40,8 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   );
   const [disabledSelect, setDisabledSelect] = useState(false);
   const [executionError, setExecutionError] = useState("");
+  const [errorEditor, setErrorEditor] = useState<EditorError>();
+  const editorInfo: EditorInfo[] = [];
   const { setBadgeTabs } = useBadge();
 
   useEffect(() => {
@@ -88,6 +94,18 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     startTransition(async () => {
       try {
         setExecutionError("");
+        setErrorEditor(undefined);
+
+        editorInfo.push(
+          {
+            name: "code",
+            size: countLines(code),
+          },
+          {
+            name: "test0",
+            size: countLines(testCode),
+          }
+        );
         const response = await axios.post(
           `${apiUrl}/api/execute`,
           {
@@ -98,17 +116,26 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         );
         saveCode();
         setTestResult(response.data.value);
-        setBadgeTabs((prev) => ({
+        setBadgeTabs((prev: any) => ({
           ...prev,
           0: true,
         }));
         toast.success("Test exécuté");
-      } catch (error) {
-        handleApiError(error, setExecutionError);
-        setBadgeTabs((prev) => ({
-          ...prev,
-          2: true,
-        }));
+      } catch (error: any) {
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          handleApiError(error, setExecutionError);
+          setBadgeTabs((prev: any) => ({
+            ...prev,
+            2: true,
+          }));
+          return;
+        }
+        handleApiError(error);
       }
     });
   };
@@ -149,6 +176,11 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
       unitTestRef.current
     );
     toast.success("Test réinitialiser");
+  };
+
+  const countLines = (str: string) => {
+    if (str.trim() === "") return 0;
+    return str.split("\n").length;
   };
 
   return (
@@ -211,7 +243,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                     height={height}
                     value={code}
                     onChange={(e) => setCode(e)}
-                    executionError={executionError}
+                    executionError={
+                      errorEditor?.id === "code" ? errorEditor : undefined
+                    }
                   />
                 </ExecutableCard>
               </VerticalResizable>
@@ -222,7 +256,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 unitTestCode={testCode}
                 setTestCode={setTestCode}
                 reinitializeFn={deleteUnitTest}
-                executionError={executionError}
+                executionError={
+                  errorEditor?.id === "test0" ? errorEditor : undefined
+                }
               />
             </div>
           </div>

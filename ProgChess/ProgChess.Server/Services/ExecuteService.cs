@@ -10,11 +10,13 @@ public class ExecuteService: ICodeExecuterService
 {
     private readonly IExerciseService _exerciseService;
     private readonly HttpClient _httpClient;
+    private readonly HttpClient _dockerClient;
     
     public ExecuteService(IExerciseService exerciseService, IHttpClientFactory factory)
     {
         _exerciseService = exerciseService;
         _httpClient = factory.CreateClient("VmApi");
+        _dockerClient = factory.CreateClient("dockerApi");
     }
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteOnVm(string solution, string unitTest)
@@ -26,11 +28,26 @@ public class ExecuteService: ICodeExecuterService
             .GenerateExecuteResult();
        
         if (result.IsFailure) {
-            throw new ExecutionErrorException( $"Error:{result.LineError}" + result.Error);
+            throw new ExecutionErrorException( $"Error at line:{result.LineError}" + result.Error);
         }
         return result;
     }
 
+    public async Task<ExecuteResult<List<TestResult>>> ExecuteOnDocker(string solution, string unitTest)
+    {
+        var result = (await IExecutorBuilder.Create()
+            .OfType(LanguageType.Javascript)
+            .BuildCode(solution, unitTest)
+            .Execute(_dockerClient))
+            .GenerateExecuteResult();
+        
+        if (result.IsFailure)
+        {
+            throw new ExecutionErrorException($"Error at line:{result.LineError}\n" + result.Error);
+        }
+
+        return result;
+    }
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteHiddenTestOnVm(string solution, int exerciseId)
     {

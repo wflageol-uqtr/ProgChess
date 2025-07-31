@@ -8,6 +8,8 @@ import type {
   StudentExercice,
   TestResult,
   Image,
+  EditorError,
+  EditorInfo,
 } from "../../utils/type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +26,10 @@ import CodeEditor from "../../components/form/input/CodeEditor";
 import { Checkbox } from "../../components/ui/checkbox";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
-import { handleApiError } from "../../utils/apiErrorHandler";
+import {
+  handleApiError,
+  handleExecutionError,
+} from "../../utils/apiErrorHandler";
 import ImageSelector from "../../components/form/select/ImageSelector";
 
 const validationSchema = z.object({
@@ -59,8 +64,10 @@ export default function EditExercise() {
   const [isPending, startTransition] = useTransition();
   const { id } = useParams();
   const [openSheet, setOpenSheet] = useState(false);
-  const [error, setError] = useState<string>("");
+  // const [error, setError] = useState<string>("");
   const [testResult, setTestResult] = useState<TestResult[]>();
+  const [errorEditor, setErrorEditor] = useState<EditorError>();
+  const editorInfo: EditorInfo[] = [];
 
   const getExercise = async () => {
     try {
@@ -129,12 +136,23 @@ export default function EditExercise() {
   };
 
   const executeCode = () => {
+    setErrorEditor(undefined);
     startTransition(async () => {
       try {
         const code = form.watch("baseCode");
+        editorInfo.push({
+          name: "code",
+          size: countLines(code),
+        });
         const unitTest = form
           .watch("unitTest")
-          .map((test) => test.code)
+          .map((test, index) => {
+            editorInfo.push({
+              name: `test${index}`,
+              size: countLines(test.code),
+            });
+            return test.code;
+          })
           .join("\n");
         const response = await axios.post(
           `${apiUrl}/api/execute`,
@@ -146,10 +164,17 @@ export default function EditExercise() {
         );
         setOpenSheet(true);
         setTestResult(response.data.value);
-        setError("");
-      } catch (error) {
-        setOpenSheet(true);
-        handleApiError(error, setError);
+      } catch (error: any) {
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          toast.error("Une erreur d'exécution est survenue");
+          return;
+        }
+        handleApiError(error);
       }
     });
   };
@@ -162,6 +187,11 @@ export default function EditExercise() {
           `![${image.name}](${apiUrl}/${image.path})`
       );
     }
+  };
+
+  const countLines = (str: string) => {
+    if (str.trim() === "") return 0;
+    return str.split("\n").length;
   };
 
   return (
@@ -254,7 +284,9 @@ export default function EditExercise() {
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
                         error={form.formState.errors.baseCode}
-                        executionError={error}
+                        executionError={
+                          errorEditor?.id === "code" ? errorEditor : undefined
+                        }
                       />
                     </FormControl>
                   </FormItem>
@@ -319,6 +351,11 @@ export default function EditExercise() {
                                 error={
                                   form.formState.errors.unitTest?.[index]?.code
                                 }
+                                executionError={
+                                  errorEditor?.id === `test${index}`
+                                    ? errorEditor
+                                    : undefined
+                                }
                               />
                             </FormControl>
                           </FormItem>
@@ -382,7 +419,6 @@ export default function EditExercise() {
       <ExecutionSheet
         open={openSheet}
         onOpenChange={setOpenSheet}
-        error={error}
         testResult={testResult}
       />
     </AdminLayout>

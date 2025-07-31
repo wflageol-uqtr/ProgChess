@@ -27,12 +27,12 @@ public class IExecutorBuilder
                 case LanguageType.Javascript:
                     var importSection = "import assert from 'node:assert/strict';\nimport { it } from 'node:test';\n";
                     
-                    int importLines = importSection.Count(c => c == '\n');
-                    int codeLines = code.Count(c => c == '\n');
-                    int testStartLine = unitTest.Count(c => c == '\n');
-                    
-                    var fullCode = importSection + code + "\n" + unitTest + "\n";
-                    codeExecutor.mapper = new NodeErrorLineMapper(fullCode, importLines, testStartLine + 1, importLines + codeLines + 1);
+                    var importLines = importSection.Count(c => c == '\n');
+                    var codeLines = Formatter.SplitByLine(code).Count;
+                    var testStartLine =  Formatter.SplitByLine(unitTest).Count;
+                  
+                    var fullCode = importSection + code + "\n" + unitTest;
+                    codeExecutor.mapper = new NodeErrorLineMapper(fullCode, importLines, testStartLine, importLines + codeLines);
                  break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -42,10 +42,12 @@ public class IExecutorBuilder
         
         public async Task<IGenerateResult> Execute(HttpClient httpClient)
         {
+            // var payload = new  { code = codeExecutor.mapper.FullCode };
+            // var json = JsonSerializer.Serialize(payload);
             var json = JsonSerializer.Serialize(codeExecutor.mapper.FullCode);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync("/vm/execute", content);
-        
+            // var response = await httpClient.PostAsync("/run", content);
             var result = await response.Content.ReadFromJsonAsync<VMExecuteDto>();
             codeExecutor.vmExecuteDto = result;
             return this;

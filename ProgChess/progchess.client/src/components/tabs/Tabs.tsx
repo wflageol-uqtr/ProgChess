@@ -49,7 +49,9 @@ export function Tabs({ tabs }: TabsProps) {
                 showBadge={badgeTabs[`${item.id}`]}
                 resetBadge={() => removeBadge(item.id)}
               >
-                {item.name}
+                <div className="truncate overflow-hidden whitespace-nowrap w-20 md:w-full md:whitespace-normal md:overflow-visible md:truncate-0">
+                  {item.name}
+                </div>
               </Tab>
             </>
           );

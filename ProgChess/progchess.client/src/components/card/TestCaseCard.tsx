@@ -77,7 +77,7 @@ export default function TestCaseCard({
 
   return (
     <>
-      <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-auto">
+      <div className="bg-zinc-800 rounded-2xl h-full min-h-[300px] flex flex-col overflow-auto">
         <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
           <div className="flex gap-2 items-center">
             <PanelRightClose className="text-green-500" />
@@ -93,7 +93,7 @@ export default function TestCaseCard({
               }}
             >
               <RefreshCcw />
-              Réinitialiser
+              <div className="hidden md:flex">Réinitialiser</div>
             </Button>
           </div>
         </div>

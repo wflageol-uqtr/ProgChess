@@ -12,7 +12,7 @@ export const ImageColumns: ColumnDef<Image>[] = [
     cell: ({ row }) => {
       return (
         <img
-          className="w-56 rounded shadow-md object-contain"
+          className="w-56 h-56 rounded shadow-md object-contain"
           src={`${apiUrl}/${row.getValue("path")}`}
           alt={`Image - ${row.getValue("name")}`}
           loading="lazy"

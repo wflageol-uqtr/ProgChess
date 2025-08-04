@@ -38,6 +38,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
+  const [situationHeight, setSituationHeight] = useState(
+    parseInt(localStorage.getItem("situationHeight")!) || window.innerHeight / 2
+  );
   const [disabledSelect, setDisabledSelect] = useState(false);
   const [executionError, setExecutionError] = useState("");
   const [errorEditor, setErrorEditor] = useState<EditorError>();
@@ -55,6 +58,10 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   useEffect(() => {
     localStorage.setItem("topHeight", height.toString());
   }, [height]);
+
+  useEffect(() => {
+    localStorage.setItem("situationHeight", situationHeight.toString());
+  }, [situationHeight]);
 
   useEffect(() => {
     const startedCode = localStorage.getItem(
@@ -198,7 +205,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               }}
             >
               <MonitorDown />
-              Sauvegarder
+              <div className="hidden md:flex">Sauvegarder</div>
             </Button>
             <Button
               className="bg-green-500 hover:bg-green-600 cursor-pointer"
@@ -209,23 +216,38 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               }}
             >
               <Check />
-              Soummettre
+              <div className="hidden md:flex">Soummettre</div>
             </Button>
           </div>
         </div>
         <div
-          className={`hidden h-screen sm:grid grid-rows-1 text-white ${
+          className={`h-screen sm:grid grid-rows-1 text-white ${
             disabledSelect ? "select-none" : ""
           }`}
         >
-          <div className="grid grid-cols-[min-content_auto]">
-            <HorizontalResizable setDisabledSelect={setDisabledSelect}>
-              <SituationCard title="Situation" icon={Book}>
-                <div className="p-4">
-                  <MarkdownComponent markdown={exercise?.situation!} />
-                </div>
-              </SituationCard>
-            </HorizontalResizable>
+          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto]">
+            <div className="flex md:hidden">
+              <VerticalResizable
+                height={situationHeight}
+                setHeight={setSituationHeight}
+                setDisabledSelect={setDisabledSelect}
+              >
+                <SituationCard title="Situation" icon={Book}>
+                  <div className="p-4">
+                    <MarkdownComponent markdown={exercise?.situation!} />
+                  </div>
+                </SituationCard>
+              </VerticalResizable>
+            </div>
+            <div className="hidden md:flex">
+              <HorizontalResizable setDisabledSelect={setDisabledSelect}>
+                <SituationCard title="Situation" icon={Book}>
+                  <div className="p-4">
+                    <MarkdownComponent markdown={exercise?.situation!} />
+                  </div>
+                </SituationCard>
+              </HorizontalResizable>
+            </div>
             <div className="h-full grid grid-rows-[min-content_auto]">
               <VerticalResizable
                 setDisabledSelect={setDisabledSelect}

@@ -21,6 +21,7 @@ export const handleApiError = (error: any, setState?: SetStateAction<any>) => {
 
 export const handleExecutionError = (editorInfo: EditorInfo[], detail: string): EditorError => {
     const match = detail?.match(/Error at line:(\d+)/);
+    const elementToRemove = match?.[0] ?? "";
     const lineNumber = match ? parseInt(match[1], 10) : 1;
     let currentLine = 1;    
     
@@ -31,11 +32,11 @@ export const handleExecutionError = (editorInfo: EditorInfo[], detail: string): 
             return {
                 id: info.name,
                 line: lineNumber - currentLine + 1,
-                error: detail
+                error: detail.replace(elementToRemove, "")
             };
         }
 
         currentLine = nextStart;
     }
-    return { id: "code", line: 1, error: detail };
+    return { id: "code", line: 1, error: detail.replace(elementToRemove, "") };
 }

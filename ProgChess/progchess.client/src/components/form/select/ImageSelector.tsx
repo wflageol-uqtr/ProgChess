@@ -11,6 +11,7 @@ import {
 import type { Image } from "../../../utils/type";
 import { handleApiError } from "../../../utils/apiErrorHandler";
 import api from "../../../utils/api";
+import { Link } from "react-router";
 
 interface ImageSelectorProps {
   onSelectedImage: (e?: Image) => void;
@@ -42,18 +43,27 @@ export default function ImageSelector({ onSelectedImage }: ImageSelectorProps) {
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Choisir une image" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-zinc-900 text-white border border-zinc-700">
         <SelectGroup>
-          <SelectLabel>Images</SelectLabel>
+          <SelectLabel className="text-zinc-400 px-3 py-1">Images</SelectLabel>
           {images.map((img: Image, index) => (
             <SelectItem
               key={index}
-              className="cursor-pointer"
+              className="cursor-pointer hover:bg-zinc-700 px-3 py-2"
               value={img.id.toString()}
             >
               {img.name}
             </SelectItem>
           ))}
+          <div className="text-sm px-3 py-2 block">
+            Ajouter des images{" "}
+            <Link
+              className="text-blue-500 hover:text-blue-600 hover:underline"
+              to="/admin/image"
+            >
+              ici
+            </Link>
+          </div>
         </SelectGroup>
       </SelectContent>
     </Select>

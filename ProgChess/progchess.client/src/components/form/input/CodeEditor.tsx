@@ -1,4 +1,4 @@
-import CodeMirror, { EditorView, type Extension } from "@uiw/react-codemirror";
+import CodeMirror, { type Extension } from "@uiw/react-codemirror";
 import "@uiw/codemirror-theme-dracula";
 import { dracula } from "@uiw/codemirror-theme-dracula";
 import { langs } from "@uiw/codemirror-extensions-langs";
@@ -66,7 +66,6 @@ export default function CodeEditor({
           langs.javascript(),
           linterExtension,
           lintGutter(),
-          // EditorView.lineWrapping,
         ]}
         onChange={onChange}
         editable={editable}

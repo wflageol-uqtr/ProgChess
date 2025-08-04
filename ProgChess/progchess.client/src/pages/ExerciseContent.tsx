@@ -239,7 +239,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 </SituationCard>
               </VerticalResizable>
             </div>
-            <div className="hidden md:flex">
+            <div className="hidden md:block">
               <HorizontalResizable setDisabledSelect={setDisabledSelect}>
                 <SituationCard title="Situation" icon={Book}>
                   <div className="p-4">

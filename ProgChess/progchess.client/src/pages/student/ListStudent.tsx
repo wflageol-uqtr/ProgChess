@@ -26,7 +26,7 @@ export default function ListStudent() {
 
   return (
     <AdminLayout>
-      <div className="h-min-screen flex flex-col px-4 space-y-4 w-full mt-4">
+      <div className="h-min-screen flex flex-col px-4 space-y-2 md:space-y-4 w-full mt-4">
         <h2 className="font-semibold text-2xl">Liste des étudiants</h2>
         <DataTable
           data={studentExercise}

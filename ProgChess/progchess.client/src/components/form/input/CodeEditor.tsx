@@ -1,4 +1,4 @@
-import CodeMirror, { type Extension } from "@uiw/react-codemirror";
+import CodeMirror, { EditorView, type Extension } from "@uiw/react-codemirror";
 import "@uiw/codemirror-theme-dracula";
 import { dracula } from "@uiw/codemirror-theme-dracula";
 import { langs } from "@uiw/codemirror-extensions-langs";
@@ -54,7 +54,7 @@ export default function CodeEditor({
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full overflow-x-auto">
       <CodeMirror
         className={error ? "border border-red-500 rounded-lg" : ""}
         placeholder={placeholder}
@@ -66,6 +66,7 @@ export default function CodeEditor({
           langs.javascript(),
           linterExtension,
           lintGutter(),
+          // EditorView.lineWrapping,
         ]}
         onChange={onChange}
         editable={editable}

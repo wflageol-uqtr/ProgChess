@@ -171,7 +171,9 @@ export default function EditScore() {
           <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Exercice</h3>
+                <h3 className="text-lg md:text-xl font-semibold mb-2">
+                  Exercice
+                </h3>
                 <FormField
                   control={form.control}
                   name="exerciseId"
@@ -210,7 +212,9 @@ export default function EditScore() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold mb-2">Code permanent</h3>
+                <h3 className="text-lg md:text-xl font-semibold mb-2">
+                  Code permanent
+                </h3>
                 <FormField
                   control={form.control}
                   name="studentExerciseId"
@@ -258,7 +262,7 @@ export default function EditScore() {
             <div className="border-b border-gray-700" />
 
             <div>
-              <h3 className="text-xl font-semibold mb-2">Score</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">Score</h3>
               <FormField
                 control={form.control}
                 name="isComplete"
@@ -282,7 +286,9 @@ export default function EditScore() {
             </div>
             <div className="border-b border-gray-700" />
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold mb-2">Test du score</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Test du score
+              </h3>
               <Button
                 type="button"
                 className="bg-green-500 hover:bg-green-600 text-xl cursor-pointer"
@@ -415,7 +421,7 @@ export default function EditScore() {
             <div className="border-b border-gray-700" />
 
             <div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
                 Réponse de l'étudiant
               </h3>
 

@@ -169,11 +169,10 @@ export default function CreateExercise() {
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Mise en situation
+              </h3>
               <div className="flex items-center justify-end gap-4 my-1">
-                <p className="font-semibold mb-4 text-gray-100">
-                  Mettre vos images :
-                </p>
                 <ImageSelector onSelectedImage={handleSelectedImage} />
               </div>
               {form.formState.errors.situation && (
@@ -181,16 +180,16 @@ export default function CreateExercise() {
                   {form.formState.errors.situation.message}
                 </span>
               )}
-              <div className="grid mb-4 grid-cols-2 h-96 border border-zinc-700 rounded-lg overflow-hidden">
-                <div className="border-r border-gray-700">
+              <div className="grid mb-4 grid-cols-1 md:grid-cols-2 border border-zinc-700 rounded-lg overflow-hidden">
+                <div className="flex flex-col border-b md:border-b-0 md:border-r border-gray-700">
                   <FormField
                     name="situation"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem className="h-full">
+                      <FormItem className="flex-1">
                         <FormControl>
                           <textarea
-                            className={`w-full h-full p-3 bg-zinc-800 text-white rounded-none focus:outline-none resize-none ${
+                            className={`w-full p-3 bg-zinc-800 h-48 md:h-96 text-white focus:outline-none resize-none over md:overflow-auto ${
                               form.formState.errors.situation
                                 ? "border border-red-500"
                                 : ""
@@ -201,13 +200,13 @@ export default function CreateExercise() {
                               updateSituation(e);
                             }}
                             placeholder="Écrire en markdown..."
-                          ></textarea>
+                          />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="p-4 overflow-auto bg-zinc-900">
+                <div className="p-4 h-48 md:h-96 overflow-auto bg-zinc-900">
                   <MarkdownComponent markdown={situation} />
                 </div>
               </div>
@@ -215,7 +214,9 @@ export default function CreateExercise() {
             <div className="border-b border-gray-700" />
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold mb-2">Code de base</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Code de base
+              </h3>
               <Button
                 type="button"
                 className=" bg-green-500 text-white cursor-pointer hover:bg-green-600"
@@ -255,7 +256,9 @@ export default function CreateExercise() {
             <div className="border-b border-gray-700" />
 
             <div className="flex items-center">
-              <h3 className="text-xl font-semibold">Tests unitaires</h3>
+              <h3 className="text-lg md:text-xl font-semibold">
+                Tests unitaires
+              </h3>
             </div>
             {fields.length > 0 && (
               <div className="space-y-6">
@@ -264,7 +267,7 @@ export default function CreateExercise() {
                     key={field.id}
                     className="bg-zinc-800 p-4 rounded-lg shadow-lg text-white"
                   >
-                    <h3 className="text-xl font-bold">
+                    <h3 className="text-lg md:text-xl font-bold">
                       Test {index === 0 ? "visible" : "caché"}
                     </h3>
                     <div className="flex">
@@ -328,7 +331,9 @@ export default function CreateExercise() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-semibold">Liste des étudiants</h3>
+                <h3 className="text-lg md:text-xl font-semibold">
+                  Liste des étudiants
+                </h3>
                 <p className="text-gray-400">
                   <strong>*</strong> Veuillez mettre un code par ligne{" "}
                   <strong>*</strong>

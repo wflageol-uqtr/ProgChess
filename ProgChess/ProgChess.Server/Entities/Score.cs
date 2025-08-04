@@ -18,7 +18,7 @@ public class Score: DateEntity, ISoftDeletable
     public string Answer { get; set; } = string.Empty;
     
     public ICollection<ScoreTest> ScoreTests { get; set; } = new List<ScoreTest>();
-
+    
     public bool IsDeleted { get; set; }
     
     public DateTime? DeletedAt { get; set; }

@@ -8,7 +8,7 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService, IUserContext userContext): IExerciseService
+public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService, IUserContext userContext, IScoreService scoreService): IExerciseService
 {
     private IExerciseService _exerciseServiceImplementation;
 
@@ -99,14 +99,17 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
     public async Task Delete(int id)
     {
          var exercise = await dbContext.Exercises.Include(e => e.UnitTests)
-             .Include(e => e.StudentExercises).
-             FirstOrDefaultAsync(e => e.Id == id);
+             .Include(e => e.StudentExercises)
+             .Include(e => e.Scores)
+             .ThenInclude(s => s.ScoreTests)
+             .FirstOrDefaultAsync(e => e.Id == id);
          if (exercise == null)
              throw new NotFoundException("Exercice introuvable");
          dbContext.Exercises.Remove(exercise);
          dbContext.UnitTests.RemoveRange(exercise.UnitTests);
          dbContext.StudentExercises.RemoveRange(exercise.StudentExercises);
-         // score
+         dbContext.ScoreTest.RemoveRange(exercise.Scores.SelectMany(s => s.ScoreTests));
+         dbContext.Scores.RemoveRange(exercise.Scores);
          await dbContext.SaveChangesAsync();
     }
 
@@ -115,6 +118,8 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
         var exercises = await dbContext.Exercises
             .Include(e => e.UnitTests)
             .Include(e => e.StudentExercises)
+            .Include(e => e.Scores)
+            .ThenInclude(s => s.ScoreTests)
             .Where(e => request.Ids.Contains(e.Id))
             .ToListAsync();
 
@@ -124,6 +129,12 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
         dbContext.UnitTests.RemoveRange(exercises.SelectMany(e => e.UnitTests).ToList());
         dbContext.StudentExercises.RemoveRange(exercises.SelectMany(e => e.StudentExercises).ToList());
         dbContext.Exercises.RemoveRange(exercises);
-        await dbContext.SaveChangesAsync();
+        dbContext.Scores.RemoveRange(exercises.SelectMany(e => e.Scores).ToList());
+        dbContext.ScoreTest.RemoveRange(
+            exercises
+                .SelectMany(e => e.Scores)
+                .SelectMany(s => s.ScoreTests)
+                .ToList()
+        );        await dbContext.SaveChangesAsync();
     }
 }

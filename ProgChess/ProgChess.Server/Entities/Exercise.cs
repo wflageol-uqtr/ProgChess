@@ -19,6 +19,8 @@ public class Exercise: DateEntity, ISoftDeletable
     
     public ICollection<UnitTest> UnitTests { get; set; } = new List<UnitTest>();
     
+    public ICollection<Score> Scores { get; set; } = new List<Score>();
+    
     public bool IsDeleted { get; set; }
     
     public DateTime? DeletedAt { get; set; }

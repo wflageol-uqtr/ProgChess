@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import api from "../utils/api";
+import api, { apiUrl } from "../utils/api";
 import { handleApiError } from "../utils/apiErrorHandler";
 interface AuthContextType {
   token: string | null;
@@ -53,7 +53,7 @@ const AuthProvider = ({ children }: any) => {
           try {
             const refreshToken = localStorage.getItem("refreshToken");
             const response = await axios.post(
-              "http://localhost:5290/api/auth/refresh-token",
+              `${apiUrl}/api/auth/refresh-token`,
               {
                 userId: localStorage.getItem("user"),
                 refreshToken,

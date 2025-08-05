@@ -25,24 +25,27 @@ export type Score = {
   id: number,
   permanentCode: string,
   exercise: Exercise,
-  student: Student,
+  studentExercise: StudentExercice,
   scoreValue: number,
   answer: string
 }
 
-export type Student = {
+export type StudentExercice = {
   id: number,
-  permanentCode: string,
+  exerciseId: number,
+  exercise?: Exercise,
+  studentPermanentCode: string,
+  isComplete: boolean,
   createdAt: string,
   updatedAt: string
 }
 
-export type StudentExercice = {
-  exerciseId: number,
-  exercise?: Exercise,
-  studentId: 1,
-  student: Student,
-  isComplete: boolean,
+export type StudentExerciseGroup = {
+  id: number,
+  exercises: Exercise[],
+  studentPermanentCode: string,
+  createdAt: string,
+  updatedAt: string
 }
 
 export type Error = {
@@ -55,4 +58,22 @@ export type TabType = {
   name: string
   isActive: boolean,
   component: React.ReactElement
+}
+
+export type Image = {
+  id: number,
+  userId: number,
+  name: string,
+  path: string
+}
+
+export type EditorInfo = {
+  name: string,
+  size: number
+}
+
+export type EditorError = {
+  id: string,
+  line: number,
+  error: string | null
 }

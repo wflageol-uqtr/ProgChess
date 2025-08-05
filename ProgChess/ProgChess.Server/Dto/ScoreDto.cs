@@ -9,7 +9,7 @@ public class ScoreDto
     public int ExerciseId { get; set; }
     
     [Required]
-    public int StudentId { get; set; }
+    public int StudentExerciseId { get; set; }
     
     public required string Answer { get; set; } = string.Empty;
     

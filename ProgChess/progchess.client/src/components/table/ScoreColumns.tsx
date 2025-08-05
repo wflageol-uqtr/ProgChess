@@ -35,13 +35,9 @@ export const ScoreColumns: ColumnDef<Score>[] = [
     header: "Id",
   },
   {
-    accessorFn: (row) => row.student.permanentCode,
+    accessorFn: (row) => row.studentExercise.studentPermanentCode,
     id: "permanentCode",
     header: "Code permanent",
-  },
-  {
-    accessorKey: "scoreValue",
-    header: "Score",
   },
   {
     accessorKey: "exercise",

@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import ExerciceAction from "./ExerciseActions";
-import api from "../../utils/api";
+import api, { clientUrl } from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { Exercise } from "../../utils/type";
@@ -58,7 +58,7 @@ export const ExerciseColumns: ColumnDef<Exercise>[] = [
       let link = "";
 
       // A changer
-      link = `http://localhost:5173/exercise/${id}`;
+      link = `${clientUrl}/exercise/${id}`;
       const copyToClipboard = () => {
         navigator.clipboard.writeText(link);
         toast.info("Élément copié");
@@ -83,7 +83,6 @@ export const ExerciseColumns: ColumnDef<Exercise>[] = [
     id: "actions",
     cell: ({ row }) => {
       const navigate = useNavigate();
-
       const handleDelete = async () => {
         try {
           const response = await api.delete(

@@ -20,6 +20,7 @@ public class TokenService(IConfiguration configuration, AppDbContext context) : 
             audience: configuration.GetValue<string>("JwtSettings:Audience"),
             claims:
             [
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
             ],

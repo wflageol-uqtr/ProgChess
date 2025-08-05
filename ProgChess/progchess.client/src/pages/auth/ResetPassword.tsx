@@ -20,6 +20,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
+import { apiUrl } from "../../utils/api";
 
 const formSchema = z
   .object({
@@ -65,7 +66,7 @@ export default function ResetPassword() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        await axios.put("http://localhost:5290/api/auth/reset-password", {
+        await axios.put(`${apiUrl}/api/auth/reset-password`, {
           email: searchParams.get("email"),
           token: searchParams.get("activationToken"),
           password: values.password,

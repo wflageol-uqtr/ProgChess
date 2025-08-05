@@ -13,14 +13,22 @@ import {
   FormField,
   FormItem,
 } from "../../components/ui/form";
-import api from "../../utils/api";
+import api, { apiUrl } from "../../utils/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import ExecutionSheet from "../../components/sheet/ExecutionSheet";
-import type { TestResult } from "../../utils/type";
-import { handleApiError } from "../../utils/apiErrorHandler";
-import FileUploader from "../../components/form/input/FileUploader";
+import type {
+  TestResult,
+  Image,
+  EditorInfo,
+  EditorError,
+} from "../../utils/type";
+import {
+  handleApiError,
+  handleExecutionError,
+} from "../../utils/apiErrorHandler";
+import ImageSelector from "../../components/form/select/ImageSelector";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -52,8 +60,9 @@ export default function CreateExercise() {
   const [isPending, startTransition] = useTransition();
   const [situation, setSituation] = useState<string>("");
   const [openSheet, setOpenSheet] = useState(false);
-  const [error, setError] = useState<string>("");
   const [testResult, setTestResult] = useState<TestResult[]>();
+  const [errorEditor, setErrorEditor] = useState<EditorError>();
+  const editorInfo: EditorInfo[] = [];
 
   const updateSituation = (e: any) => {
     setSituation(e.target.value);
@@ -92,14 +101,26 @@ export default function CreateExercise() {
 
   const executeCode = () => {
     startTransition(async () => {
+      setErrorEditor(undefined);
       try {
         const code = form.watch("baseCode");
+        editorInfo.push({
+          name: "code",
+          size: countLines(code),
+        });
+
         const unitTest = form
           .watch("unitTest")
-          .map((test) => test.code)
+          .map((test, index) => {
+            editorInfo.push({
+              name: `test${index}`,
+              size: countLines(test.code),
+            });
+            return test.code;
+          })
           .join("\n");
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          `${apiUrl}/api/execute`,
           {
             code,
             unitTest,
@@ -108,21 +129,36 @@ export default function CreateExercise() {
         );
         setOpenSheet(true);
         setTestResult(response.data.value);
-        setError("");
-      } catch (error) {
-        setOpenSheet(true);
-        handleApiError(error, setError);
+      } catch (error: any) {
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          toast.error("Une erreur d'exécution est survenue");
+          return;
+        }
+        handleApiError(error);
       }
     });
   };
 
-  const handleChildUpload = (newValue: string) => {
-    form.setValue(
-      "situation",
-      form.getValues("situation") +
-        `![My Uploaded Image](http://localhost:5290/Image/${newValue})`
-    );
+  const handleSelectedImage = (image?: Image) => {
+    if (image) {
+      form.setValue(
+        "situation",
+        form.getValues("situation") +
+          `![${image.name}](${apiUrl}/${image.path})`
+      );
+    }
   };
+
+  const countLines = (str: string) => {
+    if (str.trim() === "") return 0;
+    return str.split("\n").length;
+  };
+
   return (
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
@@ -133,23 +169,27 @@ export default function CreateExercise() {
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Mise en situation</h3>
-              <FileUploader onUpload={handleChildUpload} />
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Mise en situation
+              </h3>
+              <div className="flex items-center justify-end gap-4 my-1">
+                <ImageSelector onSelectedImage={handleSelectedImage} />
+              </div>
               {form.formState.errors.situation && (
                 <span className="text-red-500">
                   {form.formState.errors.situation.message}
                 </span>
               )}
-              <div className="grid mb-4 grid-cols-2 h-96 border border-zinc-700 rounded-lg overflow-hidden">
-                <div className="border-r border-gray-700">
+              <div className="grid mb-4 grid-cols-1 md:grid-cols-2 border border-zinc-700 rounded-lg overflow-hidden">
+                <div className="flex flex-col border-b md:border-b-0 md:border-r border-gray-700">
                   <FormField
                     name="situation"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem className="h-full">
+                      <FormItem className="flex-1">
                         <FormControl>
                           <textarea
-                            className={`w-full h-full p-3 bg-zinc-800 text-white rounded-none focus:outline-none resize-none ${
+                            className={`w-full p-3 bg-zinc-800 h-48 md:h-96 text-white focus:outline-none resize-none over md:overflow-auto ${
                               form.formState.errors.situation
                                 ? "border border-red-500"
                                 : ""
@@ -160,13 +200,13 @@ export default function CreateExercise() {
                               updateSituation(e);
                             }}
                             placeholder="Écrire en markdown..."
-                          ></textarea>
+                          />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="p-4 overflow-auto bg-zinc-900">
+                <div className="p-4 h-48 md:h-96 overflow-auto bg-zinc-900">
                   <MarkdownComponent markdown={situation} />
                 </div>
               </div>
@@ -174,7 +214,9 @@ export default function CreateExercise() {
             <div className="border-b border-gray-700" />
 
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold mb-2">Code de base</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Code de base
+              </h3>
               <Button
                 type="button"
                 className=" bg-green-500 text-white cursor-pointer hover:bg-green-600"
@@ -201,6 +243,9 @@ export default function CreateExercise() {
                         placeholder="Code de base pour la situation..."
                         height={window.innerHeight / 2}
                         error={form.formState.errors.baseCode}
+                        executionError={
+                          errorEditor?.id === "code" ? errorEditor : undefined
+                        }
                       />
                     </FormControl>
                   </FormItem>
@@ -211,7 +256,9 @@ export default function CreateExercise() {
             <div className="border-b border-gray-700" />
 
             <div className="flex items-center">
-              <h3 className="text-xl font-semibold">Tests unitaires</h3>
+              <h3 className="text-lg md:text-xl font-semibold">
+                Tests unitaires
+              </h3>
             </div>
             {fields.length > 0 && (
               <div className="space-y-6">
@@ -220,7 +267,7 @@ export default function CreateExercise() {
                     key={field.id}
                     className="bg-zinc-800 p-4 rounded-lg shadow-lg text-white"
                   >
-                    <h3 className="text-xl font-bold">
+                    <h3 className="text-lg md:text-xl font-bold">
                       Test {index === 0 ? "visible" : "caché"}
                     </h3>
                     <div className="flex">
@@ -265,6 +312,11 @@ export default function CreateExercise() {
                                 error={
                                   form.formState.errors.unitTest?.[index]?.code
                                 }
+                                executionError={
+                                  errorEditor?.id === `test${index}`
+                                    ? errorEditor
+                                    : undefined
+                                }
                               />
                             </FormControl>
                           </FormItem>
@@ -279,7 +331,9 @@ export default function CreateExercise() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-semibold">Liste des étudiants</h3>
+                <h3 className="text-lg md:text-xl font-semibold">
+                  Liste des étudiants
+                </h3>
                 <p className="text-gray-400">
                   <strong>*</strong> Veuillez mettre un code par ligne{" "}
                   <strong>*</strong>
@@ -328,7 +382,6 @@ export default function CreateExercise() {
       <ExecutionSheet
         open={openSheet}
         onOpenChange={setOpenSheet}
-        error={error}
         testResult={testResult}
       />
     </AdminLayout>

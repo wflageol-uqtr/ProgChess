@@ -4,7 +4,12 @@ import VerticalResizable from "../components/layout/VerticalResizable";
 import ExecutableCard from "../components/card/ExecutableCard";
 import { Book, Braces, Check, MonitorDown } from "lucide-react";
 import MarkdownComponent from "../components/form/input/MarkdownComponent";
-import type { Exercise, TestResult } from "../utils/type";
+import type {
+  EditorError,
+  EditorInfo,
+  Exercise,
+  TestResult,
+} from "../utils/type";
 import CodeEditor from "../components/form/input/CodeEditor";
 import TestCaseCard from "../components/card/TestCaseCard";
 import { Button } from "../components/ui/button";
@@ -12,9 +17,10 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import SubmitDialog from "../components/dialog/SubmitDialog";
-import { handleApiError } from "../utils/apiErrorHandler";
+import { handleApiError, handleExecutionError } from "../utils/apiErrorHandler";
 import { useBadge } from "../providers/ShowBadgeProvider";
 import SituationCard from "../components/card/SituationCard";
+import { apiUrl } from "../utils/api";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -32,8 +38,13 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const [height, setHeight] = useState(
     parseInt(localStorage.getItem("topHeight")!) || window.innerHeight / 2
   );
+  const [situationHeight, setSituationHeight] = useState(
+    parseInt(localStorage.getItem("situationHeight")!) || window.innerHeight / 2
+  );
   const [disabledSelect, setDisabledSelect] = useState(false);
   const [executionError, setExecutionError] = useState("");
+  const [errorEditor, setErrorEditor] = useState<EditorError>();
+  const editorInfo: EditorInfo[] = [];
   const { setBadgeTabs } = useBadge();
 
   useEffect(() => {
@@ -49,8 +60,12 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   }, [height]);
 
   useEffect(() => {
+    localStorage.setItem("situationHeight", situationHeight.toString());
+  }, [situationHeight]);
+
+  useEffect(() => {
     const startedCode = localStorage.getItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`
     );
     if (startedCode) {
       setCode(startedCode);
@@ -59,7 +74,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     }
 
     const startedUnitTest = localStorage.getItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`
     );
     if (startedUnitTest) {
       setTestCode(startedUnitTest);
@@ -73,11 +88,11 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   const saveCode = () => {
     localStorage.setItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       codeRef.current
     );
     localStorage.setItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       unitTestRef.current
     );
   };
@@ -85,8 +100,21 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const executeCode = async () => {
     startTransition(async () => {
       try {
+        setExecutionError("");
+        setErrorEditor(undefined);
+
+        editorInfo.push(
+          {
+            name: "code",
+            size: countLines(code),
+          },
+          {
+            name: "test0",
+            size: countLines(testCode),
+          }
+        );
         const response = await axios.post(
-          "http://localhost:5290/api/execute",
+          `${apiUrl}/api/execute`,
           {
             code,
             unitTest: testCode,
@@ -95,17 +123,26 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
         );
         saveCode();
         setTestResult(response.data.value);
-        setBadgeTabs((prev) => ({
+        setBadgeTabs((prev: any) => ({
           ...prev,
           0: true,
         }));
         toast.success("Test exécuté");
-      } catch (error) {
-        handleApiError(error, setExecutionError);
-        setBadgeTabs((prev) => ({
-          ...prev,
-          2: true,
-        }));
+      } catch (error: any) {
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          handleApiError(error, setExecutionError);
+          setBadgeTabs((prev: any) => ({
+            ...prev,
+            2: true,
+          }));
+          return;
+        }
+        handleApiError(error);
       }
     });
   };
@@ -114,7 +151,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     startTransition(async () => {
       try {
         await axios.post(
-          "http://localhost:5290/api/execute/submit",
+          `${apiUrl}/api/execute/submit`,
           {
             exerciseId: exercise?.id,
             code,
@@ -132,7 +169,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     codeRef.current = exercise?.baseCode || "";
     setCode(exercise?.baseCode || "");
     localStorage.setItem(
-      `code:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `code:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       codeRef.current
     );
     toast.success("Exercice réinitialiser");
@@ -142,10 +179,15 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
     unitTestRef.current = exercise?.unitTests?.[0]?.code || "";
     setTestCode(exercise?.unitTests?.[0]?.code || "");
     localStorage.setItem(
-      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentId}`,
+      `unitTest:${exercise?.id}${exercise?.studentExercises[0].studentPermanentCode}`,
       unitTestRef.current
     );
     toast.success("Test réinitialiser");
+  };
+
+  const countLines = (str: string) => {
+    if (str.trim() === "") return 0;
+    return str.split("\n").length;
   };
 
   return (
@@ -163,7 +205,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               }}
             >
               <MonitorDown />
-              Sauvegarder
+              <div className="hidden md:flex">Sauvegarder</div>
             </Button>
             <Button
               className="bg-green-500 hover:bg-green-600 cursor-pointer"
@@ -174,23 +216,38 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
               }}
             >
               <Check />
-              Soummettre
+              <div className="hidden md:flex">Soummettre</div>
             </Button>
           </div>
         </div>
         <div
-          className={`hidden h-screen sm:grid grid-rows-1 text-white ${
+          className={`h-screen sm:grid grid-rows-1 text-white ${
             disabledSelect ? "select-none" : ""
           }`}
         >
-          <div className="grid grid-cols-[min-content_auto]">
-            <HorizontalResizable setDisabledSelect={setDisabledSelect}>
-              <SituationCard title="Situation" icon={Book}>
-                <div className="p-4">
-                  <MarkdownComponent markdown={exercise?.situation!} />
-                </div>
-              </SituationCard>
-            </HorizontalResizable>
+          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto]">
+            <div className="flex md:hidden">
+              <VerticalResizable
+                height={situationHeight}
+                setHeight={setSituationHeight}
+                setDisabledSelect={setDisabledSelect}
+              >
+                <SituationCard title="Situation" icon={Book}>
+                  <div className="p-4">
+                    <MarkdownComponent markdown={exercise?.situation!} />
+                  </div>
+                </SituationCard>
+              </VerticalResizable>
+            </div>
+            <div className="hidden md:block">
+              <HorizontalResizable setDisabledSelect={setDisabledSelect}>
+                <SituationCard title="Situation" icon={Book}>
+                  <div className="p-4">
+                    <MarkdownComponent markdown={exercise?.situation!} />
+                  </div>
+                </SituationCard>
+              </HorizontalResizable>
+            </div>
             <div className="h-full grid grid-rows-[min-content_auto]">
               <VerticalResizable
                 setDisabledSelect={setDisabledSelect}
@@ -208,6 +265,9 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                     height={height}
                     value={code}
                     onChange={(e) => setCode(e)}
+                    executionError={
+                      errorEditor?.id === "code" ? errorEditor : undefined
+                    }
                   />
                 </ExecutableCard>
               </VerticalResizable>
@@ -218,7 +278,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 unitTestCode={testCode}
                 setTestCode={setTestCode}
                 reinitializeFn={deleteUnitTest}
-                executionError={executionError}
+                executionError={errorEditor ?? undefined}
               />
             </div>
           </div>

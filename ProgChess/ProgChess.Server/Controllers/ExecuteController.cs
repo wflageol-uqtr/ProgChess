@@ -16,6 +16,13 @@ public class ExecuteController(ICodeExecuterService codeExecuterService, IScoreS
         return Ok(results);
     }
     
+    [HttpPost("docker")]
+    public async Task<IActionResult> ExecuteDocker(ExecuteDto request)
+    {
+        var results = await codeExecuterService.ExecuteOnDocker(request.Code, request.UnitTest);
+        return Ok(results);
+    }
+    
     [HttpPost("submit")]
     [ValidCodeCookie]
     public async Task<IActionResult> Submit(ExecuteSubmitDto request)

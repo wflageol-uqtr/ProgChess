@@ -3,6 +3,7 @@ import { hasCookie } from "../utils/cookie";
 import { useParams } from "react-router";
 import axios from "axios";
 import { handleApiError } from "../utils/apiErrorHandler";
+import { apiUrl } from "../utils/api";
 
 interface CookieContextType {
   cookie: boolean;
@@ -26,7 +27,7 @@ const CookieProvider = ({ children }: any) => {
 
   const verifyCookie = async () => {
     try {
-      await axios.get("http://localhost:5290/api/auth/verify-cookie", {
+      await axios.get(`${apiUrl}/api/auth/verify-cookie`, {
         params: {
           exerciseId: parseInt(id!),
         },

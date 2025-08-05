@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProChess.Server.Context;
 using ProChess.Server.Entities;
 using ProChess.Server.Exceptions;
 using ProChess.Server.Utils;
@@ -7,16 +8,20 @@ using ProgChess.Server.Dto;
 
 namespace ProgChess.Server.Services;
 
-public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService): IExerciseService
+public class ExerciseService(AppDbContext dbContext, IStudentExerciseService studentExerciseService, IUserContext userContext, IScoreService scoreService): IExerciseService
 {
     private IExerciseService _exerciseServiceImplementation;
 
     public async Task<int> Create(ExerciseDto request)
     {
+        if (userContext.UserId is null)
+            throw new UnauthorizedException("User is not authenticated");
+        
         var exercise = new Exercise
         {
             Situation = request.Situation,
             BaseCode = request.BaseCode,
+            UserId = userContext.UserId,
             UnitTests = request.UnitTest.Select(ut => new UnitTest
             {
                 Code = ut.Code,
@@ -31,13 +36,12 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<List<Exercise>?> GetAllExercice()
     {
-        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).ThenInclude(se => se.Student).ToListAsync();
+        return await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).Where(x => x.UserId == userContext.UserId).ToListAsync();
     }
 
     public async Task<Exercise?> GetById(int id)
     {
-        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises)
-            .ThenInclude(se => se.Student).FirstOrDefaultAsync(e => e.Id == id);
+        var exercise = await dbContext.Exercises.Include(e => e.UnitTests).Include(e => e.StudentExercises).FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
         return exercise;
@@ -46,7 +50,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
     public async Task<Exercise?> GetByIdWithActiveTest(int id, string studentCode)
     {
         var exercise = await dbContext.Exercises.Include(e => e.UnitTests.Where(ut => ut.IsActive))
-            .Include(e => e.StudentExercises.Where(se => se.Student.PermanentCode == studentCode))
+            .Include(e => e.StudentExercises.Where(se => se.StudentPermanentCode == studentCode))
             .FirstOrDefaultAsync(e => e.Id == id);
         if (exercise == null)
             throw new NotFoundException("Exercice introuvable");
@@ -63,13 +67,16 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task<int> Edit(int id, ExerciseDto request)
     {
-        // TODO: Marche pour le moment, c'est juste que je remove all et insert all pour le one-to-many, pas le best
+        if (userContext.UserId is null)
+            throw new UnauthorizedException("User is not authenticated");
+        
         var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests)
-            .Include(e => e.StudentExercises).ThenInclude(se => se.Student)
+            .Include(e => e.StudentExercises)
             .FirstAsync();
         dbContext.Entry(exercise).State = EntityState.Detached;
         exercise.Situation = request.Situation;
         exercise.BaseCode = request.BaseCode;
+        exercise.UserId = userContext.UserId;
         dbContext.RemoveRange(exercise.UnitTests);
         dbContext.Exercises.Update(exercise);
         
@@ -91,23 +98,43 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
 
     public async Task Delete(int id)
     {
-         var exercise = await dbContext.Exercises.Include(e => e.UnitTests).FirstOrDefaultAsync(e => e.Id == id);
+         var exercise = await dbContext.Exercises.Include(e => e.UnitTests)
+             .Include(e => e.StudentExercises)
+             .Include(e => e.Scores)
+             .ThenInclude(s => s.ScoreTests)
+             .FirstOrDefaultAsync(e => e.Id == id);
          if (exercise == null)
              throw new NotFoundException("Exercice introuvable");
          dbContext.Exercises.Remove(exercise);
+         dbContext.UnitTests.RemoveRange(exercise.UnitTests);
+         dbContext.StudentExercises.RemoveRange(exercise.StudentExercises);
+         dbContext.ScoreTest.RemoveRange(exercise.Scores.SelectMany(s => s.ScoreTests));
+         dbContext.Scores.RemoveRange(exercise.Scores);
          await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteMultiple(DeleteMultipleDto request)
     {
-        var itemsToDelete = await dbContext.Exercises
+        var exercises = await dbContext.Exercises
+            .Include(e => e.UnitTests)
+            .Include(e => e.StudentExercises)
+            .Include(e => e.Scores)
+            .ThenInclude(s => s.ScoreTests)
             .Where(e => request.Ids.Contains(e.Id))
             .ToListAsync();
 
-        if (itemsToDelete.Count == 0)
+        if (exercises.Count == 0)
             throw new NotFoundException("Aucun élément à supprimer trouvé.");
 
-        dbContext.Exercises.RemoveRange(itemsToDelete);
-        await dbContext.SaveChangesAsync();
+        dbContext.UnitTests.RemoveRange(exercises.SelectMany(e => e.UnitTests).ToList());
+        dbContext.StudentExercises.RemoveRange(exercises.SelectMany(e => e.StudentExercises).ToList());
+        dbContext.Exercises.RemoveRange(exercises);
+        dbContext.Scores.RemoveRange(exercises.SelectMany(e => e.Scores).ToList());
+        dbContext.ScoreTest.RemoveRange(
+            exercises
+                .SelectMany(e => e.Scores)
+                .SelectMany(s => s.ScoreTests)
+                .ToList()
+        );        await dbContext.SaveChangesAsync();
     }
 }

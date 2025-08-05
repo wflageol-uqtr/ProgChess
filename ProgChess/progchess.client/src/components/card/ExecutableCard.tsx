@@ -40,7 +40,7 @@ export default function ExecutableCard({
               }}
             >
               <RefreshCcw />
-              Réinitialiser
+              <div className="hidden md:flex">Réinitialiser</div>
             </Button>
 
             <Button

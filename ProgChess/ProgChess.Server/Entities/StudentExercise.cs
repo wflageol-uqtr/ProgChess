@@ -1,17 +1,15 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using ProChess.Server.Entities.Interface;
 
 namespace ProChess.Server.Entities;
 
-public class StudentExercise
+public class StudentExercise: DateEntity, ISoftDeletable
 {
-    public int StudentId { get; set; }
-    
+    public int Id { get; set; }
+    public string StudentPermanentCode { get; set; }
     public int ExerciseId { get; set; }
     
-    public Student Student { get; set; }
-    
     public Exercise Exercise { get; set; }
-    
     public bool IsComplete{ get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

@@ -32,7 +32,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
     public async Task LoginCodeAsync(StudentCodeDto request, HttpResponse response)
     {
         bool exists = await context.StudentExercises
-            .Where(se => se.ExerciseId == request.ExerciseId && se.Student.PermanentCode == request.Code)
+            .Where(se => se.ExerciseId == request.ExerciseId && se.StudentPermanentCode == request.Code)
             .AnyAsync();
         if (!exists)
             throw new BadRequestException("Code est invalide");
@@ -42,7 +42,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
     public async Task VerifyCodeAsync(StudentCodeDto request)
     {
         bool exists = await context.StudentExercises
-            .Where(se => se.ExerciseId == request.ExerciseId && se.Student.PermanentCode == request.Code)
+            .Where(se => se.ExerciseId == request.ExerciseId && se.StudentPermanentCode == request.Code)
             .AnyAsync();
         if (!exists)
             throw new NotFoundException("Vérification du cookie est invalide");

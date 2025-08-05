@@ -37,7 +37,7 @@ export default function VerticalResizable({
   }, []);
 
   return (
-    <div className="flex flex-col" style={{ height: `${height}px` }}>
+    <div className="flex flex-col w-full" style={{ height: `${height}px` }}>
       <div className="flex-grow overflow-auto">{children}</div>
       <div
         className="h-2 cursor-row-resize"

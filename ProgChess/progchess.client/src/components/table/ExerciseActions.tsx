@@ -55,8 +55,7 @@ export default function ExerciseAction({ id, deleteFn }: ExerciseActionProps) {
       </DropdownMenu>
       <DeleteDialog
         open={openDialog}
-        message=" Cette action est irréversible. Cela supprimera définitivement
-            l'élément."
+        message="Cette action est irréversible. Cela supprimera définitivement l'exercice ainsi que vos scores associés. Êtes-vous sur de vouloir continuer ?"
         onOpenChange={setOpenDialog}
         deleteFn={deleteFn}
       />

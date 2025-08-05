@@ -20,10 +20,13 @@ import axios from "axios";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import { apiUrl } from "../../utils/api";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
-  password: z.string().min(2, { message: "Mot de passe invalide" }),
+  password: z
+    .string()
+    .min(6, { message: "Mot de passe doit être 6 caractères" }),
 });
 
 function AdminLogin() {
@@ -43,10 +46,7 @@ function AdminLogin() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        const response = await axios.post(
-          "http://localhost:5290/api/auth/login",
-          values
-        );
+        const response = await axios.post(`${apiUrl}/api/auth/login`, values);
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("refreshToken", response.data.refreshToken);
         localStorage.setItem("user", response.data.userId);

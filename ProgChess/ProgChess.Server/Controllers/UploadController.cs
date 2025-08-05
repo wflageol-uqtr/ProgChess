@@ -1,48 +1,35 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProChess.Server.Exceptions;
+using ProgChess.Server.Services;
 
 namespace ProChess.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UploadController: ControllerBase
+public class UploadController(IUploadService uploadService): ControllerBase
 {
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetAll()
     {
-        var images = Directory.GetFiles("Image")
-            .Select(Path.GetFileName)
-            .ToList();
-        return Ok(images);
+        var result = await uploadService.GetAll();
+        return Ok(result);
     }
     
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> UploadFile(IFormFile file)
     {
-        var uniqueFileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-        var path = Path.Combine("Image", $"{uniqueFileName}");
-        await using (var stream = new FileStream(path, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-        return Ok(new { filename = uniqueFileName });
+        var image = await uploadService.Save(file);
+        return Ok(new { image });
     }
 
-    [HttpDelete("{filename}")]
+    [HttpDelete("{id}")]
     [Authorize]
-    public async Task<IActionResult> DeleteFile(string filename)
+    public async Task<IActionResult> DeleteFile(int id)
     {
-        var path = Path.Combine("Image", $"{filename}");
-        Console.WriteLine(path);
-        Console.WriteLine(filename);
-        if (!System.IO.File.Exists(path))
-        {
-            throw new NotFoundException("Image not found");
-        }
-        System.IO.File.Delete(path);
+        await uploadService.Delete(id);
         return Ok();
     }
 }

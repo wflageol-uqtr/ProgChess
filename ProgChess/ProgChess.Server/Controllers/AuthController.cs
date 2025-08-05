@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ProChess.Server.Authorization;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
@@ -11,6 +12,7 @@ namespace ProgChess.Server.Controllers;
 public class AuthController(IAuthService _authService): ControllerBase
 {
     [HttpPost("login")]
+    [EnableRateLimiting("loginLimiter")]
     public async Task<ActionResult<TokenDto>> Login(UserDto request)
     {
         var result = await _authService.LoginAsync(request);

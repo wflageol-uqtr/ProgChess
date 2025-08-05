@@ -25,9 +25,11 @@ export default function ListExercise() {
 
   return (
     <AdminLayout>
-      <div className="h-min-screen flex flex-col px-4 space-y-4 w-full mt-4">
+      <div className="h-min-screen flex flex-col px-4 space-y-2 md:space-y-4 w-full mt-4">
         <div className="flex justify-between w-full">
-          <h2 className="text-2xl font-semibold">Liste des exercices</h2>
+          <h2 className="text-2xl font-semibold text-white">
+            Liste des exercices
+          </h2>
           <Link to="/admin/exercise/create">
             <Button
               type="button"

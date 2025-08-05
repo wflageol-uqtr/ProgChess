@@ -33,10 +33,10 @@ export default function Score({ exerciseId }: ScoreProps) {
     <div className="min-h-screen bg-zinc-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-10">
         <div className="text-center space-y-2">
-          <h2 className="text-4xl font-extrabold text-white">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-white">
             🎯 Résultat du test #{exerciseId}
           </h2>
-          <p className="text-zinc-300 text-lg">
+          <p className="text-zinc-300 text-md md:text-lg">
             Voici votre code et vos résultats aux tests
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function Score({ exerciseId }: ScoreProps) {
         </div>
 
         <div className="bg-zinc-800 shadow-lg rounded-2xl p-6 space-y-6 text-white">
-          <h2 className="text-xl font-bold border-b border-zinc-700 pb-2">
+          <h2 className="text-lg md:text-xl font-bold border-b border-zinc-700 pb-2">
             ✅ Résultats des tests unitaires
           </h2>
 
@@ -72,16 +72,18 @@ export default function Score({ exerciseId }: ScoreProps) {
                   className="overflow-hidden border border-zinc-700 rounded-xl"
                 >
                   <AccordionTrigger
-                    className={`flex items-center justify-between px-5 py-3 text-md font-medium transition-all cursor-pointer ${
+                    className={`flex items-center justify-between px-4 py-4 text-sm sm:text-base font-medium transition-all cursor-pointer ${
                       test.isSuccess
                         ? "bg-green-600 hover:bg-green-700"
                         : "bg-red-600 hover:bg-red-700"
                     } text-white rounded-t-xl`}
                   >
-                    {test.name}
+                    <span className="truncate max-w-[80%] md:max-w-none">
+                      {test.name}
+                    </span>
                   </AccordionTrigger>
                   <AccordionContent
-                    className={`px-5 py-4 text-sm leading-relaxed ${
+                    className={`transition-all duration-300 ease-in-out px-4 py-4 text-sm sm:text-base leading-relaxed ${
                       test.isSuccess
                         ? "bg-green-50 text-green-700"
                         : "bg-red-50 text-red-700"

@@ -1,4 +1,5 @@
 using ProChess.Server.Enums;
+using ProChess.Server.Record;
 using ProChess.Server.Response;
 using ProgChess.Server.Dto;
 
@@ -7,8 +8,8 @@ namespace ProChess.Server.ExecuteBuilder;
 public class CodeExecutor
 {
     public LanguageType Type;
-    public string code;
     public VMExecuteDto vmExecuteDto;
+    public NodeErrorLineMapper mapper;
 }
 
 public interface ISpecifyLanguage

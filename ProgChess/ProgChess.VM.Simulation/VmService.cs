@@ -16,7 +16,7 @@ public class VmService
     public async Task<ExecuteResponse> ExecuteAsync(string code)
     {
         var filename = Guid.NewGuid().ToString();
-        var path = Path.Combine("Script", $"{filename}.js");
+        var path = Path.Combine("Script", $"{filename}.mjs");
 
         try
         {
@@ -39,7 +39,7 @@ public class VmService
         {
             WorkingDirectory = "Script",
             FileName = "node",
-            Arguments = $"{filename}.js",
+            Arguments = $"{filename}.mjs",
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

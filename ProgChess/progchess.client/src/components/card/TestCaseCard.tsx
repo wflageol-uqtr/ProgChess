@@ -1,5 +1,5 @@
 import { PanelRightClose, RefreshCcw } from "lucide-react";
-import type { TabType, TestResult } from "../../utils/type";
+import type { EditorError, TabType, TestResult } from "../../utils/type";
 import { Tabs } from "../tabs/Tabs";
 import TestResultPanel from "../panel/TestResultPanel";
 import CodeEditor from "../form/input/CodeEditor";
@@ -13,7 +13,7 @@ interface TestCaseCardProps {
   unitTestCode: string;
   setTestCode: React.Dispatch<React.SetStateAction<string>>;
   reinitializeFn: () => void;
-  executionError?: string;
+  executionError?: EditorError;
 }
 
 export default function TestCaseCard({
@@ -44,6 +44,9 @@ export default function TestCaseCard({
           value={unitTestCode}
           height={400}
           onChange={(e) => setTestCode(e)}
+          executionError={
+            executionError?.id === "test0" ? executionError : undefined
+          }
         />
       ),
     },
@@ -59,7 +62,7 @@ export default function TestCaseCard({
                 Erreur lors de l'exécution
               </h3>
               <p className="text-sm text-red-600 leading-relaxed">
-                {executionError}
+                {executionError?.error ?? ""}
               </p>
             </>
           ) : (
@@ -74,7 +77,7 @@ export default function TestCaseCard({
 
   return (
     <>
-      <div className="bg-zinc-800 rounded-2xl h-full flex flex-col overflow-auto">
+      <div className="bg-zinc-800 rounded-2xl h-full min-h-[300px] flex flex-col overflow-auto">
         <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
           <div className="flex gap-2 items-center">
             <PanelRightClose className="text-green-500" />
@@ -90,7 +93,7 @@ export default function TestCaseCard({
               }}
             >
               <RefreshCcw />
-              Réinitialiser
+              <div className="hidden md:flex">Réinitialiser</div>
             </Button>
           </div>
         </div>

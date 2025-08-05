@@ -1,23 +1,26 @@
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 
-import { Button } from "../../components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { DeleteDialog } from "../dialog/DeleteDialog";
 import { useState } from "react";
 import { Link } from "react-router";
 
-interface ScoreActionProps {
+interface StudentExerciseActionProps {
   id: number;
   deleteFn: () => void;
 }
 
-export default function StudentAction({ id, deleteFn }: ScoreActionProps) {
+export default function StudentExerciseAction({
+  id,
+  deleteFn,
+}: StudentExerciseActionProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 

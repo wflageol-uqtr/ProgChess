@@ -169,6 +169,12 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Situation")
                         .IsRequired()
                         .HasColumnType("text");
@@ -176,9 +182,42 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Exercises", "progchess");
+                });
+
+            modelBuilder.Entity("ProChess.Server.Entities.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Images", "progchess");
                 });
 
             modelBuilder.Entity("ProChess.Server.Entities.Score", b =>
@@ -196,10 +235,16 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("ExerciseId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("StudentId")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("StudentExerciseId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -209,7 +254,7 @@ namespace ProChess.Server.Migrations
 
                     b.HasIndex("ExerciseId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentExerciseId");
 
                     b.ToTable("Scores", "progchess");
                 });
@@ -228,8 +273,14 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Expected")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSuccess")
                         .HasColumnType("boolean");
@@ -251,7 +302,7 @@ namespace ProChess.Server.Migrations
                     b.ToTable("ScoreTest", "progchess");
                 });
 
-            modelBuilder.Entity("ProChess.Server.Entities.Student", b =>
+            modelBuilder.Entity("ProChess.Server.Entities.StudentExercise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -262,22 +313,8 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PermanentCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Students", "progchess");
-                });
-
-            modelBuilder.Entity("ProChess.Server.Entities.StudentExercise", b =>
-                {
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("ExerciseId")
                         .HasColumnType("integer");
@@ -287,9 +324,22 @@ namespace ProChess.Server.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.HasKey("StudentId", "ExerciseId");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("StudentPermanentCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ExerciseId");
+
+                    b.HasIndex("StudentPermanentCode", "ExerciseId")
+                        .IsUnique();
 
                     b.ToTable("StudentExercises", "progchess");
                 });
@@ -309,10 +359,16 @@ namespace ProChess.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -337,11 +393,17 @@ namespace ProChess.Server.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -397,19 +459,37 @@ namespace ProChess.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "test",
+                            Id = "58467bb0-29d5-43e7-9573-30415db86b4d",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "56621d27-acc3-4ba9-8c3b-6a0d090a987b",
+                            ConcurrencyStamp = "ca1dfbe2-c7bf-4761-8262-fddc5494332c",
                             Email = "mathy@gmail.com",
                             EmailConfirmed = true,
+                            IsDeleted = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "mathy@gmail.com",
                             NormalizedUserName = "math",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGXdvx8azfoY6C5mSDzUjtOK3X3ONTwBgyScugPvzfGFmN6v/L2FWIx0R5p2c+vdHg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAtWqS/v+OmVpJyd7vOaSTA8ziHiMluU0xsr0mNqSM7YspFU+K/H8o8tj7ZelZ0wEw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "da89c465-bc41-4387-8bc5-d2a37cd048d6",
+                            SecurityStamp = "7477ca2f-7aa9-487e-9d4a-94cc118816f4",
                             TwoFactorEnabled = false,
                             UserName = "math"
+                        },
+                        new
+                        {
+                            Id = "eded4115-40f7-4f5c-b7ca-6fd9fd9c3e4b",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3d8b7d95-0c24-46ac-8425-b25b1dfae5d8",
+                            Email = "test@gmail.com",
+                            EmailConfirmed = true,
+                            IsDeleted = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "test@gmail.com",
+                            NormalizedUserName = "test",
+                            PasswordHash = "AQAAAAIAAYagAAAAEH5PlJV21LnaLvedPzyiEAH2woeUh8JA21z0q4LaPOR10GHFpv4o2RvQpzwwizlSRw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "f2329174-0f45-42d5-842d-e98cf5c6c732",
+                            TwoFactorEnabled = false,
+                            UserName = "test"
                         });
                 });
 
@@ -464,23 +544,45 @@ namespace ProChess.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProChess.Server.Entities.Exercise", b =>
+                {
+                    b.HasOne("ProChess.Server.Entities.User", "User")
+                        .WithMany("Exercises")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ProChess.Server.Entities.Image", b =>
+                {
+                    b.HasOne("ProChess.Server.Entities.User", "User")
+                        .WithMany("Images")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ProChess.Server.Entities.Score", b =>
                 {
                     b.HasOne("ProChess.Server.Entities.Exercise", "Exercise")
-                        .WithMany()
+                        .WithMany("Scores")
                         .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProChess.Server.Entities.Student", "Student")
+                    b.HasOne("ProChess.Server.Entities.StudentExercise", "StudentExercise")
                         .WithMany()
-                        .HasForeignKey("StudentId")
+                        .HasForeignKey("StudentExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Exercise");
 
-                    b.Navigation("Student");
+                    b.Navigation("StudentExercise");
                 });
 
             modelBuilder.Entity("ProChess.Server.Entities.ScoreTest", b =>
@@ -502,15 +604,7 @@ namespace ProChess.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProChess.Server.Entities.Student", "Student")
-                        .WithMany("StudentExercises")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Exercise");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("ProChess.Server.Entities.UnitTest", b =>
@@ -525,6 +619,8 @@ namespace ProChess.Server.Migrations
 
             modelBuilder.Entity("ProChess.Server.Entities.Exercise", b =>
                 {
+                    b.Navigation("Scores");
+
                     b.Navigation("StudentExercises");
 
                     b.Navigation("UnitTests");
@@ -535,9 +631,11 @@ namespace ProChess.Server.Migrations
                     b.Navigation("ScoreTests");
                 });
 
-            modelBuilder.Entity("ProChess.Server.Entities.Student", b =>
+            modelBuilder.Entity("ProChess.Server.Entities.User", b =>
                 {
-                    b.Navigation("StudentExercises");
+                    b.Navigation("Exercises");
+
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

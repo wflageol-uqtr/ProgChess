@@ -81,15 +81,12 @@ public class StudentExerciseService(AppDbContext dbContext, IUserContext userCon
 
         // All current codes in DB for this exercise
         var existingPermanentCode = studentExerciseList.Select(se => se.StudentPermanentCode).ToHashSet();
-        foreach (var permanentCode in existingPermanentCode)
-        {
-            Console.WriteLine(permanentCode);
-        }
         
         // Remove student
         var studentsToRemove = studentExerciseList
-            .Where(se => !existingPermanentCode.Contains(se.StudentPermanentCode))
+            .Where(se => !permanentCodes.Contains(se.StudentPermanentCode))
             .ToList();
+        
         dbContext.StudentExercises.RemoveRange(studentsToRemove);
         
         // Add new students that don't exist yet

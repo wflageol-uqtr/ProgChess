@@ -34,7 +34,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
         };
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
-        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentExerciseId));
+        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentExerciseId), request.IsComplete);
         await scoreTestService.CreateFromAdmin(score.Id, request.ScoreTests);
         return score; 
     }
@@ -87,13 +87,14 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
             throw new NotFoundException("Score not found");
         context.Scores.Remove(score);
         context.ScoreTest.RemoveRange(score.ScoreTests);
+        await studentExerciseService.UpdateComplete((score.ExerciseId, score.StudentExerciseId));
         await context.SaveChangesAsync();
     }
     
     public async Task DeleteMultiple(DeleteMultipleDto request)
     {
         var scores = await context.Scores
-            .Include(s => s.ScoreTests)
+            .Include(s => s.ScoreTests).Include(score => score.StudentExercise)
             .Where(e => request.Ids.Contains(e.Id))
             .ToListAsync();
 
@@ -102,6 +103,11 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
 
         context.Scores.RemoveRange(scores);
         context.ScoreTest.RemoveRange(scores.SelectMany(s => s.ScoreTests).ToList());
+        foreach (var score in scores)
+        {
+            score.StudentExercise.IsComplete = false;
+        }
+        context.StudentExercises.UpdateRange(scores.Select(s => s.StudentExercise).ToList());
         await context.SaveChangesAsync();
     }
 }

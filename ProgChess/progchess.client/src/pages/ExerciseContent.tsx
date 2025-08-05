@@ -278,9 +278,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 unitTestCode={testCode}
                 setTestCode={setTestCode}
                 reinitializeFn={deleteUnitTest}
-                executionError={
-                  errorEditor?.id === "test0" ? errorEditor : undefined
-                }
+                executionError={errorEditor ?? undefined}
               />
             </div>
           </div>

@@ -33,7 +33,7 @@ export default function HorizontalResizable({
   }, []);
 
   return (
-    <div className="flex overflow-auto">
+    <div className="flex overflow-auto h-full">
       <div style={{ width: `${width / 16}rem` }}>{children}</div>
 
       <div

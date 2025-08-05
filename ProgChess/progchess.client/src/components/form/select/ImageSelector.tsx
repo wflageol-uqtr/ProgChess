@@ -18,6 +18,7 @@ interface ImageSelectorProps {
 }
 
 export default function ImageSelector({ onSelectedImage }: ImageSelectorProps) {
+  const [selectedValue, setSelectedValue] = useState<string | undefined>("");
   const [images, setImages] = useState<Image[]>([]);
 
   const getUserImage = async () => {
@@ -39,7 +40,7 @@ export default function ImageSelector({ onSelectedImage }: ImageSelectorProps) {
   };
 
   return (
-    <Select onValueChange={handleSelectChange}>
+    <Select value={selectedValue} onValueChange={handleSelectChange}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Choisir une image" />
       </SelectTrigger>

@@ -7,9 +7,44 @@ import { unlinkSync, writeFileSync, readFileSync } from 'fs';
 import { PassThrough } from 'stream';
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+const MAIN_CONTANER_NAME = "/progchess_sandbox";
+const LIVING_TIME = 120 // 2 minutes
 
 const app = express();
 app.use(express.json());
+
+function clearContainer() {
+  docker.listContainers({ all: true}, async function (err, containers) {
+    if (err) {
+      console.error('Error while listing container', err);
+      return;
+    }
+    
+    const now = Math.floor(Date.now() / 1000);
+
+    for (const container of containers) {      
+      const containerAge = now - container.Created;
+      if (containerAge > LIVING_TIME) {
+        
+        if (container.Names[0] === MAIN_CONTANER_NAME) continue;
+        
+        try {
+          const containerToRemove = docker.getContainer(container.Id);
+          if (container.State === "running") {
+            await containerToRemove.stop();
+          }
+          await containerToRemove.remove();
+        } catch (error) {
+          console.error('Error as occured on container deletion', error);
+          
+        }
+      }
+    }
+
+  });
+}
+
+setInterval(clearContainer, 200 * 1000);
 
 app.get('/', function(req, res) {
     console.log("That is a GET Request");
@@ -74,33 +109,6 @@ app.post('/run', async (req, res) => {
     }
     unlinkSync(filename);
   }
-});
-
-app.post('/piston', async (req, res) => {
-  const dataToSend = {
-    language: "javascript",
-    version: "18.15.0",
-    files: [
-      {
-        name:`${randomUUID()}.mjs`,
-        content: req.body.code
-      }
-    ]
-  }
-  const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(dataToSend)
-  });  
-  const json = await response.json();
-
-  if (json.run.stderr) {
-    return res.send({ success: false, result: json.run.stderr });
-  }
-
-  res.send({ success: true, result: json.run.stdout });
 });
 
 app.listen(3000, () => {

@@ -1,5 +1,6 @@
 services:
   server:
+    container_name: progchess_sandbox
     build:
       context: .
     environment:

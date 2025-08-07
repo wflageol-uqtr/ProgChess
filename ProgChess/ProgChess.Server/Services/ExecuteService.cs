@@ -9,13 +9,11 @@ namespace ProgChess.Server.Services;
 public class ExecuteService: ICodeExecuterService
 {
     private readonly IExerciseService _exerciseService;
-    private readonly HttpClient _httpClient;
     private readonly HttpClient _dockerClient;
     
     public ExecuteService(IExerciseService exerciseService, IHttpClientFactory factory)
     {
         _exerciseService = exerciseService;
-        _httpClient = factory.CreateClient("VmApi");
         _dockerClient = factory.CreateClient("dockerApi");
     }
 
@@ -24,28 +22,12 @@ public class ExecuteService: ICodeExecuterService
         var result = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
                 .BuildCode(solution, unitTest)
-                .Execute(_httpClient))
+                .Execute(_dockerClient))
             .GenerateExecuteResult();
        
         if (result.IsFailure) {
             throw new ExecutionErrorException( $"Error at line:{result.LineError}" + result.Error);
         }
-        return result;
-    }
-
-    public async Task<ExecuteResult<List<TestResult>>> ExecuteOnDocker(string solution, string unitTest)
-    {
-        var result = (await IExecutorBuilder.Create()
-            .OfType(LanguageType.Javascript)
-            .BuildCode(solution, unitTest)
-            .Execute(_dockerClient))
-            .GenerateExecuteResult();
-        
-        if (result.IsFailure)
-        {
-            throw new ExecutionErrorException($"Error at line:{result.LineError}\n" + result.Error);
-        }
-
         return result;
     }
 
@@ -58,9 +40,9 @@ public class ExecuteService: ICodeExecuterService
         var result = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
                 .BuildCode(solution,  string.Join("\n", exercise.UnitTests.Where(e => !e.IsActive).Select(e => e.Code)))
-                .Execute(_httpClient))
+                .Execute(_dockerClient))
             .GenerateExecuteResult();
-        
+
         if (result.IsFailure) {
             throw new ExecutionErrorException(result.Error);
         }

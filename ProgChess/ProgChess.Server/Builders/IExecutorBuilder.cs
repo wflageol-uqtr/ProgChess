@@ -42,12 +42,10 @@ public class IExecutorBuilder
         
         public async Task<IGenerateResult> Execute(HttpClient httpClient)
         {
-            // var payload = new  { code = codeExecutor.mapper.FullCode };
-            // var json = JsonSerializer.Serialize(payload);
-            var json = JsonSerializer.Serialize(codeExecutor.mapper.FullCode);
+            var payload = new  { code = codeExecutor.mapper.FullCode };
+            var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync("/vm/execute", content);
-            // var response = await httpClient.PostAsync("/run", content);
+            var response = await httpClient.PostAsync("/run", content);
             var result = await response.Content.ReadFromJsonAsync<VMExecuteDto>();
             codeExecutor.vmExecuteDto = result;
             return this;

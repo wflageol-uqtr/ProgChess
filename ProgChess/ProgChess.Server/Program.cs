@@ -28,17 +28,17 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-builder.Services.AddHttpClient("VmApi", client =>
-    {
-        client.BaseAddress = new Uri("http://localhost:5001");
-    })
-    .ConfigurePrimaryHttpMessageHandler(() =>
-    {
-        return new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-    });
+// builder.Services.AddHttpClient("VmApi", client =>
+//     {
+//         client.BaseAddress = new Uri("http://localhost:5001");
+//     })
+//     .ConfigurePrimaryHttpMessageHandler(() =>
+//     {
+//         return new HttpClientHandler
+//         {
+//             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+//         };
+//     });
 
 builder.Services.AddHttpClient("dockerApi", client =>
     {
@@ -165,7 +165,3 @@ app.MapControllers();
 app.MapIdentityApi<User>();
 app.UseRateLimiter();
 app.Run();
-
-public partial class Program
-{
-}

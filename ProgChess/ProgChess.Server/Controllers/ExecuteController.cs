@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProChess.Server.Authorization;
+using ProChess.Server.Exceptions;
 using ProgChess.Server.Dto;
 using ProgChess.Server.Services;
 
@@ -16,18 +17,13 @@ public class ExecuteController(ICodeExecuterService codeExecuterService, IScoreS
         return Ok(results);
     }
     
-    [HttpPost("docker")]
-    public async Task<IActionResult> ExecuteDocker(ExecuteDto request)
-    {
-        var results = await codeExecuterService.ExecuteOnDocker(request.Code, request.UnitTest);
-        return Ok(results);
-    }
-    
     [HttpPost("submit")]
     [ValidCodeCookie]
     public async Task<IActionResult> Submit(ExecuteSubmitDto request)
     {
         var studentCookie = HttpContext.Items["studentCookie"] as string;
+        if (string.IsNullOrEmpty(studentCookie))
+            throw new UnauthorizedException("Cookie de session non trouvé");
         var results = await codeExecuterService.ExecuteHiddenTestOnVm(request.Code, request.ExerciseId);
         var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code, results.Value);
         await scoreTestService.Create(score, results.Value);

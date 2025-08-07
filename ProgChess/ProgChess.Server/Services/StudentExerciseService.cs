@@ -106,7 +106,7 @@ public class StudentExerciseService(AppDbContext dbContext, IUserContext userCon
 
     public async Task UpdateComplete(int exerciseId, string permanentCode)
     {
-        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == exerciseId)
+        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == exerciseId && se.StudentPermanentCode == permanentCode)
             .FirstOrDefaultAsync();
         
         if (result == null)

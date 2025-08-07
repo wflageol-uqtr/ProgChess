@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/run', async (req, res) => {
-  const image = 'node:18-slim';
+  const image = 'node:23-slim';
   const file = `${randomUUID()}.mjs`;
   const filename = path.join('/app/tmp', file)
   writeFileSync(filename, req.body.code);

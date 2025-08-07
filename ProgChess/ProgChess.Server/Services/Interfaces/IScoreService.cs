@@ -6,7 +6,7 @@ namespace ProgChess.Server.Services;
 
 public interface IScoreService
 {
-    Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results);
+    Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer);
 
     Task<Score> Create(ScoreDto request);
     

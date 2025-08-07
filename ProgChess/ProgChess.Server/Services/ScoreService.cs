@@ -10,9 +10,19 @@ namespace ProgChess.Server.Services;
 
 public class ScoreService(AppDbContext context, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService, IUserContext userContext): IScoreService
 {
-    public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
+    public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer)
     {
         var student = await studentExerciseService.GetStudentExerciseByExerciseAndStudent(exerciseId, permanentCode);
+        var existingScore = await context.Scores
+            .Where(s => s.ExerciseId == exerciseId && s.StudentExercise.StudentPermanentCode == permanentCode)
+            .Include(score => score.ScoreTests).
+            FirstOrDefaultAsync();
+        if (existingScore != null)
+        {
+            context.RemoveRange(existingScore.ScoreTests);
+            context.Remove(existingScore);
+            await context.SaveChangesAsync();
+        }
         var score = new Score
         {
             StudentExerciseId = student.Id,
@@ -22,10 +32,21 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
         return score.Id;
+        
     }
 
     public async Task<Score> Create(ScoreDto request)
     {
+        var existingScore = await context.Scores
+            .Where(s => s.ExerciseId == request.ExerciseId && s.StudentExerciseId == request.StudentExerciseId)
+            .Include(score => score.ScoreTests).
+            FirstOrDefaultAsync();
+        if (existingScore != null)
+        {
+            context.RemoveRange(existingScore.ScoreTests);
+            context.Remove(existingScore);
+            await context.SaveChangesAsync();
+        }
         var score = new Score
         {
             StudentExerciseId = request.StudentExerciseId,

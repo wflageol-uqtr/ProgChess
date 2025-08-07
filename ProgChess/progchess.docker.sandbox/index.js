@@ -5,10 +5,14 @@ import tar from 'tar-stream';
 import Docker from 'dockerode';
 import { unlinkSync, writeFileSync, readFileSync } from 'fs';
 import { PassThrough } from 'stream';
+import EventEmitter from 'events';
 
+const myEmitter = new EventEmitter();
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const MAIN_CONTANER_NAME = "/progchess_sandbox";
 const LIVING_TIME = 120 // 2 minutes
+const MAX_CONTAINER = 2;
+const queue = [];
 
 const app = express();
 app.use(express.json());
@@ -44,6 +48,7 @@ function clearContainer() {
   });
 }
 
+CreateCustomEvent()
 setInterval(clearContainer, 200 * 1000);
 
 app.get('/', function(req, res) {
@@ -52,6 +57,35 @@ app.get('/', function(req, res) {
 });
 
 app.post('/run', async (req, res) => {
+  return await processExecution(req, res);
+});
+
+app.listen(3000, () => {
+  console.log('Listening on http://localhost:3000');
+});
+
+async function pullImage(imageName) {
+  return new Promise((resolve, reject) => {
+    docker.pull(imageName, (err, stream) => {
+      if (err) return reject(err);
+
+      docker.modem.followProgress(stream, onFinished, onProgress);
+
+      function onFinished(err, output) {
+        if (err) return reject(err);
+        resolve(output);
+      }
+
+      function onProgress(event) {
+        if (event.status) {
+          console.log(`[Docker Pull] ${event.status}`);
+        }
+      }
+    });
+  });
+}
+
+async function CreateContainer(req, res) {
   const image = 'node:23-slim';
   const file = `${randomUUID()}.mjs`;
   const filename = path.join('/app/tmp', file)
@@ -109,29 +143,25 @@ app.post('/run', async (req, res) => {
     }
     unlinkSync(filename);
   }
-});
+}
 
-app.listen(3000, () => {
-  console.log('Listening on http://localhost:3000');
-});
+async function processExecution(req, res) {
+  const size = (await docker.listContainers({all: true})).length;
 
-async function pullImage(imageName) {
-  return new Promise((resolve, reject) => {
-    docker.pull(imageName, (err, stream) => {
-      if (err) return reject(err);
+  if (size < MAX_CONTAINER) {  
+    myEmitter.emit('newContainer', req, res);
+  }
+  queue.push({ req, res });
+  setTimeout(() => myStopFunction, 100000)
+}
 
-      docker.modem.followProgress(stream, onFinished, onProgress);
+function CreateCustomEvent() {
+  myEmitter.on('newContainer', async (req, res) => {    
+    await CreateContainer(req, res);
+    
+  })
+}
 
-      function onFinished(err, output) {
-        if (err) return reject(err);
-        resolve(output);
-      }
-
-      function onProgress(event) {
-        if (event.status) {
-          console.log(`[Docker Pull] ${event.status}`);
-        }
-      }
-    });
-  });
+function myStopFunction() {
+  return res.json({ IsSuccess: false, Error: "Aucun docker disponible pour le moment"});
 }

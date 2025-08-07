@@ -55,7 +55,7 @@ export const StudentExerciseColumns: ColumnDef<StudentExerciseGroup>[] = [
     header: "Date de modification",
   },
   {
-    header: "Actions",
+    header: "Action",
     id: "actions",
     cell: ({ row }) => {
       const navigate = useNavigate();

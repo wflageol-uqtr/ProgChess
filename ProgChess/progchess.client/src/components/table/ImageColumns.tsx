@@ -28,7 +28,7 @@ export const ImageColumns: ColumnDef<Image>[] = [
     },
   },
   {
-    header: "Actions",
+    header: "Action",
     id: "actions",
     cell: ({ row }) => {
       const rowData = row.original;

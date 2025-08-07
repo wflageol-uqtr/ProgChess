@@ -78,7 +78,7 @@ export default function TestResultPanel({
                     <div className="space-y-2">
                       <div>
                         <div className="text-xs text-zinc-400 mb-1">
-                          Actual:
+                          Actuel:
                         </div>
                         <pre className="bg-zinc-800 p-3 rounded-lg whitespace-pre-wrap break-words">
                           {testResult[selectedIndex].actual}
@@ -88,7 +88,7 @@ export default function TestResultPanel({
                       {testResult[selectedIndex].expected && (
                         <div>
                           <div className="text-xs text-zinc-400 mb-1">
-                            Expected:
+                            Attendu:
                           </div>
                           <pre className="bg-zinc-800 p-3 rounded-lg whitespace-pre-wrap break-words">
                             {testResult[selectedIndex].expected}

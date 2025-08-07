@@ -23,7 +23,7 @@ public class ExecuteController(ICodeExecuterService codeExecuterService, IScoreS
     {
         var studentCookie = HttpContext.Items["studentCookie"] as string;
         if (string.IsNullOrEmpty(studentCookie))
-            throw new UnauthorizedException("Cookie de session non trouvé");
+            throw new UnauthorizedException("Cookie de l'étudiant non trouvé");
         var results = await codeExecuterService.ExecuteHiddenTestOnVm(request.Code, request.ExerciseId);
         var score = await scoreService.AddScoreAsync(studentCookie, request.ExerciseId, request.Code);
         await scoreTestService.Create(score, results.Value);

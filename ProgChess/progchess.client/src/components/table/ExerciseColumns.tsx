@@ -57,7 +57,6 @@ export const ExerciseColumns: ColumnDef<Exercise>[] = [
       const id = row.getValue("id");
       let link = "";
 
-      // A changer
       link = `${clientUrl}/exercise/${id}`;
       const copyToClipboard = () => {
         navigator.clipboard.writeText(link);

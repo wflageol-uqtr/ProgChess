@@ -64,7 +64,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var result = await context.Scores.Include(s => s.Exercise).ThenInclude(s => s.StudentExercises).Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (result == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         return result;
     }
 
@@ -74,7 +74,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
             .Where(s => s.StudentExercise.StudentPermanentCode == studentCode && s.ExerciseId == id)
             .FirstOrDefaultAsync();
         if (result == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         return result;
     }
 
@@ -88,7 +88,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var score = await context.Scores.Include(x => x.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (score == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         
         context.Entry(score).State = EntityState.Detached;
         score.StudentExerciseId = request.StudentExerciseId;
@@ -105,7 +105,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var score = await context.Scores.Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (score == null)
-            throw new NotFoundException("Score not found");
+            throw new NotFoundException("Score introuvable");
         context.Scores.Remove(score);
         context.ScoreTest.RemoveRange(score.ScoreTests);
         await context.SaveChangesAsync();
@@ -119,7 +119,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
             .ToListAsync();
 
         if (scores.Count == 0)
-            throw new NotFoundException("Aucun élément à supprimer trouvé.");
+            throw new NotFoundException("Aucun élément à supprimer trouvé");
 
         context.Scores.RemoveRange(scores);
         context.ScoreTest.RemoveRange(scores.SelectMany(s => s.ScoreTests).ToList());

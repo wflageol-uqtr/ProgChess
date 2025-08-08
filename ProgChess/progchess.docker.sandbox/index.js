@@ -136,8 +136,8 @@ async function CreateContainer(req, res) {
     }
     return res.json({ IsSuccess: true, Output: stdoutData});
   } catch (error) {
-    res.json({ IsSuccess: false, Error: error.toString() });
-  } finally {
+    return res.json({ IsSuccess: false, Error: error.toString() });
+  } finally {    
     if (auxContainer) {
       await auxContainer.remove();
     }
@@ -147,21 +147,26 @@ async function CreateContainer(req, res) {
 
 async function processExecution(req, res) {
   const size = (await docker.listContainers({all: true})).length;
-
   if (size < MAX_CONTAINER) {  
     myEmitter.emit('newContainer', req, res);
+  } else {
+    queue.push({ req, res });
+    setTimeout(() => {
+      if (!res.headersSent) {
+        res.json({ IsSuccess: false, Error: 'Serveur plein, réessayer sous peu !' });
+      }
+      queue.shift();
+      return;
+    }, 20000);
   }
-  queue.push({ req, res });
-  setTimeout(() => myStopFunction, 100000)
 }
 
 function CreateCustomEvent() {
   myEmitter.on('newContainer', async (req, res) => {    
     await CreateContainer(req, res);
-    
-  })
-}
-
-function myStopFunction() {
-  return res.json({ IsSuccess: false, Error: "Aucun docker disponible pour le moment"});
+    if (queue.length > 0) {
+      const value = queue.shift();
+      myEmitter.emit('newContainer', value.req, value.res);
+    }    
+  });
 }

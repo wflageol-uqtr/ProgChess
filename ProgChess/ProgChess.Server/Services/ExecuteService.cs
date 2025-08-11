@@ -19,16 +19,27 @@ public class ExecuteService: ICodeExecuterService
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteOnVm(string solution, string unitTest)
     {
-        var result = (await IExecutorBuilder.Create()
+        var firstExecution = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
-                .BuildCode(solution, unitTest)
+                .BuildCodeSample(solution)
+                .Execute(_dockerClient))
+            .SampleResult();
+
+        if (firstExecution.IsFailure)
+        {
+            throw new ExecutionErrorException( $"Error at line:{firstExecution.LineError}" + firstExecution.Error);
+        }
+        
+        var secondExecution = (await IExecutorBuilder.Create()
+                .OfType(LanguageType.Javascript)
+                .BuildFullCode(solution, unitTest)
                 .Execute(_dockerClient))
             .GenerateExecuteResult();
        
-        if (result.IsFailure) {
-            throw new ExecutionErrorException( $"Error at line:{result.LineError}" + result.Error);
+        if (secondExecution.IsFailure) {
+            throw new ExecutionErrorException( $"Error at line:{secondExecution.LineError}" + secondExecution.Error);
         }
-        return result;
+        return secondExecution;
     }
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteHiddenTestOnVm(string solution, int exerciseId)
@@ -39,7 +50,7 @@ public class ExecuteService: ICodeExecuterService
         
         var result = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
-                .BuildCode(solution,  string.Join("\n", exercise.UnitTests.Where(e => !e.IsActive).Select(e => e.Code)))
+                .BuildFullCode(solution,  string.Join("\n", exercise.UnitTests.Where(e => !e.IsActive).Select(e => e.Code)))
                 .Execute(_dockerClient))
             .GenerateExecuteResult();
 

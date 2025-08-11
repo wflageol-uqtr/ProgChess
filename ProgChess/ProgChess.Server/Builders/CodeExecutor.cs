@@ -19,7 +19,8 @@ public interface ISpecifyLanguage
 
 public interface ICodeGenerator
 {
-    IExecuteCode BuildCode(string code, string unitTest);
+    IExecuteCode BuildFullCode(string code, string unitTest);
+    IExecuteCode BuildCodeSample(string code);
 }
 
 public interface IExecuteCode
@@ -29,5 +30,6 @@ public interface IExecuteCode
 
 public interface IGenerateResult
 {
+    ExecuteResult<bool> SampleResult();
     ExecuteResult<List<TestResult>> GenerateExecuteResult();
 }

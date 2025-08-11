@@ -5,6 +5,7 @@ using ProChess.Server.Record;
 using ProChess.Server.Response;
 using ProChess.Server.Utils;
 using ProgChess.Server.Dto;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace ProChess.Server.ExecuteBuilder;
 
@@ -19,8 +20,23 @@ public class IExecutorBuilder
             codeExecutor.Type = type;
             return this;
         }
+        
+        public IExecuteCode BuildCodeSample(string code)
+        {
+            switch (codeExecutor.Type)
+            {
+                case LanguageType.Javascript:
+                    var codeLines = Formatter.SplitByLine(code).Count;
+                    codeExecutor.mapper = new NodeErrorLineMapper(code, codeLines);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-        public IExecuteCode BuildCode(string code, string unitTest)
+            return this;
+        }
+        
+        public IExecuteCode BuildFullCode(string code, string unitTest)
         {
             switch (codeExecutor.Type)
             {
@@ -33,7 +49,7 @@ public class IExecutorBuilder
                   
                     var fullCode = importSection + code + "\n" + unitTest;
                     codeExecutor.mapper = new NodeErrorLineMapper(fullCode, importLines, testStartLine, importLines + codeLines);
-                 break;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -50,7 +66,18 @@ public class IExecutorBuilder
             codeExecutor.vmExecuteDto = result;
             return this;
         }
-        
+
+        public ExecuteResult<bool> SampleResult()
+        {
+            if (!codeExecutor.vmExecuteDto.IsSuccess)
+            {
+                var line = codeExecutor.mapper.GetExecutionErrorLine(codeExecutor.vmExecuteDto.Error);
+                return ExecuteResult<bool>.Failure(codeExecutor.mapper.CleanError, line.ToString());
+            }
+
+            return  ExecuteResult<bool>.Success(true);;
+        }
+
         public ExecuteResult<List<TestResult>> GenerateExecuteResult()
         {
             if (!codeExecutor.vmExecuteDto.IsSuccess)

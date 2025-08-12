@@ -86,7 +86,7 @@ export default function CreateScore() {
     startTransition(async () => {
       try {
         await api.post("/api/score/create", values);
-        toast.success("Score créé avec succès !");
+        toast.success("Résultat créé avec succès !");
         navigate("/admin/score");
       } catch (error) {
         handleApiError(error);
@@ -108,7 +108,7 @@ export default function CreateScore() {
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
         <div className="flex">
-          <h2 className="text-2xl font-bold text-white">Ajouter un score</h2>
+          <h2 className="text-2xl font-bold text-white">Ajouter un résultat</h2>
         </div>
         <div className="border-b border-gray-700" />
         <Form {...form}>
@@ -201,7 +201,9 @@ export default function CreateScore() {
             <div className="border-b border-gray-700" />
 
             <div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Score</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Résultat
+              </h3>
               <FormField
                 control={form.control}
                 name="isComplete"

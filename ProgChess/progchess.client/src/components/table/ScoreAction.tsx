@@ -35,7 +35,7 @@ export default function ScoreAction({ id, deleteFn }: ScoreActionProps) {
             <DropdownMenuItem>
               <Link className="flex mr-2" to={`/admin/score/edit/${id}`}>
                 <Pencil className="w-5 h-5 text-green-500 mr-2" />
-                <span>Modifier le score</span>
+                <span>Modifier le résultat</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -48,7 +48,7 @@ export default function ScoreAction({ id, deleteFn }: ScoreActionProps) {
               }}
             >
               <Trash className="w-5 h-5 text-red-500" />
-              <span>Supprimer le score</span>
+              <span>Supprimer le résultat</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         )}

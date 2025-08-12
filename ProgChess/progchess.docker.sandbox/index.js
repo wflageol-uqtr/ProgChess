@@ -5,11 +5,51 @@ import tar from 'tar-stream';
 import Docker from 'dockerode';
 import { unlinkSync, writeFileSync, readFileSync } from 'fs';
 import { PassThrough } from 'stream';
+import EventEmitter from 'events';
 
+const myEmitter = new EventEmitter();
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+const MAIN_CONTANER_NAME = "/progchess_sandbox";
+const LIVING_TIME = 120 // 2 minutes
+const MAX_CONTAINER = 2;
+const queue = [];
 
 const app = express();
 app.use(express.json());
+
+function clearContainer() {
+  docker.listContainers({ all: true}, async function (err, containers) {
+    if (err) {
+      console.error('Error while listing container', err);
+      return;
+    }
+    
+    const now = Math.floor(Date.now() / 1000);
+
+    for (const container of containers) {      
+      const containerAge = now - container.Created;
+      if (containerAge > LIVING_TIME) {
+        
+        if (container.Names[0] === MAIN_CONTANER_NAME) continue;
+        
+        try {
+          const containerToRemove = docker.getContainer(container.Id);
+          if (container.State === "running") {
+            await containerToRemove.stop();
+          }
+          await containerToRemove.remove();
+        } catch (error) {
+          console.error('Error as occured on container deletion', error);
+          
+        }
+      }
+    }
+
+  });
+}
+
+CreateCustomEvent()
+setInterval(clearContainer, 200 * 1000);
 
 app.get('/', function(req, res) {
     console.log("That is a GET Request");
@@ -17,7 +57,36 @@ app.get('/', function(req, res) {
 });
 
 app.post('/run', async (req, res) => {
-  const image = 'node:18-slim';
+  return await processExecution(req, res);
+});
+
+app.listen(3000, () => {
+  console.log('Listening on http://localhost:3000');
+});
+
+async function pullImage(imageName) {
+  return new Promise((resolve, reject) => {
+    docker.pull(imageName, (err, stream) => {
+      if (err) return reject(err);
+
+      docker.modem.followProgress(stream, onFinished, onProgress);
+
+      function onFinished(err, output) {
+        if (err) return reject(err);
+        resolve(output);
+      }
+
+      function onProgress(event) {
+        if (event.status) {
+          console.log(`[Docker Pull] ${event.status}`);
+        }
+      }
+    });
+  });
+}
+
+async function CreateContainer(req, res) {
+  const image = 'node:23-slim';
   const file = `${randomUUID()}.mjs`;
   const filename = path.join('/app/tmp', file)
   writeFileSync(filename, req.body.code);
@@ -67,63 +136,37 @@ app.post('/run', async (req, res) => {
     }
     return res.json({ IsSuccess: true, Output: stdoutData});
   } catch (error) {
-    res.json({ IsSuccess: false, Error: error.toString() });
-  } finally {
+    return res.json({ IsSuccess: false, Error: error.toString() });
+  } finally {    
     if (auxContainer) {
       await auxContainer.remove();
     }
     unlinkSync(filename);
   }
-});
+}
 
-app.post('/piston', async (req, res) => {
-  const dataToSend = {
-    language: "javascript",
-    version: "18.15.0",
-    files: [
-      {
-        name:`${randomUUID()}.mjs`,
-        content: req.body.code
+async function processExecution(req, res) {
+  const size = (await docker.listContainers({all: true})).length;
+  if (size < MAX_CONTAINER) {  
+    myEmitter.emit('newContainer', req, res);
+  } else {
+    queue.push({ req, res });
+    setTimeout(() => {
+      if (!res.headersSent) {
+        res.json({ IsSuccess: false, Error: 'Serveur plein, réessayer sous peu !' });
       }
-    ]
+      queue.shift();
+      return;
+    }, 20000);
   }
-  const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(dataToSend)
-  });  
-  const json = await response.json();
+}
 
-  if (json.run.stderr) {
-    return res.send({ success: false, result: json.run.stderr });
-  }
-
-  res.send({ success: true, result: json.run.stdout });
-});
-
-app.listen(3000, () => {
-  console.log('Listening on http://localhost:3000');
-});
-
-async function pullImage(imageName) {
-  return new Promise((resolve, reject) => {
-    docker.pull(imageName, (err, stream) => {
-      if (err) return reject(err);
-
-      docker.modem.followProgress(stream, onFinished, onProgress);
-
-      function onFinished(err, output) {
-        if (err) return reject(err);
-        resolve(output);
-      }
-
-      function onProgress(event) {
-        if (event.status) {
-          console.log(`[Docker Pull] ${event.status}`);
-        }
-      }
-    });
+function CreateCustomEvent() {
+  myEmitter.on('newContainer', async (req, res) => {    
+    await CreateContainer(req, res);
+    if (queue.length > 0) {
+      const value = queue.shift();
+      myEmitter.emit('newContainer', value.req, value.res);
+    }    
   });
 }

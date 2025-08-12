@@ -21,6 +21,7 @@ import { handleApiError, handleExecutionError } from "../utils/apiErrorHandler";
 import { useBadge } from "../providers/ShowBadgeProvider";
 import SituationCard from "../components/card/SituationCard";
 import { apiUrl } from "../utils/api";
+import ProgChessLoader from "../components/loader/ProgChessLoader";
 
 interface ExerciseContentProps {
   exercise?: Exercise;
@@ -30,6 +31,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   const navigate = useNavigate();
   const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isExecuting, startExecution] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>([]);
   const [code, setCode] = useState<string>("");
   const [testCode, setTestCode] = useState<string>("");
@@ -98,7 +100,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
   };
 
   const executeCode = async () => {
-    startTransition(async () => {
+    startExecution(async () => {
       try {
         setExecutionError("");
         setErrorEditor(undefined);
@@ -255,20 +257,23 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
                 setHeight={setHeight}
               >
                 <ExecutableCard
-                  isPending={isPending}
+                  isPending={isExecuting}
                   title="Code"
                   icon={Braces}
                   actionFn={executeCode}
                   reinitializeFn={deleteCode}
                 >
-                  <CodeEditor
-                    height={height}
-                    value={code}
-                    onChange={(e) => setCode(e)}
-                    executionError={
-                      errorEditor?.id === "code" ? errorEditor : undefined
-                    }
-                  />
+                  <div className="relative">
+                    <CodeEditor
+                      height={height}
+                      value={code}
+                      onChange={(e) => setCode(e)}
+                      executionError={
+                        errorEditor?.id === "code" ? errorEditor : undefined
+                      }
+                    />
+                    {isExecuting && <ProgChessLoader />}
+                  </div>
                 </ExecutableCard>
               </VerticalResizable>
 

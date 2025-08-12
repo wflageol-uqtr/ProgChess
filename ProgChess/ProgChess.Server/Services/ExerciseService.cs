@@ -15,7 +15,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
     public async Task<int> Create(ExerciseDto request)
     {
         if (userContext.UserId is null)
-            throw new UnauthorizedException("User is not authenticated");
+            throw new UnauthorizedException("L'utilisateur n'est pas authentifié");
         
         var exercise = new Exercise
         {
@@ -68,7 +68,7 @@ public class ExerciseService(AppDbContext dbContext, IStudentExerciseService stu
     public async Task<int> Edit(int id, ExerciseDto request)
     {
         if (userContext.UserId is null)
-            throw new UnauthorizedException("User is not authenticated");
+            throw new UnauthorizedException("L'utilisateur n'est pas authentifié");
         
         var exercise = await dbContext.Exercises.Where(e => e.Id == id).Include(e => e.UnitTests)
             .Include(e => e.StudentExercises)

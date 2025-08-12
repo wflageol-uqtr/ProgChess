@@ -10,9 +10,19 @@ namespace ProgChess.Server.Services;
 
 public class ScoreService(AppDbContext context, IStudentExerciseService studentExerciseService, IScoreTestService scoreTestService, IUserContext userContext): IScoreService
 {
-    public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer, List<TestResult> results)
+    public async Task<int> AddScoreAsync(string permanentCode, int exerciseId, string answer)
     {
         var student = await studentExerciseService.GetStudentExerciseByExerciseAndStudent(exerciseId, permanentCode);
+        var existingScore = await context.Scores
+            .Where(s => s.ExerciseId == exerciseId && s.StudentExercise.StudentPermanentCode == permanentCode)
+            .Include(score => score.ScoreTests).
+            FirstOrDefaultAsync();
+        if (existingScore != null)
+        {
+            context.RemoveRange(existingScore.ScoreTests);
+            context.Remove(existingScore);
+            await context.SaveChangesAsync();
+        }
         var score = new Score
         {
             StudentExerciseId = student.Id,
@@ -22,10 +32,21 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
         await context.Scores.AddAsync(score);
         await context.SaveChangesAsync();
         return score.Id;
+        
     }
 
     public async Task<Score> Create(ScoreDto request)
     {
+        var existingScore = await context.Scores
+            .Where(s => s.ExerciseId == request.ExerciseId && s.StudentExerciseId == request.StudentExerciseId)
+            .Include(score => score.ScoreTests).
+            FirstOrDefaultAsync();
+        if (existingScore != null)
+        {
+            context.RemoveRange(existingScore.ScoreTests);
+            context.Remove(existingScore);
+            await context.SaveChangesAsync();
+        }
         var score = new Score
         {
             StudentExerciseId = request.StudentExerciseId,
@@ -43,7 +64,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var result = await context.Scores.Include(s => s.Exercise).ThenInclude(s => s.StudentExercises).Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (result == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         return result;
     }
 
@@ -53,7 +74,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
             .Where(s => s.StudentExercise.StudentPermanentCode == studentCode && s.ExerciseId == id)
             .FirstOrDefaultAsync();
         if (result == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         return result;
     }
 
@@ -67,7 +88,7 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var score = await context.Scores.Include(x => x.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (score == null)
-            throw new NotFoundException("Aucun score trouvé");
+            throw new NotFoundException("Score introuvable");
         
         context.Entry(score).State = EntityState.Detached;
         score.StudentExerciseId = request.StudentExerciseId;
@@ -84,30 +105,24 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
     {
         var score = await context.Scores.Include(s => s.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
         if (score == null)
-            throw new NotFoundException("Score not found");
+            throw new NotFoundException("Score introuvable");
         context.Scores.Remove(score);
         context.ScoreTest.RemoveRange(score.ScoreTests);
-        await studentExerciseService.UpdateComplete((score.ExerciseId, score.StudentExerciseId));
         await context.SaveChangesAsync();
     }
     
     public async Task DeleteMultiple(DeleteMultipleDto request)
     {
         var scores = await context.Scores
-            .Include(s => s.ScoreTests).Include(score => score.StudentExercise)
+            .Include(s => s.ScoreTests)
             .Where(e => request.Ids.Contains(e.Id))
             .ToListAsync();
 
         if (scores.Count == 0)
-            throw new NotFoundException("Aucun élément à supprimer trouvé.");
+            throw new NotFoundException("Aucun élément à supprimer trouvé");
 
         context.Scores.RemoveRange(scores);
         context.ScoreTest.RemoveRange(scores.SelectMany(s => s.ScoreTests).ToList());
-        foreach (var score in scores)
-        {
-            score.StudentExercise.IsComplete = false;
-        }
-        context.StudentExercises.UpdateRange(scores.Select(s => s.StudentExercise).ToList());
         await context.SaveChangesAsync();
     }
 }

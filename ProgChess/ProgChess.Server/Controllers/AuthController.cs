@@ -23,7 +23,7 @@ public class AuthController(IAuthService _authService): ControllerBase
     public async Task<IActionResult> LoginCode(StudentCodeDto request)
     {
         await _authService.LoginCodeAsync(request, Response);
-        return Ok("Connexion réussi");
+        return Ok();
     }
 
     [HttpPost("refresh-token")]
@@ -59,7 +59,7 @@ public class AuthController(IAuthService _authService): ControllerBase
     public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
     {
         await _authService.ForgotPassword(request.Email);
-        return Ok("Courriel de vérification envoyé");
+        return Ok("Un courriel de vérification a été envoyé");
     }
 
 

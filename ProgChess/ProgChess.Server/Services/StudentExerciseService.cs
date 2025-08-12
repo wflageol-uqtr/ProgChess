@@ -74,22 +74,18 @@ public class StudentExerciseService(AppDbContext dbContext, IUserContext userCon
 
     public async Task Update(int exerciseId, List<string> permanentCodes)
     {
-        // Get student-exercise from this exercise
         var studentExerciseList = await dbContext.StudentExercises
             .Where(se => se.ExerciseId == exerciseId)
             .ToListAsync();
 
-        // All current codes in DB for this exercise
         var existingPermanentCode = studentExerciseList.Select(se => se.StudentPermanentCode).ToHashSet();
         
-        // Remove student
         var studentsToRemove = studentExerciseList
             .Where(se => !permanentCodes.Contains(se.StudentPermanentCode))
             .ToList();
         
         dbContext.StudentExercises.RemoveRange(studentsToRemove);
         
-        // Add new students that don't exist yet
         var newStudentExercises = permanentCodes
             .Where(code => !existingPermanentCode.Contains(code))
             .Select(code => new StudentExercise
@@ -106,7 +102,7 @@ public class StudentExerciseService(AppDbContext dbContext, IUserContext userCon
 
     public async Task UpdateComplete(int exerciseId, string permanentCode)
     {
-        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == exerciseId)
+        var result = await dbContext.StudentExercises.Where(se => se.ExerciseId == exerciseId && se.StudentPermanentCode == permanentCode)
             .FirstOrDefaultAsync();
         
         if (result == null)

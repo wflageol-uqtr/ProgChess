@@ -19,6 +19,12 @@ public class NodeErrorLineMapper
         CodeSection = codeSection;
     }
 
+    public NodeErrorLineMapper(string fullCode, int codeSection)
+    {
+        FullCode = fullCode;
+        CodeSection = codeSection;
+    }
+
     public int GetExecutionErrorLine(string errorMessage)
     {
         var lines = Formatter.SplitByLine(errorMessage);

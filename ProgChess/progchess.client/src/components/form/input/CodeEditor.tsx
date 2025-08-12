@@ -37,12 +37,12 @@ export default function CodeEditor({
           from: line.from,
           to: line.to,
           severity: "error",
-          message: error ?? "Erreur est survenue",
+          message: error ?? "Une erreur est survenue",
           actions: [
             {
               name: "Explain",
               apply(view, from, to) {
-                alert(error ?? "Erreur est survenue");
+                alert(error ?? "Une erreur est survenue");
               },
             },
           ],

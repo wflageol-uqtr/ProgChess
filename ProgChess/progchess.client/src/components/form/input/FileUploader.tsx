@@ -82,7 +82,7 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
             className="bg-green-500 hover:bg-green-600 cursor-pointer"
             onClick={handleFileUpload}
           >
-            Upload
+            Télécharger
           </Button>
         )}
       </div>

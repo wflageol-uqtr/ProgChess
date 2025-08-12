@@ -85,7 +85,6 @@ const AuthProvider = ({ children }: any) => {
     };
   }, []);
 
-  // En parler avec William
   const contextValue = useMemo(
     () => ({
       token,

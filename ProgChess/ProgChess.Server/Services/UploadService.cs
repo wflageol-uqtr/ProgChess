@@ -42,7 +42,7 @@ public class UploadService(AppDbContext context, IUserContext userContext): IUpl
             
         if (!File.Exists(image.Path))
         {
-            throw new NotFoundException("Image not found");
+            throw new NotFoundException("Image introuvable");
         }
         context.Images.Remove(image);
         await context.SaveChangesAsync();

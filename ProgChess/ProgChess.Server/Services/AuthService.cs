@@ -25,7 +25,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
     {
         var user = await tokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
         if (user == null)
-            throw new UnauthorizedException("Refresh token est invalide");
+            throw new UnauthorizedException("Jeton d'actualisation est invalide");
         return await CreateTokenDto(user);
     }
 
@@ -45,7 +45,7 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
             .Where(se => se.ExerciseId == request.ExerciseId && se.StudentPermanentCode == request.Code)
             .AnyAsync();
         if (!exists)
-            throw new NotFoundException("Vérification du cookie est invalide");
+            throw new NotFoundException("Aucun exercise trouvé");
     }
 
     public async Task ForgotPassword(string email)
@@ -57,9 +57,9 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var link = $"{configuration["FrontendUrl"]}/admin/reset-password?email={user.Email}&activationToken={Base64UrlEncoder.Encode(token)}";
             Console.WriteLine(link);
-            var response = await emailService.SendEmailAsync(user.Email!, "Reset Password", link);
+            var response = await emailService.SendEmailAsync(user.Email!, "Réinitialiser le mot de passe", link);
             if (!response)
-                throw new Exception("Erreur lors de l'envoie du courriel");
+                throw new Exception("Erreur lors de l'envoi du courriel");
         }
     }
 
@@ -67,11 +67,11 @@ public class AuthService(AppDbContext context, ITokenService tokenService, SignI
     {
         var user = await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
         if (user == null)
-            throw new NotFoundException("Email ou token invalide");
+            throw new NotFoundException("Email ou jeton invalide");
         var result = await userManager.ResetPasswordAsync(user, Base64UrlEncoder.Decode(request.Token), request.Password);
         result.Errors.ToList().ForEach(error => Console.WriteLine(error.Description));
         if (!result.Succeeded)
-            throw new BadRequestException("Token invalide");
+            throw new BadRequestException("Jeton invalide");
     }
 
     private async Task<TokenDto> CreateTokenDto(User user)

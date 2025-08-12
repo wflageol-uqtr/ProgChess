@@ -18,7 +18,7 @@ function Flash({ message, type }: FlashProps) {
   if (type == FlashType.ERROR) {
     return <FlashError message={message} />;
   }
-  return <>marcher !</>;
+  return <></>;
 }
 
 export default Flash;

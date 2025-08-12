@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SetStateAction } from "react";
 import api from "../utils/api";
 import { handleApiError } from "../utils/apiErrorHandler";
 import CodeEditor from "../components/form/input/CodeEditor";
@@ -11,17 +11,20 @@ import {
 
 interface ScoreProps {
   exerciseId: string | undefined;
+  onError: SetStateAction<any>;
 }
 
-export default function Score({ exerciseId }: ScoreProps) {
+export default function Score({ exerciseId, onError }: ScoreProps) {
   const [result, setResult] = useState();
 
   const getScore = async () => {
     try {
       const response = await api.get(`/api/score/${exerciseId}/student-result`);
+      console.log(response.data);
       setResult(response.data);
     } catch (error) {
       handleApiError(error);
+      onError("Erreur lors de la recherche du score");
     }
   };
 

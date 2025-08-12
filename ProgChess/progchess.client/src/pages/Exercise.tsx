@@ -47,7 +47,7 @@ export default function Exercice() {
         </div>
       ) : !error ? (
         exercise?.studentExercises[0].isComplete ? (
-          <Score exerciseId={id} />
+          <Score exerciseId={id} onError={setError} />
         ) : (
           <BadgeProvider>
             <ExerciseContent exercise={exercise} />

@@ -37,7 +37,7 @@ export function Tabs({ tabs }: TabsProps) {
 
   return (
     <>
-      <div className="flex space-x-2 mt-2 overflow-auto">
+      <div className="flex space-x-2 mt-2 overflow-x-auto md:overflow-visible">
         {tabs.map((item, i) => {
           return (
             <>
@@ -49,7 +49,7 @@ export function Tabs({ tabs }: TabsProps) {
                 showBadge={badgeTabs[`${item.id}`]}
                 resetBadge={() => removeBadge(item.id)}
               >
-                <div className="truncate overflow-hidden whitespace-nowrap w-20 md:w-full md:whitespace-normal md:overflow-visible md:truncate-0">
+                <div className="truncate overflow-auto whitespace-nowrap w-20 md:w-full md:whitespace-normal md:overflow-visible md:truncate-0">
                   {item.name}
                 </div>
               </Tab>

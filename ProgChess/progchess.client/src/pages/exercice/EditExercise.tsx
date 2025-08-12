@@ -31,6 +31,7 @@ import {
   handleExecutionError,
 } from "../../utils/apiErrorHandler";
 import ImageSelector from "../../components/form/select/ImageSelector";
+import ProgChessLoader from "../../components/loader/ProgChessLoader";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
@@ -64,7 +65,7 @@ export default function EditExercise() {
   const [isPending, startTransition] = useTransition();
   const { id } = useParams();
   const [openSheet, setOpenSheet] = useState(false);
-  // const [error, setError] = useState<string>("");
+  const [isExecuting, startExecution] = useTransition();
   const [testResult, setTestResult] = useState<TestResult[]>();
   const [errorEditor, setErrorEditor] = useState<EditorError>();
   const editorInfo: EditorInfo[] = [];
@@ -137,7 +138,7 @@ export default function EditExercise() {
 
   const executeCode = () => {
     setErrorEditor(undefined);
-    startTransition(async () => {
+    startExecution(async () => {
       try {
         const code = form.watch("baseCode");
         editorInfo.push({
@@ -263,6 +264,7 @@ export default function EditExercise() {
                 type="button"
                 className=" bg-green-500 text-white cursor-pointer hover:bg-green-600"
                 onClick={() => executeCode()}
+                disabled={isExecuting}
               >
                 Exécuter
               </Button>
@@ -279,16 +281,19 @@ export default function EditExercise() {
                 render={({ field }) => (
                   <FormItem className="h-full">
                     <FormControl>
-                      <CodeEditor
-                        value={field.value ?? ""}
-                        onChange={field.onChange}
-                        placeholder="Code de base pour la situation..."
-                        height={window.innerHeight / 2}
-                        error={form.formState.errors.baseCode}
-                        executionError={
-                          errorEditor?.id === "code" ? errorEditor : undefined
-                        }
-                      />
+                      <div className="relative">
+                        <CodeEditor
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          placeholder="Code de base pour la situation..."
+                          height={window.innerHeight / 2}
+                          error={form.formState.errors.baseCode}
+                          executionError={
+                            errorEditor?.id === "code" ? errorEditor : undefined
+                          }
+                        />
+                        {isExecuting && <ProgChessLoader />}
+                      </div>
                     </FormControl>
                   </FormItem>
                 )}

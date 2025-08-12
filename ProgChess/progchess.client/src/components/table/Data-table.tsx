@@ -77,7 +77,7 @@ export function DataTable<TData, TValue>({
       await api.delete(apiRoute, {
         data: { ids: selectedIds },
       });
-      toast.success("Les éléments ont été supprimés avec succès.");
+      toast.success("Les éléments ont été supprimés avec succès");
       navigate(0);
     } catch (error) {
       handleApiError(error);
@@ -120,7 +120,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="rounded-md border">
         <Table>
-          <TableCaption>Voici votre table de résultats.</TableCaption>
+          <TableCaption>Voici votre table de résultats</TableCaption>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -167,7 +167,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Aucun résultats.
+                  Aucun résultats
                 </TableCell>
               </TableRow>
             )}

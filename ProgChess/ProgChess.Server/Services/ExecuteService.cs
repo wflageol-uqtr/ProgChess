@@ -9,44 +9,37 @@ namespace ProgChess.Server.Services;
 public class ExecuteService: ICodeExecuterService
 {
     private readonly IExerciseService _exerciseService;
-    private readonly HttpClient _httpClient;
     private readonly HttpClient _dockerClient;
     
     public ExecuteService(IExerciseService exerciseService, IHttpClientFactory factory)
     {
         _exerciseService = exerciseService;
-        _httpClient = factory.CreateClient("VmApi");
         _dockerClient = factory.CreateClient("dockerApi");
     }
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteOnVm(string solution, string unitTest)
     {
-        var result = (await IExecutorBuilder.Create()
+        var firstExecution = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
-                .BuildCode(solution, unitTest)
-                .Execute(_httpClient))
+                .BuildCodeSample(solution)
+                .Execute(_dockerClient))
+            .SampleResult();
+
+        if (firstExecution.IsFailure)
+        {
+            throw new ExecutionErrorException( $"Error at line:{firstExecution.LineError}" + firstExecution.Error);
+        }
+        
+        var secondExecution = (await IExecutorBuilder.Create()
+                .OfType(LanguageType.Javascript)
+                .BuildFullCode(solution, unitTest)
+                .Execute(_dockerClient))
             .GenerateExecuteResult();
        
-        if (result.IsFailure) {
-            throw new ExecutionErrorException( $"Error at line:{result.LineError}" + result.Error);
+        if (secondExecution.IsFailure) {
+            throw new ExecutionErrorException( $"Error at line:{secondExecution.LineError}" + secondExecution.Error);
         }
-        return result;
-    }
-
-    public async Task<ExecuteResult<List<TestResult>>> ExecuteOnDocker(string solution, string unitTest)
-    {
-        var result = (await IExecutorBuilder.Create()
-            .OfType(LanguageType.Javascript)
-            .BuildCode(solution, unitTest)
-            .Execute(_dockerClient))
-            .GenerateExecuteResult();
-        
-        if (result.IsFailure)
-        {
-            throw new ExecutionErrorException($"Error at line:{result.LineError}\n" + result.Error);
-        }
-
-        return result;
+        return secondExecution;
     }
 
     public async Task<ExecuteResult<List<TestResult>>> ExecuteHiddenTestOnVm(string solution, int exerciseId)
@@ -57,10 +50,10 @@ public class ExecuteService: ICodeExecuterService
         
         var result = (await IExecutorBuilder.Create()
                 .OfType(LanguageType.Javascript)
-                .BuildCode(solution,  string.Join("\n", exercise.UnitTests.Where(e => !e.IsActive).Select(e => e.Code)))
-                .Execute(_httpClient))
+                .BuildFullCode(solution,  string.Join("\n", exercise.UnitTests.Where(e => !e.IsActive).Select(e => e.Code)))
+                .Execute(_dockerClient))
             .GenerateExecuteResult();
-        
+
         if (result.IsFailure) {
             throw new ExecutionErrorException(result.Error);
         }

@@ -11,7 +11,7 @@ const myEmitter = new EventEmitter();
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const MAIN_CONTANER_NAME = "/progchess_sandbox";
 const LIVING_TIME = 120 // 2 minutes
-const MAX_CONTAINER = 2;
+const MAX_CONTAINER = 4;
 const queue = [];
 
 const app = express();
@@ -147,9 +147,11 @@ async function CreateContainer(req, res) {
 
 async function processExecution(req, res) {
   const size = (await docker.listContainers({all: true})).length;
+  console.log(size);
   if (size < MAX_CONTAINER) {  
     myEmitter.emit('newContainer', req, res);
   } else {
+    console.log("Request place in queue...");
     queue.push({ req, res });
     setTimeout(() => {
       if (!res.headersSent) {

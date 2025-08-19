@@ -24,7 +24,7 @@ export default function Score({ exerciseId, onError }: ScoreProps) {
       setResult(response.data);
     } catch (error) {
       handleApiError(error);
-      onError("Erreur lors de la recherche du score");
+      onError("Erreur lors de la recherche du résultat");
     }
   };
 
@@ -47,7 +47,7 @@ export default function Score({ exerciseId, onError }: ScoreProps) {
         {result?.scoreTests?.every((test) => test.isSuccess === true) && (
           <div className="flex justify-center">
             <span className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white text-sm font-semibold rounded-full shadow-lg animate-pulse">
-              🎉 Félicitations ! Score parfait
+              🎉 Félicitations ! Résultat parfait
             </span>
           </div>
         )}

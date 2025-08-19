@@ -164,7 +164,9 @@ export default function EditScore() {
     <AdminLayout>
       <div className="h-min-screen flex flex-col w-full space-y-4 mt-4 px-4">
         <div className="flex">
-          <h2 className="text-2xl font-bold text-white">Modifier un score</h2>
+          <h2 className="text-2xl font-bold text-white">
+            Modifier un résultat
+          </h2>
         </div>
         <div className="border-b border-gray-700" />
         <Form {...form}>

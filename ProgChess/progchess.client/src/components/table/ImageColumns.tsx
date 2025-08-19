@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router";
 import api, { apiUrl } from "../../utils/api";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash } from "lucide-react";
 import type { Image } from "../../utils/type";
 
 export const ImageColumns: ColumnDef<Image>[] = [
@@ -52,7 +52,7 @@ export const ImageColumns: ColumnDef<Image>[] = [
           className="cursor-pointer"
           title="Supprimer"
         >
-          <Trash2 className="w-5 h-5 text-gray-500 hover:text-red-600 transition duration-300" />
+          <Trash className="w-5 h-5 text-red-600" />
         </button>
       );
     },

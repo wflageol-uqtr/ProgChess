@@ -113,8 +113,6 @@ export default function EditScore() {
   }, []);
 
   useEffect(() => {
-    console.log(score);
-
     if (score) {
       form.reset({
         studentExerciseId: score?.studentExerciseId,

@@ -22,7 +22,7 @@ export default function AppSidebar() {
       icon: SquareTerminal,
     },
     {
-      title: "Score",
+      title: "Résultat",
       url: "/admin/score",
       icon: NotebookPen,
     },

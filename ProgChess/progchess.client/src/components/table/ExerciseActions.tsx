@@ -1,13 +1,5 @@
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 
-import { Button } from "../../components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
 import { DeleteDialog } from "../dialog/DeleteDialog";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -19,40 +11,25 @@ interface ExerciseActionProps {
 
 export default function ExerciseAction({ id, deleteFn }: ExerciseActionProps) {
   const [openDialog, setOpenDialog] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
 
   return (
     <>
-      <DropdownMenu open={openMenu} onOpenChange={setOpenMenu}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        {openMenu && (
-          <DropdownMenuContent align="end" className="bg-zinc-900 text-white">
-            <DropdownMenuItem>
-              <Link className="flex mr-2" to={`/admin/exercise/edit/${id}`}>
-                <Pencil className="w-5 h-5 text-green-500 mr-2" />
-                <span>Modifier l'exercice</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenu(false);
-                setOpenDialog(true);
-              }}
-            >
-              <Trash className="w-5 h-5 text-red-500" />
-              <span>Supprimer l'exercice</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        )}
-      </DropdownMenu>
+      <div className="flex items-center space-x-2">
+        <Link to={`/admin/exercise/edit/${id}`}>
+          <Pencil className="w-5 h-5 text-green-500" />
+        </Link>
+
+        <button
+          type="button"
+          className="cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenDialog(true);
+          }}
+        >
+          <Trash className="w-5 h-5 text-red-500" />
+        </button>
+      </div>
       <DeleteDialog
         open={openDialog}
         message="Cette action est irréversible. Cela supprimera définitivement l'exercice ainsi que vos résultats associés. Êtes-vous sur de vouloir continuer ?"

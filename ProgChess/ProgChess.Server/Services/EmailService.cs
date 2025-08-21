@@ -12,7 +12,7 @@ public class EmailService(IConfiguration configuration): IEmailService
             var apiKey = configuration.GetValue<string>("Sendgrid:ApiKey");
             var client = new SendGridClient(apiKey);
             var sendGridMessage = MailHelper.CreateSingleEmail(
-                new EmailAddress("mathylefebvre@hotmail.com"), new EmailAddress("mathylefebvre@hotmail.com"), subject, message, BuildResetPasswordEmailHtml(message));
+                new EmailAddress("sendgrid@email.com"), new EmailAddress("email@toSend.com"), subject, message, BuildResetPasswordEmailHtml(message));
             var response = await client.SendEmailAsync(sendGridMessage);
             return response.StatusCode == System.Net.HttpStatusCode.OK ||
                    response.StatusCode == System.Net.HttpStatusCode.Accepted;

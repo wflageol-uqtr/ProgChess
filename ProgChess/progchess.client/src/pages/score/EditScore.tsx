@@ -115,7 +115,7 @@ export default function EditScore() {
   useEffect(() => {
     if (score) {
       form.reset({
-        studentExerciseId: score?.studentExercise.id,
+        studentExerciseId: score?.studentExerciseId,
         exerciseId: score?.exercise.id,
         answer: score?.answer,
         scoreTests: score?.scoreTests,

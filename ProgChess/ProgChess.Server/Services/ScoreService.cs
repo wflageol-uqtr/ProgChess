@@ -86,20 +86,45 @@ public class ScoreService(AppDbContext context, IStudentExerciseService studentE
 
     public async Task<Score> Edit(int id, ScoreDto request)
     {
-        var score = await context.Scores.Include(x => x.ScoreTests).FirstOrDefaultAsync(s => s.Id == id);
+        var score = await context.Scores
+            .Include(x => x.ScoreTests)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
         if (score == null)
             throw new NotFoundException("Résultat introuvable");
-        
-        context.Entry(score).State = EntityState.Detached;
-        score.StudentExerciseId = request.StudentExerciseId;
-        score.ExerciseId = request.ExerciseId;
-        score.Answer = request.Answer;
-        context.Scores.Update(score);
+
+        var scoreDuplication = await context.Scores
+            .Include(s => s.ScoreTests)
+            .FirstOrDefaultAsync(x => x.ExerciseId == request.ExerciseId 
+                                      && x.StudentExerciseId == request.StudentExerciseId
+                                      && x.Id != id);
+
+        if (scoreDuplication != null)
+        {
+            scoreDuplication.StudentExerciseId = request.StudentExerciseId;
+            scoreDuplication.ExerciseId = request.ExerciseId;
+            scoreDuplication.Answer = request.Answer;
+            context.Scores.Update(scoreDuplication);
+            context.Scores.Remove(score);
+            await scoreTestService.Edit(scoreDuplication, request.ScoreTests);
+        }
+        else
+        {
+            score.StudentExerciseId = request.StudentExerciseId;
+            score.ExerciseId = request.ExerciseId;
+            score.Answer = request.Answer;
+            context.Scores.Update(score);
+            await scoreTestService.Edit(score, request.ScoreTests);
+        }
+
         await context.SaveChangesAsync();
-        await studentExerciseService.UpdateComplete((request.ExerciseId, request.StudentExerciseId), request.IsComplete);
-        await scoreTestService.Edit(score, request.ScoreTests);
+        await studentExerciseService.UpdateComplete(
+            (request.ExerciseId, request.StudentExerciseId), 
+            request.IsComplete
+        );
         return score;
     }
+
 
     public async Task Delete(int id)
     {

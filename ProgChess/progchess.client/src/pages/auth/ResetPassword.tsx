@@ -27,20 +27,21 @@ const formSchema = z
     password: z
       .string()
       .min(8, {
-        message: "Le mot de passe doit être au moins 8 caractères de long",
+        message: "Le mot de passe doit comporter au moins 8 caractères",
       })
       .refine(
         (value) => {
           return /[A-Z]/.test(value);
         },
-        { message: "Le mot de passe doit contenir une majuscule" }
+        { message: "Le mot de passe doit contenir au moins une majuscule" }
       )
       .refine(
         (value) => /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(value),
-        "le mot de passe doit contenir un caractères spécial"
+        "Le mot de passe doit contenir au moins un caractère spécial"
       ),
     confirmation: z.string().min(8, {
-      message: "La confirmation doit être au moins 8 caractères de long",
+      message:
+        "La confirmation du mot de passe doit comporter au moins 8 caractères",
     }),
   })
   .refine((data) => data.password === data.confirmation, {

@@ -32,8 +32,8 @@ export default function ScoreAction({ id, deleteFn }: ScoreActionProps) {
       </div>
       <DeleteDialog
         open={openDialog}
-        message=" Cette action est irréversible. Cela supprimera définitivement
-            l'élément."
+        message="Cette action est irréversible. Cela supprimera définitivement
+            l'élément. Êtes-vous sur de vouloir continuer ?"
         onOpenChange={setOpenDialog}
         deleteFn={deleteFn}
       />

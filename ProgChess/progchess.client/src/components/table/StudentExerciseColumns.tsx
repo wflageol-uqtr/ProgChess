@@ -38,7 +38,7 @@ export const StudentExerciseColumns: ColumnDef<StudentExerciseGroup>[] = [
   },
   {
     accessorKey: "exercises",
-    header: "Exercice inscrit",
+    header: "Exercices attribués",
     cell: ({ row }) => {
       const exercises = row.getValue<[]>("exercises");
       const ids = exercises?.map((e: Exercise) => e.id).join(", ") || "";

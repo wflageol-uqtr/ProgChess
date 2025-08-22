@@ -33,10 +33,10 @@ import ProgChessLoader from "../../components/loader/ProgChessLoader";
 
 const validationSchema = z.object({
   situation: z.string().min(1, {
-    message: "Une mise en situation est requise",
+    message: "Veuillez fournir une mise en situation",
   }),
   baseCode: z.string().min(1, {
-    message: "Veuillez mettre du code de base",
+    message: "Veuillez saisir du code de base",
   }),
   unitTest: z
     .array(
@@ -47,10 +47,10 @@ const validationSchema = z.object({
         }),
       })
     )
-    .length(2, { message: "Il peut n'y avoir que 2 type de test" })
-    .nonempty({ message: "Au moins un test est requis" }),
+    .length(2, { message: "Il ne peut y avoir que deux types de test" })
+    .nonempty({ message: "Veuillez créer au moins un test" }),
   studentCodes: z.string().min(1, {
-    message: "Il doit y avoir au moins un étudiant.",
+    message: "Veuillez ajouter au moins un étudiant",
   }),
 });
 
@@ -294,7 +294,7 @@ export default function CreateExercise() {
                       />
                     </div>
                     <div className="h-full">
-                      {form.formState.errors.situation && (
+                      {form.formState.errors.unitTest && (
                         <span className="text-red-500">
                           {
                             form.formState.errors.unitTest?.[index]?.code
@@ -313,7 +313,7 @@ export default function CreateExercise() {
                                 onChange={field.onChange}
                                 placeholder={`Code de base pour les tests ${
                                   index === 0 ? "visibles" : "cachés"
-                                } ...`}
+                                }...`}
                                 height={window.innerHeight / 2}
                                 error={
                                   form.formState.errors.unitTest?.[index]?.code

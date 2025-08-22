@@ -129,7 +129,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           ...prev,
           0: true,
         }));
-        toast.success("Test exécuté");
+        toast.success("Test(s) exécuté(s) avec succès");
       } catch (error: any) {
         if (error?.status === 600) {
           const errorObj = handleExecutionError(
@@ -244,7 +244,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
             disabledSelect ? "select-none" : ""
           }`}
         >
-          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto]">
+          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto] max-w-screen overflow-x-auto">
             <div className="flex md:hidden">
               <VerticalResizable
                 height={situationHeight}

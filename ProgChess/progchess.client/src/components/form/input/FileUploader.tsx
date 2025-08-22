@@ -90,7 +90,9 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
         <Progress value={uploadProgress} className="w-[60%]" />
       )}
       {status == "success" && (
-        <p className="text-sm text-green-500">Fichier téléchargé avec succès</p>
+        <p className="text-sm text-green-500">
+          L'image a été téléchargé avec succès !
+        </p>
       )}
       {status == "error" && (
         <p className="text-sm text-red-500">Échec du téléchargement</p>

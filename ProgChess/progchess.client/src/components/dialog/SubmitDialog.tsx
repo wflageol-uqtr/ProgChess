@@ -26,7 +26,7 @@ export default function SubmitDialog({
         <DialogHeader>
           <DialogTitle className="text-white">Êtes-vous sûr ?</DialogTitle>
           <DialogDescription className="text-gray-200">
-            Une fois le code soumis, il ne sera plus possible de revenir en
+            Après la soumission du code, il ne sera plus possible de revenir en
             arrière.
           </DialogDescription>
         </DialogHeader>

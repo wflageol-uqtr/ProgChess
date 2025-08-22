@@ -187,7 +187,7 @@ export default function CreateScore() {
                             )
                           ) : (
                             <div className="text-sm p-2 text-white">
-                              Pas d'étudiant associé
+                              Aucun étudiant associé
                             </div>
                           )}
                         </SelectContent>
@@ -228,7 +228,7 @@ export default function CreateScore() {
             <div className="border-b border-gray-700" />
             <div className="flex justify-between items-center">
               <h3 className="text-lg md:text-xl font-semibold mb-2">
-                Test du score
+                Score obtenu au test
               </h3>
               <Button
                 type="button"

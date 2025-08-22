@@ -30,6 +30,6 @@ public class UploadController(IUploadService uploadService): ControllerBase
     public async Task<IActionResult> DeleteFile(int id)
     {
         await uploadService.Delete(id);
-        return Ok();
+        return Ok("Image supprimé avec succès !");
     }
 }

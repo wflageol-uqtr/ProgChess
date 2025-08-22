@@ -10,7 +10,7 @@ export default function Logout() {
       localStorage.removeItem("refreshToken");
       navigate("/admin/login");
     } catch (error) {
-      throw Error("Une erreur est arriv. lors de la deconnexion");
+      throw Error("Une erreur est survenue lors de la déconnexion");
     }
   };
 

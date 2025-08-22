@@ -59,7 +59,7 @@ export default function TestCaseCard({
           {executionError ? (
             <>
               <h3 className="text-lg font-semibold text-red-500 mb-2">
-                Erreur lors de l'exécution
+                Une erreur est survenue lors de l’exécution
               </h3>
               <p className="text-sm text-red-600 leading-relaxed">
                 {executionError?.error ?? ""}
@@ -67,7 +67,7 @@ export default function TestCaseCard({
             </>
           ) : (
             <div className="flex w-full h-64 justify-center items-center text-zinc-400">
-              Exécuter les tests pour voir une sortie
+              Exécuter les tests pour afficher la sortie.
             </div>
           )}
         </>
@@ -81,7 +81,7 @@ export default function TestCaseCard({
         <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
           <div className="flex gap-2 items-center">
             <PanelRightClose className="text-green-500" />
-            <h4 className="font-semibold text-xl">Résultats des tests</h4>
+            <h4 className="font-semibold text-xl">Sortie des tests</h4>
           </div>
           <div>
             <Button
@@ -101,7 +101,7 @@ export default function TestCaseCard({
       </div>
       <DeleteDialog
         open={openDeleteDialog}
-        message="Cette action est irréversible. Les tests unitaire que vous avez jusqu'à présent sera perdu."
+        message="Cette action est irréversible. Les tests unitaires que vous avez effectués jusqu’à présent seront perdus."
         onOpenChange={setOpenDeleteDialog}
         deleteFn={() => {
           reinitializeFn();

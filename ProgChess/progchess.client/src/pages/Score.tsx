@@ -20,7 +20,6 @@ export default function Score({ exerciseId, onError }: ScoreProps) {
   const getScore = async () => {
     try {
       const response = await api.get(`/api/score/${exerciseId}/student-result`);
-      console.log(response.data);
       setResult(response.data);
     } catch (error) {
       handleApiError(error);

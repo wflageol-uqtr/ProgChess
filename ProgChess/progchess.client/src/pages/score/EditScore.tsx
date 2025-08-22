@@ -264,7 +264,9 @@ export default function EditScore() {
             <div className="border-b border-gray-700" />
 
             <div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Score</h3>
+              <h3 className="text-lg md:text-xl font-semibold mb-2">
+                Résultat
+              </h3>
               <FormField
                 control={form.control}
                 name="isComplete"
@@ -289,7 +291,7 @@ export default function EditScore() {
             <div className="border-b border-gray-700" />
             <div className="flex justify-between items-center">
               <h3 className="text-lg md:text-xl font-semibold mb-2">
-                Test du score
+                Score obtenu au test
               </h3>
               <Button
                 type="button"

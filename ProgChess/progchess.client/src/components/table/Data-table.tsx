@@ -77,7 +77,7 @@ export function DataTable<TData, TValue>({
       await api.delete(apiRoute, {
         data: { ids: selectedIds },
       });
-      toast.success("Les éléments ont été supprimés avec succès");
+      toast.success("Les éléments ont été supprimés avec succès !");
       navigate(0);
     } catch (error) {
       handleApiError(error);
@@ -167,7 +167,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Aucun résultats
+                  Aucun résultat
                 </TableCell>
               </TableRow>
             )}
@@ -196,9 +196,7 @@ export function DataTable<TData, TValue>({
       </div>
       <DeleteDialog
         open={openDialog}
-        message={
-          "Souhaitez-vous vraiment supprimer les éléments sélectionnés ?"
-        }
+        message={"Voulez-vous vraiment supprimer les éléments sélectionnés ?"}
         onOpenChange={setOpenDialog}
         deleteFn={deleteMultiple}
       />

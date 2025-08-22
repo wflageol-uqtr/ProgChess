@@ -25,7 +25,7 @@ export default function ExecutableCard({
   return (
     <>
       <div className="bg-zinc-800 rounded-2xl h-full w-full flex flex-col overflow-hidden">
-        <div className="flex justify-between w-full p-2 items-center bg-zinc-700 rounded-t-2xl">
+        <div className="flex justify-between w-full p-2 gap-2 items-center bg-zinc-700 rounded-t-2xl">
           <div className="flex gap-2 items-center">
             <Icon className="text-green-500" />
             <h4 className="font-semibold text-xl">{title}</h4>
@@ -57,7 +57,7 @@ export default function ExecutableCard({
       </div>
       <DeleteDialog
         open={openDeleteDialog}
-        message="Cette action est irréversible. Le code que vous avez jusqu'à présent sera perdu."
+        message="Cette action est irréversible. Le code que vous avez écrit jusqu’à présent sera perdu."
         onOpenChange={setOpenDeleteDialog}
         deleteFn={() => {
           reinitializeFn();

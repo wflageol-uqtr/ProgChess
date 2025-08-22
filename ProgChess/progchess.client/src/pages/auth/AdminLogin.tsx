@@ -24,9 +24,9 @@ import { apiUrl } from "../../utils/api";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Le courriel est invalide" }),
-  password: z
-    .string()
-    .min(6, { message: "Mot de passe doit être 6 caractères" }),
+  password: z.string().min(6, {
+    message: "Le mot de passe doit comporter au moins 6 caractères",
+  }),
 });
 
 function AdminLogin() {

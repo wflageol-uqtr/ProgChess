@@ -110,7 +110,7 @@ export default function TestResultPanel({
             </div>
           ) : (
             <div className="flex w-full h-64 justify-center items-center text-zinc-400">
-              Exécuter les tests pour voir une sortie
+              Exécuter les tests pour afficher la sortie.
             </div>
           )}
         </>

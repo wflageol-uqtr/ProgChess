@@ -129,7 +129,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           ...prev,
           0: true,
         }));
-        toast.success("Test exécuté");
+        toast.success("Test(s) exécuté(s) avec succès");
       } catch (error: any) {
         if (error?.status === 600) {
           const errorObj = handleExecutionError(
@@ -151,6 +151,8 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
 
   const submitCode = async () => {
     startTransition(async () => {
+      setExecutionError("");
+      setErrorEditor(undefined);
       try {
         await axios.post(
           `${apiUrl}/api/execute/submit`,
@@ -161,8 +163,23 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
           { withCredentials: true }
         );
         navigate(0);
-      } catch (error) {
+      } catch (error: any) {
         handleApiError(error);
+        if (error?.status === 600) {
+          const errorObj = handleExecutionError(
+            editorInfo,
+            error.response?.data?.detail
+          );
+          setErrorEditor(errorObj);
+          handleApiError(error, setExecutionError);
+          setBadgeTabs((prev: any) => ({
+            ...prev,
+            2: true,
+          }));
+          setOpenSubmitDialog(false);
+          return;
+        }
+        handleApiError(error, setExecutionError);
       }
     });
   };
@@ -227,7 +244,7 @@ export default function ExerciseContent({ exercise }: ExerciseContentProps) {
             disabledSelect ? "select-none" : ""
           }`}
         >
-          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto]">
+          <div className="grid grid-cols-1 md:grid-cols-[min-content_auto] max-w-screen overflow-x-auto">
             <div className="flex md:hidden">
               <VerticalResizable
                 height={situationHeight}

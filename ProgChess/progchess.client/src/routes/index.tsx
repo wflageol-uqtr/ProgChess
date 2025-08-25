@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import ProtectedRoute from "../components/ProtectedRoute";
 import StudentLogin from "../pages/auth/StudentLogin";
 import AdminLogin from "../pages/auth/AdminLogin";
@@ -24,6 +24,10 @@ export default function Routes() {
       path: "/",
       errorElement: <ErrorPage />,
       children: [
+        {
+          index: true, // dit que le path "/" va sur le login admin, pas safe !
+          element: <Navigate to="/admin/login" replace />,
+        },
         {
           path: "/login/:id",
           element: <StudentLogin />,

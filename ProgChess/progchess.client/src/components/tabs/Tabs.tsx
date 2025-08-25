@@ -37,7 +37,7 @@ export function Tabs({ tabs }: TabsProps) {
 
   return (
     <>
-      <div className="flex space-x-2 mt-2 overflow-x-auto">
+      <div className="flex space-x-2 mt-2 overflow-x-auto md:overflow-visible">
         {tabs.map((item, i) => {
           return (
             <>

@@ -19,6 +19,18 @@ var sendGridMessage = MailHelper.CreateSingleEmail(
 new EmailAddress("sendgrid@email.com"), new EmailAddress("email@toSend.com"), subject, message, BuildResetPasswordEmailHtml(message));
 ```
 
+## Version Node 23
+
+Le parser, qui s’occupe de traiter la sortie renvoyée par notre sandbox, fonctionne principalement avec les versions récentes de Node.js. En effet, il analyse les caractères de sortie ; ainsi, avec une version plus ancienne de Node (par exemple, la commande OK mon_test ne retournerait rien), alors qu’avec Node 23, cela renvoie entre ✅ mon_test.
+
+## Erreur d'overflow sur Sortie des tests
+
+Quand on réduit beaucoup la section Sortie de tests, c'est comme si les Tabs dépasse. Si on mets un overflow-x-auto, notre badge est maintenant coupé.
+
+## Responsive sur Ipad
+
+Le système semble plutôt bien adapté pour les téléphones, mais ça ne semble pas le cas avec les tablettes. Quand on regarde dans le simulateur du browser, le layout est bizarre.
+
 ## Impossible de soummettre du code qui compile pas
 
 J'ignore si c'est un bug, mais on ne peut pas soummettre du code qui ne compile pas, le sandbox retourne un erreur afficher dans le UI.

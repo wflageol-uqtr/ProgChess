@@ -31,6 +31,10 @@ Quand on réduit beaucoup la section Sortie de tests, c'est comme si les Tabs d�
 
 Le système semble plutôt bien adapté pour les téléphones, mais ça ne semble pas le cas avec les tablettes. Quand on regarde dans le simulateur du browser, le layout est bizarre.
 
+## Aucune déconnexion/suppression de cookie
+
+Il y a une meilleure façon de faire l'élément suivant, si nous possèdons un cookie d'un étudiant dans le browser, et nous tentons d'accéder à un exercice que nous n'avons pas accès, une page d'erreur 404 est retourné. Sauf que, si on voudrait se reconnecter sur un ordinateur ayant déjà un cookie, il faut aller le delete manuellement. Comportement voulu ou juste faire un bouton qui delete et retourne au login ?
+
 ## Impossible de soummettre du code qui compile pas
 
 J'ignore si c'est un bug, mais on ne peut pas soummettre du code qui ne compile pas, le sandbox retourne un erreur afficher dans le UI.

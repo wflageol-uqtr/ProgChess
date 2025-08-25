@@ -19,10 +19,6 @@ var sendGridMessage = MailHelper.CreateSingleEmail(
 new EmailAddress("sendgrid@email.com"), new EmailAddress("email@toSend.com"), subject, message, BuildResetPasswordEmailHtml(message));
 ```
 
-## Problème de refresh token
-
-Je crois comprendre quel est le problème avec le refresh token. Ce qui se passe, **je pense**, c’est que, comme j’utilise la variable *api*, j’ai un interceptor dessus qui vérifie si l’erreur est « unauthorized ». Mon */exercice*, par exemple, est unauthorized, tout comme mon */verify-token* dans authProvider.ts, ce qui fait que le refresh de mon token est appelé deux fois.
-
 ## Impossible de soummettre du code qui compile pas
 
 J'ignore si c'est un bug, mais on ne peut pas soummettre du code qui ne compile pas, le sandbox retourne un erreur afficher dans le UI.

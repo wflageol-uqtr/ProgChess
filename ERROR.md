@@ -23,10 +23,6 @@ new EmailAddress("sendgrid@email.com"), new EmailAddress("email@toSend.com"), su
 
 J'ignore si c'est un bug, mais on ne peut pas soummettre du code qui ne compile pas, le sandbox retourne un erreur afficher dans le UI.
 
-## JWT Refresh Token
-
-J'ignore pourquoi, mais desfois le backend à de la difficulté à refaire le refresh token. J'ai tenté de trouver mais quand on est actif dans l'app il marche. Quand ca fait longtemps pas tout le temps.
-
 ## Problème avec StudentExercise
 
 Il peut arriver le cas suivant dans l'application, en supprimer le résultat d'un étudiant alors que celui-ci à le flag isComplete à true. Il ne pourrait pas refaire l'exercice. Il faut soit aller set le flag à false manuellement dans la base de données. Sinon, supprimer et remmettre l'étudiant.
